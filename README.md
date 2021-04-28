@@ -13,6 +13,6 @@ This repository supports the Core64 Kit starting with the Beta Kit (Hardware Ver
 
 # Hardware Version History (latest on top)
 
-v0.5 Triple Board (added custom LED Matrix) - Beta Test Kits. Beta Kit Repo at https://github.com/ageppert/Core64/
+v0.5 Triple Board (added custom LED Matrix) - Beta Test Kits. Associated Firmware Release https://github.com/ageppert/Core64/releases/tag/V0.5-Beta-Kit-Release-Demo
 
 <img src="Images/Core64v0.5_Completed_Beta_Kit.JPG" height="300">
