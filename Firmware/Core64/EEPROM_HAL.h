@@ -34,8 +34,8 @@ uint8_t EEPROMExtReadBornOnYear();
 uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
 byte EEPROMExtDefaultReadByte(uint8_t eeaddress); 
-uint8_t EEPROMExtReadCorePatternAlignment();
-void EEPROMExtWriteCorePatternAlignment(uint8_t value);
+uint8_t EEPROMExtReadCorePatternArrangement();
+void EEPROMExtWriteCorePatternArrangement(uint8_t value);
 
 //#ifdef __cplusplus
 //} // extern "C"

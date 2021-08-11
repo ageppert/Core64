@@ -11,23 +11,23 @@
 #include "I2C_Manager.h"
 #include "EEPROM_HAL.h"
 
-enum CorePatternAlignment
+enum CorePatternArrangement
 {
-     CORE_ALIGNMENT_UNDEFINED = 0,
+     CORE_ARRANGEMENT_UNDEFINED = 0,
 /*   If the outer corners of the core plane cores are arranged like this
      / \
      \ /
-     Use CORE_ALIGNMENT_NORMAL (Default)                                       
+     Use CORE_ARRANGEMENT_NORMAL (Default)                                       
 */
-     CORE_ALIGNMENT_NORMAL = 1,
+     CORE_ARRANGEMENT_NORMAL = 1,
 /*   If the outer corners of the core plane cores are arranged like this:
      \ /
      / \
-     Use CORE_ALIGNMENT_OPPOSITE
+     Use CORE_ARRANGEMENT_OPPOSITE
 */
-     CORE_ALIGNMENT_OPPOSITE = 2,
+     CORE_ARRANGEMENT_OPPOSITE = 2,
 };
-static uint8_t CorePatternAlignment = CORE_ALIGNMENT_NORMAL;  // Default Core Pattern Arrangement. Updateable from serial port and EEPROM.
+static uint8_t CorePatternArrangement = CORE_ARRANGEMENT_NORMAL;  // Default Core Pattern Arrangement. Updateable from serial port and EEPROM.
 
 // Array from 1-20 with MCU pin # associated to verbose transitor drive line name. Ex: PIN_MATRIX_DRIVE_Q1P
 // Array position number 0 is not used in the matrix pin numbering
@@ -349,16 +349,16 @@ void Core_Driver_Setup() {
     #endif
 
     Serial.println();
-    Serial.println("Core Pattern Alignment. 1=Normal. 2=Opposite.");
+    Serial.println("Core Pattern Arrangement. 1=Normal. 2=Opposite.");
     Serial.print("     Firmware default: ");
-    Serial.println(CorePatternAlignment);
-    CorePatternAlignment = EEPROMExtReadCorePatternAlignment();
+    Serial.println(CorePatternArrangement);
+    CorePatternArrangement = EEPROMExtReadCorePatternArrangement();
     Serial.print("     EEPROM setting: ");
-    Serial.print(CorePatternAlignment);
+    Serial.print(CorePatternArrangement);
     Serial.println(" will be used.");
  
-    // If the Core Pattern Alignment is opposite, swap the pin matrix drive values between bits 0-31 with 32-63
-    if(CorePatternAlignment == CORE_ALIGNMENT_OPPOSITE) {
+    // If the Core Pattern Arrangement is opposite, swap the pin matrix drive values between bits 0-31 with 32-63
+    if(CorePatternArrangement == CORE_ARRANGEMENT_OPPOSITE) {
       uint8_t temp[1];
       for (uint8_t i = 0; i <= 31; i++) {
         temp[0] = CMMDSetRowByBit[i][0];

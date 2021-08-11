@@ -107,13 +107,13 @@ uint8_t EEPROMExtReadBornOnDay() {
   return (EEPROMExtReadByte(EEPROM_ADDRESS, 8));
 }
 
-uint8_t EEPROMExtReadCorePatternAlignment() {
+uint8_t EEPROMExtReadCorePatternArrangement() {
   // If this values reads as 0, change it from that undefined value to a default value of 1.
   if (EEPROMExtReadByte(EEPROM_ADDRESS, 52) == 0) {
     EEPROMExtWriteByte(EEPROM_ADDRESS, 52, 1);
   }
   return (EEPROMExtReadByte(EEPROM_ADDRESS, 52));
 }
-void EEPROMExtWriteCorePatternAlignment(uint8_t value) {
+void EEPROMExtWriteCorePatternArrangement(uint8_t value) {
   EEPROMExtWriteByte(EEPROM_ADDRESS, 52, value);
 }

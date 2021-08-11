@@ -158,7 +158,7 @@ void setup() {
     commandLine.add("help", handleHelp);
     commandLine.add("coretest", handleCoreTest);
     commandLine.add("stream", handleStream);
-    commandLine.add("alignment", handleAlignment);
+    commandLine.add("arrangement", handleArrangement);
     commandLine.add("reboot", handleReboot);
     commandLine.add("info", handleInfo);
     Serial.print(PROMPT);
@@ -551,16 +551,16 @@ void CheckForSerialCommand() {
   void handleHelp(char* tokens)
   {
     Serial.println("  ----- HELP MENU -----");
-    Serial.println("  state                // Query or set TopLevelState.");
+    Serial.println("  arrangement            // Query EEPROM for core arrangement value.");
+    Serial.println("  arrangement normal     // Set EEPROM for core arrangement normal. Requires reboot.");
+    Serial.println("  arrangement opposite   // Set EEPROM for core arrangement opposite.");
+    Serial.println("  coretest             // Test one core.");
     Serial.println("  info                 // Query hardware and firmware info.");
+    Serial.println("  reboot               // Software reboot.");
+    Serial.println("  state                // Query or set TopLevelState.");
     Serial.println("  stream               // Togggles the streaming mode.");
     Serial.println("  stream start         // Starts the streaming mode.");
     Serial.println("  stream stop          // Stops the streaming mode.");
-    Serial.println("  coretest             // Test one core.");
-    Serial.println("  alignment            // Query EEPROM for core alignment value.");
-    Serial.println("  alignment normal     // Set EEPROM for core alignment normal. Requires reboot.");
-    Serial.println("  alignment opposite   // Set EEPROM for core alignment opposite.");
-    Serial.println("  reboot               // Software reboot.");
   }
 
   void handleCoreTest(char* tokens)
@@ -603,25 +603,25 @@ void CheckForSerialCommand() {
     }
   }
 
-  void handleAlignment(char* tokens)
+  void handleArrangement(char* tokens)
   {
     char* token = strtok(NULL, " ");
-    Serial.print("  Core Alignment EEPROM value ");
+    Serial.print("  Core arrangement EEPROM value ");
     if (token == NULL)
     {
         Serial.print("is ");
-        Serial.println(EEPROMExtReadCorePatternAlignment());
+        Serial.println(EEPROMExtReadCorePatternArrangement());
     }
     else if(strcmp(token,"normal") == 0)
     {
       Serial.println("  set to (1) normal. Requires reboot.");
-      EEPROMExtWriteCorePatternAlignment(1);
+      EEPROMExtWriteCorePatternArrangement(1);
       CoreSetup();
     }
     else if(strcmp(token,"opposite") == 0)
     {
       Serial.println("  set to (2) opposite.");
-      EEPROMExtWriteCorePatternAlignment(2);
+      EEPROMExtWriteCorePatternArrangement(2);
       CoreSetup();        
     }
     else
