@@ -33,6 +33,7 @@ uint32_t EEPROMExtReadSerialNumber();
 uint8_t EEPROMExtReadBornOnYear();
 uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
+byte EEPROMExtDefaultReadByte(uint8_t eeaddress); 
 uint8_t EEPROMExtReadCorePatternAlignment();
 void EEPROMExtWriteCorePatternAlignment(uint8_t value);
 

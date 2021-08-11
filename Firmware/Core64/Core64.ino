@@ -68,8 +68,6 @@
   int StreamEnable = 0;
   // CommandLine instance.
   CommandLine commandLine(Serial, PROMPT);
-  // Commands are simple structures that can be.
-  Command state = Command("state", &handleState);
 
 uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 bool TopLevelStateChanged = false;
@@ -154,13 +152,15 @@ void setup() {
   Neon_Pixel_Array_Init();
   // CommandLineSetup();
     // Pre-defined commands
-    commandLine.add(state);
+
     // On-the-fly commands -- instance is allocated dynamically
+    commandLine.add("state", &handleState);
     commandLine.add("help", handleHelp);
     commandLine.add("coretest", handleCoreTest);
     commandLine.add("stream", handleStream);
     commandLine.add("alignment", handleAlignment);
     commandLine.add("reboot", handleReboot);
+    commandLine.add("info", handleInfo);
     Serial.print(PROMPT);
 }
 
@@ -344,7 +344,8 @@ void loop() {
     break;
 
   case STATE_TEST_EEPROM: // 
-    value = EEPROM_Hardware_Version_Read(a);
+    // value = EEPROM_Hardware_Version_Read(a);  // Teensy internal emulated EEPROM
+    value = EEPROMExtDefaultReadByte(a);
     Serial.print(a);
     Serial.print("\t");
     Serial.print(value);
@@ -549,8 +550,9 @@ void CheckForSerialCommand() {
    */
   void handleHelp(char* tokens)
   {
-    Serial.println("  HELP MENU");
+    Serial.println("  ----- HELP MENU -----");
     Serial.println("  state                // Query or set TopLevelState.");
+    Serial.println("  info                 // Query hardware and firmware info.");
     Serial.println("  stream               // Togggles the streaming mode.");
     Serial.println("  stream start         // Starts the streaming mode.");
     Serial.println("  stream stop          // Stops the streaming mode.");
@@ -635,3 +637,25 @@ void CheckForSerialCommand() {
     CPU_RESTART; // Teensy 3.2       
   }
 
+  void handleInfo(char* tokens)
+  {
+    DetectHardwareVersion();
+    SerialNumber = EEPROMExtReadSerialNumber();
+    Serial.print("Hardware Version: ");
+    Serial.print(HardwareVersionMajor);
+    Serial.print(".");
+    Serial.print(HardwareVersionMinor);
+    Serial.print(".");
+    Serial.println(HardwareVersionPatch);
+    Serial.print("Serial Number: ");
+    Serial.println(SerialNumber);
+    Serial.print("Born on: 20");
+    Serial.print(EEPROMExtReadBornOnYear());
+    Serial.print("-");
+    Serial.print(EEPROMExtReadBornOnMonth());
+    Serial.print("-");
+    Serial.println(EEPROMExtReadBornOnDay());    
+    Serial.print("Firmware Version: ");
+    Serial.println(FIRMWAREVERSION);
+    Serial.println();
+  }

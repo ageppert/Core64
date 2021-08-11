@@ -60,6 +60,18 @@ byte EEPROMExtReadByte(int deviceaddress, unsigned int eeaddress )
   return rdata;
 }
 
+byte EEPROMExtDefaultReadByte(uint8_t eeaddress ) 
+{
+  uint8_t deviceaddress = EEPROM_ADDRESS;
+  byte rdata = 0xFF;
+  Wire.beginTransmission(deviceaddress);
+  Wire.write((int)(eeaddress));
+  Wire.endTransmission();
+  Wire.requestFrom(deviceaddress,1);
+  if (Wire.available()) rdata = Wire.read();
+  return rdata;
+}
+
 uint8_t EEPROMExtReadHardwareVersionMajor() {
   return (EEPROMExtReadByte(EEPROM_ADDRESS, 9));
 }
