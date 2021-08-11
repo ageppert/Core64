@@ -552,8 +552,8 @@ void CheckForSerialCommand() {
   {
     Serial.println("  ----- HELP MENU -----");
     Serial.println("  arrangement            // Query EEPROM for core arrangement value.");
-    Serial.println("  arrangement normal     // Set EEPROM for core arrangement normal. Requires reboot.");
-    Serial.println("  arrangement opposite   // Set EEPROM for core arrangement opposite.");
+    Serial.println("  arrangement normal     // Set EEPROM for core arrangement normal / \\. Requires reboot.");
+    Serial.println("  arrangement opposite   // Set EEPROM for core arrangement opposite \\ /.");
     Serial.println("  coretest             // Test one core.");
     Serial.println("  info                 // Query hardware and firmware info.");
     Serial.println("  reboot               // Software reboot.");
