@@ -34,6 +34,7 @@ uint8_t EEPROMExtReadBornOnYear();
 uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
 uint8_t EEPROMExtReadCorePatternAlignment();
+void EEPROMExtWriteCorePatternAlignment(uint8_t value);
 
 //#ifdef __cplusplus
 //} // extern "C"

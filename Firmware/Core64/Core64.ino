@@ -56,9 +56,20 @@
 #include "I2C_Manager.h"
 #include "SD_Card_Manager.h"
 #include "Ambient_Light_Sensor.h"
-
+#include "src/CommandLine/CommandLine.h"
+  #define PROMPT "Core64> "
 #include "Core_Driver.h"
+#define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C                // Teensy 3.2
+#define CPU_RESTART_VAL 0x5FA0004                              // Teensy 3.2
+#define CPU_RESTART (*CPU_RESTART_ADDR = CPU_RESTART_VAL);     // Teensy 3.2
 // #define DEBUG 1
+
+// Command Line Stuff:
+  int StreamEnable = 0;
+  // CommandLine instance.
+  CommandLine commandLine(Serial, PROMPT);
+  // Commands are simple structures that can be.
+  Command state = Command("state", &handleState);
 
 uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 bool TopLevelStateChanged = false;
@@ -141,6 +152,16 @@ void setup() {
   SDCardSetup();
   AmbientLightSetup();
   Neon_Pixel_Array_Init();
+  // CommandLineSetup();
+    // Pre-defined commands
+    commandLine.add(state);
+    // On-the-fly commands -- instance is allocated dynamically
+    commandLine.add("help", handleHelp);
+    commandLine.add("coretest", handleCoreTest);
+    commandLine.add("stream", handleStream);
+    commandLine.add("alignment", handleAlignment);
+    commandLine.add("reboot", handleReboot);
+    Serial.print(PROMPT);
 }
 
 /*                      
@@ -163,7 +184,12 @@ void loop() {
   AnalogUpdate();
   AmbientLightUpdate();
   SDCardVoltageLog(1000);
-  CheckForSerialCommand();        // Press "c" to test core write and read
+  // CheckForSerialCommand();        // Press "c" to test core write and read
+  commandLine.update();
+  if (StreamEnable)
+  {
+    Serial.println(TopLevelState);
+  }
   #ifdef DEBUG
     Serial.println("DEBUG enabled."); // Need to abstract this debug stuff
   #endif
@@ -445,6 +471,7 @@ void coreTesting() {
   if (c == 64) {c=0;}
   */
   // Read testing
+  delay(1000);
   Core_Mem_Bit_Write(BitToTest,1);
   LED_Array_String_Write(BitToTest,1);
   LED_Array_String_Display();
@@ -495,3 +522,116 @@ void CheckForSerialCommand() {
     }
   }
 }
+
+// Command Line Stuff. Sure would be nice to put this in a seperate file.
+
+  /**
+   * Handle the count command. The command has one additional argument that can be the integer to set the count to.
+   *
+   * @param tokens The rest of the input command.
+   */
+  void handleState(char* tokens)
+  {
+    char* token = strtok(NULL, " ");
+
+    if (token != NULL) {
+      TopLevelState = atoi(token);
+      TopLevelStateChanged = true;
+    } 
+    Serial.print("Top Level State is: ");
+    Serial.println(TopLevelState);
+  }
+
+  /**
+   * Print some help.
+   *
+   * @param tokens The rest of the input command.
+   */
+  void handleHelp(char* tokens)
+  {
+    Serial.println("  HELP MENU");
+    Serial.println("  state                // Query or set TopLevelState.");
+    Serial.println("  stream               // Togggles the streaming mode.");
+    Serial.println("  stream start         // Starts the streaming mode.");
+    Serial.println("  stream stop          // Stops the streaming mode.");
+    Serial.println("  coretest             // Test one core.");
+    Serial.println("  alignment            // Query EEPROM for core alignment value.");
+    Serial.println("  alignment normal     // Set EEPROM for core alignment normal. Requires reboot.");
+    Serial.println("  alignment opposite   // Set EEPROM for core alignment opposite.");
+    Serial.println("  reboot               // Software reboot.");
+  }
+
+  void handleCoreTest(char* tokens)
+  {
+    Serial.println(" Core Test");
+    coreTesting();
+  }
+
+  /*
+  Notes:
+    In order to compare the token string to a text string, the "compareTo" function does not work
+      if (token.compareTo("text") == 0 )
+    Instead, use "strcmp"
+      if (strcmp(token,"text") == 0 )
+    Because nameBuffer cannot be accessed with a . operator. See https://stackoverflow.com/questions/27689345/request-for-member-compareto-in-chararraybuffer-which-is-of-non-class-type-c
+  */
+
+  void handleStream(char* tokens)
+  {
+    char* token = strtok(NULL, " ");
+    Serial.print("Stream ");
+    if (token == NULL)
+    {
+        Serial.println("toggled.");
+        StreamEnable = !StreamEnable ;
+    }
+    else if(strcmp(token,"start") == 0)
+    {
+        Serial.println("started.");
+        StreamEnable = 1 ;
+    }
+    else if(strcmp(token,"stop") == 0)
+    {
+        Serial.println("stopped.");
+        StreamEnable = 0 ;
+    }
+    else
+    {
+        Serial.println("invalid token.");    
+    }
+  }
+
+  void handleAlignment(char* tokens)
+  {
+    char* token = strtok(NULL, " ");
+    Serial.print("  Core Alignment EEPROM value ");
+    if (token == NULL)
+    {
+        Serial.print("is ");
+        Serial.println(EEPROMExtReadCorePatternAlignment());
+    }
+    else if(strcmp(token,"normal") == 0)
+    {
+      Serial.println("  set to (1) normal. Requires reboot.");
+      EEPROMExtWriteCorePatternAlignment(1);
+      CoreSetup();
+    }
+    else if(strcmp(token,"opposite") == 0)
+    {
+      Serial.println("  set to (2) opposite.");
+      EEPROMExtWriteCorePatternAlignment(2);
+      CoreSetup();        
+    }
+    else
+    {
+      Serial.println("  invalid token.");    
+    }
+  }
+
+  void handleReboot(char* tokens)
+  {
+    Serial.println(" SOFTWARE INITIATED REBOOT NOW!");
+    delay(1000);
+    CPU_RESTART; // Teensy 3.2       
+  }
+

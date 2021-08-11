@@ -102,3 +102,6 @@ uint8_t EEPROMExtReadCorePatternAlignment() {
   }
   return (EEPROMExtReadByte(EEPROM_ADDRESS, 52));
 }
+void EEPROMExtWriteCorePatternAlignment(uint8_t value) {
+  EEPROMExtWriteByte(EEPROM_ADDRESS, 52, value);
+}
