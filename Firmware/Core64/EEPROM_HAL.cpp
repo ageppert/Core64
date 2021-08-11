@@ -40,8 +40,7 @@ uint8_t EEPROM_Hardware_Version_Read(uint8_t address) {
   }
 }
 
-/*
-void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, byte data ) 
+void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, uint8_t data ) 
 {
   Wire.beginTransmission(deviceaddress);
   Wire.write((int)(eeaddress));
@@ -49,7 +48,6 @@ void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, byte data )
   Wire.endTransmission();
   delay(MAX_WRITE_TIME_MS);
 }
-*/
 
 byte EEPROMExtReadByte(int deviceaddress, unsigned int eeaddress ) 
 {
@@ -97,3 +95,10 @@ uint8_t EEPROMExtReadBornOnDay() {
   return (EEPROMExtReadByte(EEPROM_ADDRESS, 8));
 }
 
+uint8_t EEPROMExtReadCorePatternAlignment() {
+  // If this values reads as 0, change it from that undefined value to a default value of 1.
+  if (EEPROMExtReadByte(EEPROM_ADDRESS, 52) == 0) {
+    EEPROMExtWriteByte(EEPROM_ADDRESS, 52, 1);
+  }
+  return (EEPROMExtReadByte(EEPROM_ADDRESS, 52));
+}

@@ -9,19 +9,25 @@
 #include "Core_Driver.h"
 #include "HardwareIOMap.h"
 #include "I2C_Manager.h"
+#include "EEPROM_HAL.h"
 
-/* If the outer corners of the core plane cores are arranged like this:
-    / \
-    \ /
-   Use CORE_ALIGNMENT_NORMAL
+enum CorePatternAlignment
+{
+     CORE_ALIGNMENT_UNDEFINED = 0,
+/*   If the outer corners of the core plane cores are arranged like this
+     / \
+     \ /
+     Use CORE_ALIGNMENT_NORMAL (Default)                                       
 */
-// #define CORE_ALIGNMENT_NORMAL
-/* If the outer corners of the core plane cores are arranged like this:
-    \ /
-    / \
-   Use CORE_ALIGNMENT_OPPOSITE
+     CORE_ALIGNMENT_NORMAL = 1,
+/*   If the outer corners of the core plane cores are arranged like this:
+     \ /
+     / \
+     Use CORE_ALIGNMENT_OPPOSITE
 */
-#define CORE_ALIGNMENT_OPPOSITE
+     CORE_ALIGNMENT_OPPOSITE = 2,
+};
+static uint8_t CorePatternAlignment = CORE_ALIGNMENT_NORMAL;  // Default Core Pattern Arrangement. Updateable from serial port and EEPROM.
 
 // Array from 1-20 with MCU pin # associated to verbose transitor drive line name. Ex: PIN_MATRIX_DRIVE_Q1P
 // Array position number 0 is not used in the matrix pin numbering
@@ -98,88 +104,6 @@ const bool CorePlaneAddr[9][3] = {
   { 1,1,1 }   // Plane 8     
 };
 
-void Core_Driver_Setup() {
-    pinMode(Pin_Sense_Pulse, INPUT_PULLUP);
-    pinMode(Pin_Sense_Reset, OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q1P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q1N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q2P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q2N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q3P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q3N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q4P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q4N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q5P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q5N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q6P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q6N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q7P,  OUTPUT); // Shared pin 13. Onboard LED, Hearbeat. Return to previous state when finished using.
-    pinMode(PIN_MATRIX_DRIVE_Q7N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q8P,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q8N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q9P,  OUTPUT); // Shared pin 17. LED Array. Return to previous state when finished using.
-    pinMode(PIN_MATRIX_DRIVE_Q9N,  OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q10P, OUTPUT);
-    pinMode(PIN_MATRIX_DRIVE_Q10N, OUTPUT);
-    pinMode(PIN_WRITE_ENABLE, OUTPUT);
-    pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
-    pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
-    #ifdef Pin_SPARE_3_Assigned_To_Spare_3_Output
-      pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
-    #endif
-    #ifdef Pin_SPARE_5_Assigned_To_Spare_5_Output
-      pinMode(Pin_SPI_Reset_Spare_5, OUTPUT);
-    #endif
-    #ifdef Pin_Spare_4_IR_IN_Assigned_To_Spare_4_Output
-      pinMode(Pin_Spare_4_IR_IN, OUTPUT);
-    #endif
-
-    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
-     pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
-     #define CORE_PLANE_SELECT_ACTIVE
-    #endif
-    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
-     pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
-     #define CORE_PLANE_SELECT_ACTIVE
-    #endif
-    #ifdef Pin_SPARE_3_CP_ADDR_2_Assigned_To_CP_ADDR_2_Output
-      pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
-     #define CORE_PLANE_SELECT_ACTIVE
-    #endif
-}
-
-// CMMD = Core Memory Matrix Drive
-// Given a Core Memory Matrix Column 0 to 7 the array below specifies which 2 pins connected to transistors are required to set the column.
-// CMM front (user) view is with Column 0 on left, 7 on right.
-// Each row of the array corresponds to columns 0 to 7 of the CMM.
-// Each row is sequence of 2 transitors, first one is at the top and second one is at the bottom.
-
-// Set is given the arbitrary definition of current flow upward in that column.
-// Top of column connected to VMEM and bottom of column connected to GNDPWR.
-uint8_t CMMDSetCol[8][2] = {
-  { PIN_MATRIX_DRIVE_Q3P, PIN_MATRIX_DRIVE_Q1N },  // Column 0
-  { PIN_MATRIX_DRIVE_Q4P, PIN_MATRIX_DRIVE_Q1N },  // Column 1
-  { PIN_MATRIX_DRIVE_Q5P, PIN_MATRIX_DRIVE_Q1N },  // Column 2
-  { PIN_MATRIX_DRIVE_Q6P, PIN_MATRIX_DRIVE_Q1N },  // Column 3
-  { PIN_MATRIX_DRIVE_Q3P, PIN_MATRIX_DRIVE_Q2N },  // Column 4
-  { PIN_MATRIX_DRIVE_Q4P, PIN_MATRIX_DRIVE_Q2N },  // Column 5
-  { PIN_MATRIX_DRIVE_Q5P, PIN_MATRIX_DRIVE_Q2N },  // Column 6
-  { PIN_MATRIX_DRIVE_Q6P, PIN_MATRIX_DRIVE_Q2N }   // Column 7      
-};
-
-// Clear is given the arbitrary definition of current flow downward in that column.
-// Top of column connected to GNDPWR and bottom of column connected to VMEM.
-uint8_t CMMDClearCol[8][2] = {
-  { PIN_MATRIX_DRIVE_Q3N, PIN_MATRIX_DRIVE_Q1P },  // Column 0
-  { PIN_MATRIX_DRIVE_Q4N, PIN_MATRIX_DRIVE_Q1P },  // Column 1
-  { PIN_MATRIX_DRIVE_Q5N, PIN_MATRIX_DRIVE_Q1P },  // Column 2
-  { PIN_MATRIX_DRIVE_Q6N, PIN_MATRIX_DRIVE_Q1P },  // Column 3
-  { PIN_MATRIX_DRIVE_Q3N, PIN_MATRIX_DRIVE_Q2P },  // Column 4
-  { PIN_MATRIX_DRIVE_Q4N, PIN_MATRIX_DRIVE_Q2P },  // Column 5
-  { PIN_MATRIX_DRIVE_Q5N, PIN_MATRIX_DRIVE_Q2P },  // Column 6
-  { PIN_MATRIX_DRIVE_Q6N, PIN_MATRIX_DRIVE_Q2P }   // Column 7      
-};
-
 // Given a Core Memory Matrix Row 0 to 7 the array below specifies which 2 pins connected to transistors are required to set the row.
 // CMM front (user) view is with Row 0 on top, 7 on bottom.
 // Each row of the array corresponds to rows 0 to 7 of the CMM.
@@ -193,8 +117,7 @@ if all of the cores are to be physically addressed in an orderly sequence.
 */
 // V0.1.x and V0.2.x and V0.4.x hardware (direct MCU pin control)
 
-#ifdef CORE_ALIGNMENT_NORMAL
-uint8_t CMMDSetRowByBit[][2] = {
+static uint8_t CMMDSetRowByBit[][2] = {
 
   { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 32    ROW 4 P/N swapped from ROW 0
   { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 33    ROW 4
@@ -269,7 +192,7 @@ uint8_t CMMDSetRowByBit[][2] = {
   { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P }  // Bit 31    ROW 3
 }; 
 
-uint8_t CMMDClearRowByBit[][2] = {
+static uint8_t CMMDClearRowByBit[][2] = {
 
   { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 32    ROW 4 P/N swapped from ROW 0
   { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 33    ROW 4
@@ -343,157 +266,117 @@ uint8_t CMMDClearRowByBit[][2] = {
   { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 30    ROW 3
   { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N }  // Bit 31    ROW 3
 };
-#endif
 
-#ifdef CORE_ALIGNMENT_OPPOSITE
-uint8_t CMMDSetRowByBit[][2] = {
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit  0    ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit  1    ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit  2    ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit  3    ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit  4    ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit  5    ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit  6    ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit  7    ROW 0
+// CMMD = Core Memory Matrix Drive
+// Given a Core Memory Matrix Column 0 to 7 the array below specifies which 2 pins connected to transistors are required to set the column.
+// CMM front (user) view is with Column 0 on left, 7 on right.
+// Each row of the array corresponds to columns 0 to 7 of the CMM.
+// Each row is sequence of 2 transitors, first one is at the top and second one is at the bottom.
 
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit  8    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit  9    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 10    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 11    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 12    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 13    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 14    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 15    ROW 1
-
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 16    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 17    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 18    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 19    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 20    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 21    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 22    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 23    ROW 2
-
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 24    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 25    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 26    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 27    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 28    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 29    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 30    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 31    ROW 3
-
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 32    ROW 4 P/N swapped from ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 33    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 34    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 35    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 36    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 37    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 38    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 39    ROW 4
-
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 40    ROW 5 P/N swapped from ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 41    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 42    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 43    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 44    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 45    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 46    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 47    ROW 5
-
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 48    ROW 6 P/N swapped from ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 49    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 50    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 51    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 52    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 53    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 54    ROW 6 
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 55    ROW 6 
-
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 56    ROW 7 P/N swapped from ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 57    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 58    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 59    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 60    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 61    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 62    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N }   // Bit 63    ROW 7
-}; 
-
-uint8_t CMMDClearRowByBit[][2] = {
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 0     ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 1     ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 2     ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 3     ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 4     ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 5     ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 6     ROW 0
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 7     ROW 0      
-
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit  8    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit  9    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 10    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 11    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 12    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 13    ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 14    ROW 1
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 15    ROW 1
-
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 16    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 17    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 18    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 19    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 20    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 21    ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 22    ROW 2
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 23    ROW 2
-
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 24    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 25    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 26    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 27    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 28    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 29    ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 30    ROW 3
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 31    ROW 3
-
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 32    ROW 4 P/N swapped from ROW 0
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 33    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 34    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 35    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 36    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 37    ROW 4
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 38    ROW 4
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 39    ROW 4
-
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 40    ROW 5 P/N swapped from ROW 1
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 41    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 42    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 43    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 44    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 45    ROW 5
-  { PIN_MATRIX_DRIVE_Q7P , PIN_MATRIX_DRIVE_Q10N },  // Bit 46    ROW 5
-  { PIN_MATRIX_DRIVE_Q7N , PIN_MATRIX_DRIVE_Q10P },  // Bit 47    ROW 5
-
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 48    ROW 6 P/N swapped from ROW 2
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 49    ROW 6
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 50    ROW 6
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 51    ROW 6
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 52    ROW 6
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 53    ROW 6
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q9P  },  // Bit 54    ROW 6
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q9N  },  // Bit 55    ROW 6
-
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 56    ROW 7 P/N swapped from ROW 3
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 57    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 58    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 59    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 60    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 61    ROW 7
-  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 62    ROW 7
-  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P }   // Bit 63    ROW 7
+// Set is given the arbitrary definition of current flow upward in that column.
+// Top of column connected to VMEM and bottom of column connected to GNDPWR.
+uint8_t CMMDSetCol[8][2] = {
+  { PIN_MATRIX_DRIVE_Q3P, PIN_MATRIX_DRIVE_Q1N },  // Column 0
+  { PIN_MATRIX_DRIVE_Q4P, PIN_MATRIX_DRIVE_Q1N },  // Column 1
+  { PIN_MATRIX_DRIVE_Q5P, PIN_MATRIX_DRIVE_Q1N },  // Column 2
+  { PIN_MATRIX_DRIVE_Q6P, PIN_MATRIX_DRIVE_Q1N },  // Column 3
+  { PIN_MATRIX_DRIVE_Q3P, PIN_MATRIX_DRIVE_Q2N },  // Column 4
+  { PIN_MATRIX_DRIVE_Q4P, PIN_MATRIX_DRIVE_Q2N },  // Column 5
+  { PIN_MATRIX_DRIVE_Q5P, PIN_MATRIX_DRIVE_Q2N },  // Column 6
+  { PIN_MATRIX_DRIVE_Q6P, PIN_MATRIX_DRIVE_Q2N }   // Column 7      
 };
-#endif
+
+// Clear is given the arbitrary definition of current flow downward in that column.
+// Top of column connected to GNDPWR and bottom of column connected to VMEM.
+uint8_t CMMDClearCol[8][2] = {
+  { PIN_MATRIX_DRIVE_Q3N, PIN_MATRIX_DRIVE_Q1P },  // Column 0
+  { PIN_MATRIX_DRIVE_Q4N, PIN_MATRIX_DRIVE_Q1P },  // Column 1
+  { PIN_MATRIX_DRIVE_Q5N, PIN_MATRIX_DRIVE_Q1P },  // Column 2
+  { PIN_MATRIX_DRIVE_Q6N, PIN_MATRIX_DRIVE_Q1P },  // Column 3
+  { PIN_MATRIX_DRIVE_Q3N, PIN_MATRIX_DRIVE_Q2P },  // Column 4
+  { PIN_MATRIX_DRIVE_Q4N, PIN_MATRIX_DRIVE_Q2P },  // Column 5
+  { PIN_MATRIX_DRIVE_Q5N, PIN_MATRIX_DRIVE_Q2P },  // Column 6
+  { PIN_MATRIX_DRIVE_Q6N, PIN_MATRIX_DRIVE_Q2P }   // Column 7      
+};
+
+void Core_Driver_Setup() {
+    pinMode(Pin_Sense_Pulse, INPUT_PULLUP);
+    pinMode(Pin_Sense_Reset, OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q1P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q1N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q2P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q2N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q3P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q3N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q4P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q4N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q5P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q5N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q6P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q6N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q7P,  OUTPUT); // Shared pin 13. Onboard LED, Hearbeat. Return to previous state when finished using.
+    pinMode(PIN_MATRIX_DRIVE_Q7N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q8P,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q8N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q9P,  OUTPUT); // Shared pin 17. LED Array. Return to previous state when finished using.
+    pinMode(PIN_MATRIX_DRIVE_Q9N,  OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q10P, OUTPUT);
+    pinMode(PIN_MATRIX_DRIVE_Q10N, OUTPUT);
+    pinMode(PIN_WRITE_ENABLE, OUTPUT);
+    pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
+    pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
+    #ifdef Pin_SPARE_3_Assigned_To_Spare_3_Output
+      pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
+    #endif
+    #ifdef Pin_SPARE_5_Assigned_To_Spare_5_Output
+      pinMode(Pin_SPI_Reset_Spare_5, OUTPUT);
+    #endif
+    #ifdef Pin_Spare_4_IR_IN_Assigned_To_Spare_4_Output
+      pinMode(Pin_Spare_4_IR_IN, OUTPUT);
+    #endif
+
+    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+     pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
+     #define CORE_PLANE_SELECT_ACTIVE
+    #endif
+    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+     pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
+     #define CORE_PLANE_SELECT_ACTIVE
+    #endif
+    #ifdef Pin_SPARE_3_CP_ADDR_2_Assigned_To_CP_ADDR_2_Output
+      pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
+     #define CORE_PLANE_SELECT_ACTIVE
+    #endif
+
+    Serial.println();
+    Serial.println("Core Pattern Alignment. 1=Normal. 2=Opposite.");
+    Serial.print("     Firmware default: ");
+    Serial.println(CorePatternAlignment);
+    CorePatternAlignment = EEPROMExtReadCorePatternAlignment();
+    Serial.print("     EEPROM setting: ");
+    Serial.print(CorePatternAlignment);
+    Serial.println(" will be used.");
+ 
+    // If the Core Pattern Alignment is opposite, swap the pin matrix drive values between bits 0-31 with 32-63
+    if(CorePatternAlignment == CORE_ALIGNMENT_OPPOSITE) {
+      uint8_t temp[1];
+      for (uint8_t i = 0; i <= 31; i++) {
+        temp[0] = CMMDSetRowByBit[i][0];
+        temp[1] = CMMDSetRowByBit[i][1];
+        CMMDSetRowByBit[i][0] = CMMDSetRowByBit[(32+i)][0];
+        CMMDSetRowByBit[i][1] = CMMDSetRowByBit[(32+i)][1];
+        CMMDSetRowByBit[(32+i)][0] = temp[0];
+        CMMDSetRowByBit[(32+i)][1] = temp[1];
+
+        temp[0] = CMMDClearRowByBit[i][0];
+        temp[1] = CMMDClearRowByBit[i][1];
+        CMMDClearRowByBit[i][0] = CMMDClearRowByBit[(32+i)][0];
+        CMMDClearRowByBit[i][1] = CMMDClearRowByBit[(32+i)][1];
+        CMMDClearRowByBit[(32+i)][0] = temp[0];
+        CMMDClearRowByBit[(32+i)][1] = temp[1];
+      }
+    }
+}
 
 void Core_Plane_Select(uint8_t plane) {
   CorePlane = plane;

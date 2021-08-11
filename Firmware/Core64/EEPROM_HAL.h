@@ -33,6 +33,7 @@ uint32_t EEPROMExtReadSerialNumber();
 uint8_t EEPROMExtReadBornOnYear();
 uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
+uint8_t EEPROMExtReadCorePatternAlignment();
 
 //#ifdef __cplusplus
 //} // extern "C"
