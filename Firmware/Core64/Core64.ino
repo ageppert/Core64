@@ -31,6 +31,7 @@
       Si7210
       LTR329
       NeonPixel
+      CommandLine                                   2.1.0   by Bas Stottelaar (MIT License) https://github.com/basilfx/Arduino-CommandLine 
     OPTIONAL STUFF IF YOU ADD THIS HARDWARE
       Adafruit ILI9341 Library                      1.5.6   by Adafruit
       Adafruit_SSD1327                              1.0.0   by Adafruit for Monochrome OLED 128x128
