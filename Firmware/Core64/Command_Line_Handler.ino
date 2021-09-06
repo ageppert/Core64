@@ -107,17 +107,26 @@ void CommandLineSetup ()
     Serial.print(".");
     Serial.print(HardwareVersionMinor);
     Serial.print(".");
-    Serial.println(HardwareVersionPatch);
-    Serial.print("  Serial Number: ");
-    Serial.println(SerialNumber);
-    Serial.print("  Born on: 20");
+    Serial.print(HardwareVersionPatch);
+    Serial.print("     Serial Number: ");
+    Serial.print(SerialNumber);
+    Serial.print("     Born on: 20");
     Serial.print(EEPROMExtReadBornOnYear());
     Serial.print("-");
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
     Serial.print("  Firmware Version: ");
-    Serial.println(FIRMWAREVERSION);
+    Serial.print(FirmwareVersionMajor);
+    Serial.print(".");
+    Serial.print(FirmwareVersionMinor);
+    Serial.print(".");
+    Serial.print(FirmwareVersionPatch);
+    Serial.print("-");
+    Serial.print(FirmwareVersion);
+    Serial.print(" (Compiled on: ");
+    Serial.print(compile_date);
+    Serial.println(")");
     #if defined BOARD_CORE64_TEENSY_32
       Serial.println("  Microcontroller Board is Teensy 3.2 with hardware version and details in HardwareIOMap.h");
     #elif defined BOARD_CORE64C_RASPI_PICO

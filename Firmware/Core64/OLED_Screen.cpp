@@ -74,7 +74,7 @@
     display.print(HardwareVersionMinor);
     display.print(F("."));
     display.println(HardwareVersionPatch);
-    display.println(FIRMWAREVERSION);
+    display.println(FirmwareVersion);
     display.print(F("S:"));
     display.print(TopLevelModeLocal,DEC);  
     display.print(F(" "));

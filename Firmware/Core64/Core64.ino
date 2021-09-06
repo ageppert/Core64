@@ -71,6 +71,7 @@
   CommandLine commandLine(Serial, PROMPT);        // CommandLine instance.
 
 // #define DEBUG 1
+
 static uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 static bool TopLevelModeChanged = false;
 enum TopLevelMode                  // Top Level Mode State Machine

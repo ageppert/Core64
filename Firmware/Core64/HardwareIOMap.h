@@ -64,6 +64,9 @@
 
 
 	void DetectHardwareVersion ();		// Use once to detect and set the hardware version variables.
+	extern uint8_t HardwareVersionMajor  ;
+	extern uint8_t HardwareVersionMinor  ;
+	extern uint8_t HardwareVersionPatch  ;
 	/*
 		****************************************** HARDWARE VERSION TABLE ******************************************
 		| VERSION |  DATE      | DESCRIPTION                                                                       |
@@ -77,7 +80,17 @@
 		| v0.5.0  | 2021-03-20 | Triple-board, Black LB/CB/CM
 		------------------------------------------------------------------------------------------------------------
 	*/
-	#define FIRMWAREVERSION "210906.0945"	// TO DO: Expand to be "0.4.0-210530.1340"
+
+	const uint8_t FirmwareVersionMajor = 0 ;
+	const uint8_t FirmwareVersionMinor = 5 ;
+	const uint8_t FirmwareVersionPatch = 1 ;
+	const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
+	// TO DO: Drop the need to manually enter the following line.
+	#define FIRMWAREVERSION "210906.1217"
+	// TO DO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
+	const char FirmwareVersion[] = FIRMWAREVERSION;
+	// TO DO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
+	// const String FirmwareVersion[] = String ("V" + String(FirmwareVersionMajor) + "." + String(FirmwareVersionMinor) + "." + String(FirmwareVersionPatch) + "-" + __DATE__ + " " + __TIME__);
 	/*
 		****************************************** FIRMWARE VERSION TABLE ******************************************
 		| VERSION |  DATE      | DESCRIPTION                                                                       |
@@ -89,11 +102,10 @@
 		| v0.4.x  | 2020-11-28 | 
 		| v0.5.x  | 2021-03-20 | Accept V0.5.x hardware, manual default to the custom-fit LED Matrix.
 		| v0.5.x  | 2021-04-25 | Beta Kit Release
+		| v0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
+		|         |            | 
 		------------------------------------------------------------------------------------------------------------
 	*/
-		extern uint8_t HardwareVersionMajor  ;
-		extern uint8_t HardwareVersionMinor  ;
-		extern uint8_t HardwareVersionPatch  ;
 
 		#if defined BOARD_CORE64_TEENSY_32
 			// CORE 64 HARDWARE v0.5.0
