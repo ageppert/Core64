@@ -22,7 +22,7 @@ SETUP:
 void OLEDScreenSetup();
 void OLEDScreenUpdate();
 void OLEDScreenClear();
-void OLEDSetTopLevelState(uint8_t state);
+void OLEDSetTopLevelMode(uint8_t state);
 void OLED_Show_Matrix_Mono_Hex();			// TO DO: Pass in a pointer to this function with data to be displayed.
 
 //#ifdef __cplusplus

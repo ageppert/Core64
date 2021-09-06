@@ -70,28 +70,28 @@
   // CommandLine instance.
   CommandLine commandLine(Serial, PROMPT);
 
-uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
-bool TopLevelStateChanged = false;
-enum TopLevelState                  // Master State Machine
+static uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
+static bool TopLevelModeChanged = false;
+enum TopLevelMode                  // Top Level Mode State Machine
 {
-  STATE_STARTUP = 0,                //   0 Start-up
-  STATE_SCROLLING_TEXT,             //   1 Scrolling text at power on
-  STATE_CORE_FLUX_DETECTOR,         //   2 Testing all cores and displaying core state
-  STATE_MONOCHROME_DRAW,            //   3 Test LED Driver with binary values
-  STATE_LED_TEST_ALL_BINARY,        //   4 Test LED Driver with binary values
-  STATE_LED_TEST_ONE_STRING,        //   5 Testing LED Driver
-  STATE_LED_TEST_ONE_MATRIX_MONO,   //   6 Testing LED Driver with matrix array and monochrome color
-  STATE_LED_TEST_ONE_MATRIX_COLOR,  //   7 Testing LED Driver with matrix array and multi-color symbols
-  STATE_TEST_EEPROM,                //   8
-  STATE_LED_TEST_ALL_COLOR,         //   9 Test LED Driver with all pixels and all colors
-  STATE_CORE_TOGGLE_BIT,            //  10 Test one core with one function
-  STATE_CORE_TEST_ONE,              //  11 Testing core #coreToTest and displaying core state
-  STATE_CORE_TEST_MANY,             //  12 Testing multiple cores and displaying core state
-  STATE_HALL_TEST,                  //  13 Testing hall switch and sensor response
-  STATE_LAST,                       //  14 last one, return to 0.
+  MODE_STARTUP = 0,                //   0 Start-up
+  MODE_SCROLLING_TEXT,             //   1 Scrolling text at power on
+  MODE_CORE_FLUX_DETECTOR,         //   2 Testing all cores and displaying core state
+  MODE_MONOCHROME_DRAW,            //   3 Test LED Driver with binary values
+  MODE_LED_TEST_ALL_BINARY,        //   4 Test LED Driver with binary values
+  MODE_LED_TEST_ONE_STRING,        //   5 Testing LED Driver
+  MODE_LED_TEST_ONE_MATRIX_MONO,   //   6 Testing LED Driver with matrix array and monochrome color
+  MODE_LED_TEST_ONE_MATRIX_COLOR,  //   7 Testing LED Driver with matrix array and multi-color symbols
+  MODE_TEST_EEPROM,                //   8
+  MODE_LED_TEST_ALL_COLOR,         //   9 Test LED Driver with all pixels and all colors
+  MODE_CORE_TOGGLE_BIT,            //  10 Test one core with one function
+  MODE_CORE_TEST_ONE,              //  11 Testing core #coreToTest and displaying core state
+  MODE_CORE_TEST_MANY,             //  12 Testing multiple cores and displaying core state
+  MODE_HALL_TEST,                  //  13 Testing hall switch and sensor response
+  MODE_LAST,                       //  14 last one, return to 0.
 } ;
-static uint8_t TopLevelStateDefault = STATE_STARTUP;
-static uint8_t TopLevelState = TopLevelStateDefault;
+static uint8_t TopLevelModeDefault = MODE_STARTUP;
+static uint8_t TopLevelMode = TopLevelModeDefault;
 uint8_t value = 0;
 uint8_t a = 0;
 
@@ -107,6 +107,7 @@ void setup() {
     Serial.begin(SERIAL_PORT_SPEED);  // Need to move this serial stuff into the Serial_Debug.c file out of here!
     LED_Array_Test_Pixel_Matrix_Color();
   EEPROM_Setup();
+/*
   delay(1500); // Wait a little bit for the serial port to connect if it's there.
     Serial.println("  ____                __   _  _   ");
     Serial.println(" / ___|___  _ __ ___ / /_ | || |  ");
@@ -120,10 +121,12 @@ void setup() {
     Serial.println("This source code: https://www.github.com/ageppert/Core64");
     Serial.println();
     Serial.println("Serial Debug Port Started at 115200"); // TO DO: automatically update speed
+*/
   OLEDScreenSetup();
   I2CManagerSetup();
-    delay(1000);
+    delay(3000);
   I2CManagerBusScan();
+/*
   DetectHardwareVersion();
   SerialNumber = EEPROMExtReadSerialNumber();
     Serial.print("Hardware Version: ");
@@ -143,26 +146,30 @@ void setup() {
     Serial.print("Firmware Version: ");
     Serial.println(FIRMWAREVERSION);
     Serial.println();
-  // TO DO: Most of this setup should occur after the hardware version is determined, so setup is configured appropriately
   delay(250);     // Wait a little bit to print all that serial data from above.
+*/
+  // TO DO: Most of this setup should occur after the hardware version is determined, so setup is configured appropriately
   AnalogSetup();
   Buttons_Setup();
   CoreSetup();
   SDCardSetup();
   AmbientLightSetup();
   Neon_Pixel_Array_Init();
-  // CommandLineSetup();
+  CommandLineSetup();
+/*
     // Pre-defined commands
 
     // On-the-fly commands -- instance is allocated dynamically
+    commandLine.add("arrangement", &handleArrangement);
+    commandLine.add("coretest", &handleCoreTest);
+    commandLine.add("help", &handleHelp);
+    commandLine.add("info", &handleInfo);
+    commandLine.add("reboot", &handleReboot);
+    // commandLine.add("setcolor", &handleSetColor);
     commandLine.add("state", &handleState);
-    commandLine.add("help", handleHelp);
-    commandLine.add("coretest", handleCoreTest);
-    commandLine.add("stream", handleStream);
-    commandLine.add("arrangement", handleArrangement);
-    commandLine.add("reboot", handleReboot);
-    commandLine.add("info", handleInfo);
+    commandLine.add("stream", &handleStream);
     Serial.print(PROMPT);
+*/
 }
 
 /*                      
@@ -185,14 +192,13 @@ void loop() {
   AnalogUpdate();
   AmbientLightUpdate();
   SDCardVoltageLog(1000);
-  // CheckForSerialCommand();        // Press "c" to test core write and read
   commandLine.update();
   if (StreamEnable)
   {
-    Serial.println(TopLevelState);
+    Serial.println(TopLevelMode);
   }
   #ifdef DEBUG
-    Serial.println("DEBUG enabled."); // Need to abstract this debug stuff
+    Serial.println("  DEBUG enabled."); // Need to abstract this debug stuff
   #endif
 
   /*                      ************************
@@ -204,30 +210,43 @@ void loop() {
   // If button is pressed, go to next mode.
   // Must be released and pressed again for subsequent action.
 
+  if (TopLevelModeChanged) {
+    Serial.println("");
+    Serial.print("  Mode changed to: ");
+    Serial.println(TopLevelMode);
+    Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
+    TopLevelModeChanged = false;
+  }
+
   Button1HoldTime = ButtonState(1,0);
   if ( (ButtonReleased == true) && (Button1HoldTime >= 500) ){
     ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
     ButtonReleased = false;
     ColorFontSymbolToDisplay++;
     if(ColorFontSymbolToDisplay>3) { ColorFontSymbolToDisplay = 0; }
-    TopLevelState++;
-    TopLevelStateChanged = true; // User application has one time to use this before it is reset.
-
+    TopLevelMode++;
+    TopLevelModeChanged = true; // User application has one time to use this before it is reset.
   }
   else {
     if (Button1HoldTime == 0) {
       ButtonReleased = true;
-      TopLevelStateChanged = false;
+      TopLevelModeChanged = false;
     }
   }
 
-  switch(TopLevelState)
+  switch(TopLevelMode)
   {
-  case STATE_STARTUP:
-    TopLevelState++;
+  case MODE_STARTUP:
+    // delay(3000);               // Wait a little bit for the serial port to connect if this is connected to a computer terminal
+    handleSplash("");             // Splash screen
+    handleInfo("");               // Print some info about the system (this also checks hardware version, born-on, and serial number)
+    handleHelp("");               // Print the help menu
+    Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
+    TopLevelMode++;
+    TopLevelModeChanged = true;  // User application has one time to use this before it is reset.
     break;
 
-  case STATE_SCROLLING_TEXT:
+  case MODE_SCROLLING_TEXT:
     LED_Array_Monochrome_Set_Color(140,255,255);
     ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
     Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
@@ -235,16 +254,15 @@ void loop() {
     CopyCoreMemoryToMonochromeLEDArrayMemory();
     LED_Array_Matrix_Mono_Display();
     delay(25);
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_Mono_Display();
       CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
     #endif
-    TopLevelStateChanged = false;
     break;
 
-  case STATE_CORE_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
+  case MODE_CORE_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
     LED_Array_Monochrome_Set_Color(50,255,255);
     LED_Array_Memory_Clear();
     for (coreToTest = 0; coreToTest < 64 ; coreToTest++) {   
@@ -267,12 +285,11 @@ void loop() {
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_String_Display();
     #endif
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
-    TopLevelStateChanged = false;
     break;
 
-  case STATE_MONOCHROME_DRAW:       // Simple drawing mode
+  case MODE_MONOCHROME_DRAW:       // Simple drawing mode
     // Monitor cores for changes. 
       Core_Mem_Monitor();
     // Which cores changed state?
@@ -297,9 +314,10 @@ void loop() {
       #endif
     }
     // If this was the first time into this state, set default screen to be 0xDEADBEEF and 0xC0D3C4FE
-    if (TopLevelStateChanged)
+    if (TopLevelModeChanged)
     {
-      LED_Array_Monochrome_Set_Color(0,255,255);      // Hue 0 = RED
+      //LED_Array_Monochrome_Set_Color(0,255,255);      // Hue 0 = RED
+      LED_Array_Monochrome_Set_Color(160,255,255);      // Hue 35 = peach orange, 96=green, 135 auqa, 160=blue
       LED_Array_Binary_Write_Default();
       LED_Array_Binary_To_Matrix_Mono();
       #ifdef NEON_PIXEL_ARRAY
@@ -310,41 +328,40 @@ void loop() {
     }
     LED_Array_Matrix_Mono_Display();                  // Show the updated LED array.
     LED_Array_Matrix_Mono_to_Binary();                // Convert whatever is in the LED Matrix Array to a 64-bit binary value...
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLED_Show_Matrix_Mono_Hex();                      // ...and display it on the OLED.
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_Mono_Display();
     #endif
-    TopLevelStateChanged = false;
     break;
 
-  case STATE_LED_TEST_ALL_BINARY: // Counts from lower right and left/up in binary.
+  case MODE_LED_TEST_ALL_BINARY: // Counts from lower right and left/up in binary.
     LED_Array_Test_Count_Binary();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     // Uncomment next line to skip out of this test state immediately
-    // TopLevelState = STATE_LAST;
+    // TopLevelMode = MODE_LAST;
     break;
 
-  case STATE_LED_TEST_ONE_STRING: // Turns on 1 pixel, sequentially, from left to right, top to bottom using 1D string addressing
+  case MODE_LED_TEST_ONE_STRING: // Turns on 1 pixel, sequentially, from left to right, top to bottom using 1D string addressing
     LED_Array_Test_Pixel_String();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_LED_TEST_ONE_MATRIX_MONO: // Turns on 1 pixel, sequentially, from left to right, top to bottom using 2D matrix addressing
+  case MODE_LED_TEST_ONE_MATRIX_MONO: // Turns on 1 pixel, sequentially, from left to right, top to bottom using 2D matrix addressing
     LED_Array_Test_Pixel_Matrix_Mono();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_LED_TEST_ONE_MATRIX_COLOR: // Multi-color symbols
+  case MODE_LED_TEST_ONE_MATRIX_COLOR: // Multi-color symbols
     LED_Array_Test_Pixel_Matrix_Color();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_TEST_EEPROM: // 
+  case MODE_TEST_EEPROM: // 
     // value = EEPROM_Hardware_Version_Read(a);  // Teensy internal emulated EEPROM
     value = EEPROMExtDefaultReadByte(a);
     Serial.print(a);
@@ -358,13 +375,13 @@ void loop() {
     delay(100);
     break;
     
-  case STATE_LED_TEST_ALL_COLOR: // FastLED Demo of all color
+  case MODE_LED_TEST_ALL_COLOR: // FastLED Demo of all color
     LED_Array_Test_Rainbow_Demo();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
+  case MODE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
     coreToTest=0;
     LED_Array_Monochrome_Set_Color(50,255,255);
     for (uint8_t bit = coreToTest; bit<(coreToTest+1); bit++)
@@ -384,11 +401,11 @@ void loop() {
         // delay(50);
       }
 
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_CORE_TEST_ONE:
+  case MODE_CORE_TEST_ONE:
     coreToTest=0;
     LED_Array_Monochrome_Set_Color(100,255,255);
     LED_Array_Memory_Clear();
@@ -402,12 +419,12 @@ void loop() {
     //  TracingPulses(1);
     // delay(10);
     LED_Array_String_Display();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     delay(10);
     break;
 
-  case STATE_CORE_TEST_MANY:
+  case MODE_CORE_TEST_MANY:
     coreToTest=0;
     for (uint8_t bit = coreToTest; bit<(64); bit++)
       {
@@ -424,11 +441,11 @@ void loop() {
       // delay(10);
       LED_Array_String_Display();
       }
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
     break;
 
-  case STATE_HALL_TEST:
+  case MODE_HALL_TEST:
     LED_Array_Monochrome_Set_Color(25,255,255);
     LED_Array_Memory_Clear();
 
@@ -440,22 +457,22 @@ void loop() {
     // IOESpare1_Off();
 
     LED_Array_String_Display();
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
   
     break;
 
-  case STATE_LAST:
+  case MODE_LAST:
     LED_Array_Memory_Clear();
     LED_Array_Matrix_Mono_Display();
     LED_Array_Monochrome_Set_Color(125,255,255);
-    OLEDSetTopLevelState(TopLevelState);
+    OLEDSetTopLevelMode(TopLevelMode);
     OLEDScreenUpdate();
-    TopLevelState = STATE_STARTUP;   
+    TopLevelMode = MODE_STARTUP;   
     break;
 
   default:
-    Serial.println("Invalid TopLevelState");
+    Serial.println("Invalid TopLevelMode");
     break;
   }
 
@@ -502,161 +519,3 @@ void coreTesting() {
   //CoreClearAll();
   */
 }
-
-void CheckForSerialCommand() {
-  char c;
-  if(Serial.available() > 0)
-  {
-    c = Serial.read();
-    Serial.write(c);
-    Serial.println();
-    switch(c)
-    {
-    case 'c':
-      Serial.println();
-      Serial.println("coreTest");
-      coreTesting();
-      break;
-
-    default:
-      Serial.print("Ignoring unknown command: ");
-      Serial.println(c);
-    }
-  }
-}
-
-// Command Line Stuff. Sure would be nice to put this in a seperate file.
-
-  /**
-   * Handle the count command. The command has one additional argument that can be the integer to set the count to.
-   *
-   * @param tokens The rest of the input command.
-   */
-  void handleState(char* tokens)
-  {
-    char* token = strtok(NULL, " ");
-
-    if (token != NULL) {
-      TopLevelState = atoi(token);
-      TopLevelStateChanged = true;
-    } 
-    Serial.print("Top Level State is: ");
-    Serial.println(TopLevelState);
-  }
-
-  /**
-   * Print some help.
-   *
-   * @param tokens The rest of the input command.
-   */
-  void handleHelp(char* tokens)
-  {
-    Serial.println("  ----- HELP MENU -----");
-    Serial.println("  arrangement            // Query EEPROM for core arrangement value.");
-    Serial.println("  arrangement normal     // Set EEPROM for core arrangement normal / \\. Requires reboot.");
-    Serial.println("  arrangement opposite   // Set EEPROM for core arrangement opposite \\ /.");
-    Serial.println("  coretest             // Test one core.");
-    Serial.println("  info                 // Query hardware and firmware info.");
-    Serial.println("  reboot               // Software reboot.");
-    Serial.println("  state                // Query or set TopLevelState.");
-    Serial.println("  stream               // Togggles the streaming mode.");
-    Serial.println("  stream start         // Starts the streaming mode.");
-    Serial.println("  stream stop          // Stops the streaming mode.");
-  }
-
-  void handleCoreTest(char* tokens)
-  {
-    Serial.println(" Core Test");
-    coreTesting();
-  }
-
-  /*
-  Notes:
-    In order to compare the token string to a text string, the "compareTo" function does not work
-      if (token.compareTo("text") == 0 )
-    Instead, use "strcmp"
-      if (strcmp(token,"text") == 0 )
-    Because nameBuffer cannot be accessed with a . operator. See https://stackoverflow.com/questions/27689345/request-for-member-compareto-in-chararraybuffer-which-is-of-non-class-type-c
-  */
-
-  void handleStream(char* tokens)
-  {
-    char* token = strtok(NULL, " ");
-    Serial.print("Stream ");
-    if (token == NULL)
-    {
-        Serial.println("toggled.");
-        StreamEnable = !StreamEnable ;
-    }
-    else if(strcmp(token,"start") == 0)
-    {
-        Serial.println("started.");
-        StreamEnable = 1 ;
-    }
-    else if(strcmp(token,"stop") == 0)
-    {
-        Serial.println("stopped.");
-        StreamEnable = 0 ;
-    }
-    else
-    {
-        Serial.println("invalid token.");    
-    }
-  }
-
-  void handleArrangement(char* tokens)
-  {
-    char* token = strtok(NULL, " ");
-    Serial.print("  Core arrangement EEPROM value ");
-    if (token == NULL)
-    {
-        Serial.print("is ");
-        Serial.println(EEPROMExtReadCorePatternArrangement());
-    }
-    else if(strcmp(token,"normal") == 0)
-    {
-      Serial.println("  set to (1) normal. Requires reboot.");
-      EEPROMExtWriteCorePatternArrangement(1);
-      CoreSetup();
-    }
-    else if(strcmp(token,"opposite") == 0)
-    {
-      Serial.println("  set to (2) opposite.");
-      EEPROMExtWriteCorePatternArrangement(2);
-      CoreSetup();        
-    }
-    else
-    {
-      Serial.println("  invalid token.");    
-    }
-  }
-
-  void handleReboot(char* tokens)
-  {
-    Serial.println(" SOFTWARE INITIATED REBOOT NOW!");
-    delay(1000);
-    CPU_RESTART; // Teensy 3.2       
-  }
-
-  void handleInfo(char* tokens)
-  {
-    DetectHardwareVersion();
-    SerialNumber = EEPROMExtReadSerialNumber();
-    Serial.print("Hardware Version: ");
-    Serial.print(HardwareVersionMajor);
-    Serial.print(".");
-    Serial.print(HardwareVersionMinor);
-    Serial.print(".");
-    Serial.println(HardwareVersionPatch);
-    Serial.print("Serial Number: ");
-    Serial.println(SerialNumber);
-    Serial.print("Born on: 20");
-    Serial.print(EEPROMExtReadBornOnYear());
-    Serial.print("-");
-    Serial.print(EEPROMExtReadBornOnMonth());
-    Serial.print("-");
-    Serial.println(EEPROMExtReadBornOnDay());    
-    Serial.print("Firmware Version: ");
-    Serial.println(FIRMWAREVERSION);
-    Serial.println();
-  }

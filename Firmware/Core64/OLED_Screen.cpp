@@ -39,7 +39,7 @@
   Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, CLK_DURING, CLK_AFTER);
 #endif
 
-uint8_t TopLevelStateLocal = 0;
+uint8_t TopLevelModeLocal = 0;
 
 // Call this routine to update the OLED display.
 // Refreshing the OLED display is otherwise not stable, possibly due to some library compression stuff.
@@ -55,7 +55,7 @@ void OLEDScreenSplash() {
   display.clearDisplay();
   display.setCursor(0, 0);     // Start at top-left corner
   display.print(F("State:"));
-  display.println(TopLevelStateLocal,DEC);
+  display.println(TopLevelModeLocal,DEC);
   display.display();
   */
 // Long
@@ -71,7 +71,7 @@ void OLEDScreenSplash() {
   display.println(HardwareVersionPatch);
   display.println(FIRMWAREVERSION);
   display.print(F("S:"));
-  display.print(TopLevelStateLocal,DEC);  
+  display.print(TopLevelModeLocal,DEC);  
   display.print(F(" "));
   display.print(F("V:"));
   display.println(GetBatteryVoltageV(),2);
@@ -147,8 +147,8 @@ void OLEDScreenClear() {
     OLED_Display_Stability_Work_Around();
 }
 
-void OLEDSetTopLevelState(uint8_t state) {
-  TopLevelStateLocal = state;
+void OLEDSetTopLevelMode(uint8_t state) {
+  TopLevelModeLocal = state;
 }
 
 void OLED_Show_Matrix_Mono_Hex() {
@@ -177,7 +177,7 @@ void OLED_Show_Matrix_Mono_Hex() {
     }
     display.println();
     display.print(F("S:"));
-    display.print(TopLevelStateLocal,DEC);  
+    display.print(TopLevelModeLocal,DEC);  
     display.print(F(" "));
     display.print(F("V:"));
     display.println(GetBatteryVoltageV(),2);
