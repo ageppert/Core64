@@ -1,11 +1,13 @@
 #include <stdint.h>
 #include <stdbool.h>
+
 #if (ARDUINO >= 100)
 #include <Arduino.h>
 #else
 #include <WProgram.h>
 #endif
 
+#include "HardwareIOMap.h"
 #include <Wire.h>
 #include "Buttons_HAL.h"
 #include "HardwareIOMap.h"

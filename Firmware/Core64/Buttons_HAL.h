@@ -10,25 +10,25 @@ Usage:			  Buttons_Setup() to configure pin mode and low/high to active/inactive
 */
  
 #ifndef BUTTONS_HAL_H
-#define BUTTONS_HAL_H
+    #define BUTTONS_HAL_H
 
-#if (ARDUINO >= 100)
-#include <Arduino.h>
-#else
-#include <WProgram.h>
-#endif
+    #if (ARDUINO >= 100)
+        #include <Arduino.h>
+    #else
+        #include <WProgram.h>
+    #endif
 
-#include <stdint.h>
+    #include <stdint.h>
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+    //#ifdef __cplusplus
+    //  extern "C" {
+    //#endif
 
-void Buttons_Setup();
-extern uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration);  // Send a 1 or more to clear timer, 0 to read timer)
+        void Buttons_Setup();
+        extern uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration);  // Send a 1 or more to clear timer, 0 to read timer)
 
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
+    //#ifdef __cplusplus
+    //  } // extern "C"
+    //#endif
 
 #endif // BUTTONS_HAL_H

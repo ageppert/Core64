@@ -1,11 +1,15 @@
 #include <stdint.h>
-// #include <stdbool.h>
-// #include <HardwareSerial.h>
+#include <stdbool.h>
+
+#include "HardwareIOMap.h"
+
+/*
 #if (ARDUINO >= 100)
 #include <Arduino.h>
 #else
 #include <WProgram.h>
 #endif
+*/
 
 // TO DO: Consider using a <FastSerial.h> library?
 

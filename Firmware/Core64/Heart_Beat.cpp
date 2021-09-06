@@ -1,15 +1,21 @@
 #include <stdint.h>
-#if (ARDUINO >= 100)
-#include <Arduino.h>
-#else
-#include <WProgram.h>
-#endif
+#include <stdbool.h>
 
-#include "HardwareIOMap.H"
+//#if (ARDUINO >= 100)
+#include <Arduino.h>          // Not sure why, but this is required for Arduino IDE to recognize OUTPUT in the pinMode of setup.
+//#else
+//#include <WProgram.h>
+//#endif
+
+#include "HardwareIOMap.h"
 
 void HeartBeatSetup() {
   pinMode(Pin_Built_In_LED, OUTPUT);
-  digitalWriteFast(Pin_Built_In_LED, 1);
+  #if defined BOARD_CORE64_TEENSY_32
+    digitalWriteFast(Pin_Built_In_LED, 1);
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    digitalWrite(Pin_Built_In_LED, 1);
+  #endif
 }
 
 // Purpose: Blink an LED so the user knows the system is alive.
@@ -27,5 +33,9 @@ void HeartBeat() {
     HeartBeatSequencePosition++;
     if(HeartBeatSequencePosition>3) {HeartBeatSequencePosition = 0;}
   }
-  digitalWriteFast(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
+  #if defined BOARD_CORE64_TEENSY_32
+    digitalWriteFast(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    digitalWrite(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
+  #endif
 }
