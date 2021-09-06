@@ -11,9 +11,10 @@
   This source code: https://www.github.com/ageppert/Core64
   
   DEVELOPMENT ENVIRONMENT
-    Arduino IDE 1.8.9               https://www.arduino.cc/en/Main/Software
-    TEENSYDUINO LOADER 1.53         https://www.pjrc.com/teensy/td_download.html
+    Arduino IDE 1.8.9                                       https://www.arduino.cc/en/Main/Software
+    Core64 requires TEENSYDUINO LOADER 1.53                 https://www.pjrc.com/teensy/td_download.html
       Select ALL additional libraries during installation of Teensyduino Loader and associate with the Arduino 1.8.9 installation.
+    Core64c does not use the TEENSYDUINO LOADER AT ALL
 
   LIBRARY DEPENDENCIES
     USER MUST INSTALL MANUALLY IN ARDUINO
@@ -24,7 +25,6 @@
       Adafruit_BusIO                                1.3.1   by Adafruit
     TEENSYDUINO LOADER 1.53 INSTALLED THESE
       Wire                                          1.0     in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/Wire/
-      EEPROM                                        2.0     in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/EEPROM/
       FastLED                                       3.3.3   in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/FastLED by Daniel Garcia
       SPI                                           1.0     in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/SPI/
     INCLUDED IN THIS PROJECT'S SRC DIRECTORY
@@ -57,18 +57,20 @@
 #include "SD_Card_Manager.h"
 #include "Ambient_Light_Sensor.h"
 #include "src/CommandLine/CommandLine.h"
-  #define PROMPT "Core64> "
 #include "Core_Driver.h"
-#define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C                // Teensy 3.2
-#define CPU_RESTART_VAL 0x5FA0004                              // Teensy 3.2
-#define CPU_RESTART (*CPU_RESTART_ADDR = CPU_RESTART_VAL);     // Teensy 3.2
-// #define DEBUG 1
 
 // Command Line Stuff:
+  #if defined BOARD_CORE64_TEENSY_32
+    #define PROMPT "Core64> "
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    #define PROMPT "Core64c: "
+  #else
+    #define PROMPT "unknown: "
+  #endif
   int StreamEnable = 0;
-  // CommandLine instance.
-  CommandLine commandLine(Serial, PROMPT);
+  CommandLine commandLine(Serial, PROMPT);        // CommandLine instance.
 
+// #define DEBUG 1
 static uint32_t SerialNumber = 0;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 static bool TopLevelModeChanged = false;
 enum TopLevelMode                  // Top Level Mode State Machine
@@ -120,7 +122,11 @@ void setup() {
     Neon_Pixel_Array_Init();
     CommandLineSetup();
   #elif defined BOARD_CORE64C_RASPI_PICO
-    // CommandLineSetup();
+    EEPROM_Setup();
+    I2CManagerSetup();
+      delay(3000);
+    I2CManagerBusScan();
+    CommandLineSetup();
   #endif
 }
 
@@ -141,11 +147,11 @@ void loop() {
                           *********************
   */
   HeartBeat(); 
+  commandLine.update();
   #if defined BOARD_CORE64_TEENSY_32
     AnalogUpdate();
     AmbientLightUpdate();
     SDCardVoltageLog(1000);
-    commandLine.update();
     if (StreamEnable)
     {
       Serial.println(TopLevelMode);
@@ -153,7 +159,9 @@ void loop() {
     #ifdef DEBUG
       Serial.println("  DEBUG enabled."); // Need to abstract this debug stuff
     #endif
-
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    
+  #endif
     /*                      ************************
                             *** User Interaction ***
                             ************************
@@ -170,7 +178,7 @@ void loop() {
       Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
       TopLevelModeChanged = false;
     }
-
+  #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
     if ( (ButtonReleased == true) && (Button1HoldTime >= 500) ){
       ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
@@ -186,6 +194,9 @@ void loop() {
         TopLevelModeChanged = false;
       }
     }
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    
+  #endif
 
     switch(TopLevelMode)
     {
@@ -200,21 +211,26 @@ void loop() {
       break;
 
     case MODE_SCROLLING_TEXT:
-      LED_Array_Monochrome_Set_Color(140,255,255);
-      ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
-      Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
-      Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
-      CopyCoreMemoryToMonochromeLEDArrayMemory();
-      LED_Array_Matrix_Mono_Display();
-      delay(25);
-      OLEDSetTopLevelMode(TopLevelMode);
-      OLEDScreenUpdate();
-      #ifdef NEON_PIXEL_ARRAY
-        Neon_Pixel_Array_Matrix_Mono_Display();
-        CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
+      #if defined BOARD_CORE64_TEENSY_32
+        LED_Array_Monochrome_Set_Color(140,255,255);
+        ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
+        Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
+        Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
+        CopyCoreMemoryToMonochromeLEDArrayMemory();
+        LED_Array_Matrix_Mono_Display();
+        delay(25);
+        OLEDSetTopLevelMode(TopLevelMode);
+        OLEDScreenUpdate();
+        #ifdef NEON_PIXEL_ARRAY
+          Neon_Pixel_Array_Matrix_Mono_Display();
+          CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
+        #endif
+      #elif defined BOARD_CORE64C_RASPI_PICO
+    
       #endif
       break;
 
+#if defined BOARD_CORE64_TEENSY_32
     case MODE_CORE_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
       LED_Array_Monochrome_Set_Color(50,255,255);
       LED_Array_Memory_Clear();
@@ -423,14 +439,14 @@ void loop() {
       OLEDScreenUpdate();
       TopLevelMode = MODE_STARTUP;   
       break;
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    
+  #endif
 
     default:
       Serial.println("Invalid TopLevelMode");
       break;
     }
-  #elif defined BOARD_CORE64C_RASPI_PICO
-    commandLine.update();
-  #endif
 }
 
 void coreTesting() {

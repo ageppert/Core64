@@ -23,14 +23,6 @@
 #ifndef HARDWARE_IO_MAP_H
 	#define HARDWARE_IO_MAP_H
 
-	/*
-	#if (ARDUINO >= 100)
-	#include <Arduino.h>
-	#else
-	#include <WProgram.h>
-	#endif
-	*/
-
 	#include <stdint.h>
 	#include <stdbool.h>
 
@@ -85,7 +77,7 @@
 		| v0.5.0  | 2021-03-20 | Triple-board, Black LB/CB/CM
 		------------------------------------------------------------------------------------------------------------
 	*/
-	#define FIRMWAREVERSION "210906.0825"	// TO DO: Expand to be "0.4.0-210530.1340"
+	#define FIRMWAREVERSION "210906.0945"	// TO DO: Expand to be "0.4.0-210530.1340"
 	/*
 		****************************************** FIRMWARE VERSION TABLE ******************************************
 		| VERSION |  DATE      | DESCRIPTION                                                                       |
@@ -227,9 +219,11 @@
 			    #define Pin_SPI_LCD_BACKLIGHT		20	// * Shared, digital output
 				#define Pin_SPI_TeensyView_DC		21	// * Shared, digital output
 				#define Pin_SPI_OLED_DC				23	// * Shared, digital output
+		*/
 			// I2C
-				#define Pin_I2C_Bus_Data         	18  // Default Teensy. #define not needed, as Wire.h library takes care of this pin configuration.
-				#define Pin_I2C_Bus_Clock        	19  // Default Teensy. #define not needed, as Wire.h library takes care of this pin configuration.
+				#define Pin_I2C_Bus_Data         	14  // 
+				#define Pin_I2C_Bus_Clock        	15  // 
+		/*
 			// MISC
 				#define Pin_SAO_G1_SPARE_1_CP_ADDR_0 0	// * Shared, multipurpose use, choose one #define below to uncomment and activate
 					#define Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output

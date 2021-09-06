@@ -1,7 +1,15 @@
 // Command Line Stuff. This gets included in the main Core64.ino file.
 
+// Teensy 3.2 Software Reset Definition
+  #define CPU_RESTART_ADDR (uint32_t *)0xE000ED0C                // Teensy 3.2
+  #define CPU_RESTART_VAL 0x5FA0004                              // Teensy 3.2
+  #define CPU_RESTART (*CPU_RESTART_ADDR = CPU_RESTART_VAL);     // Teensy 3.2
+// Raspi Pico Software Reset Definition
+  // TO DO
+
 void CommandLineSetup ()
 {
+  #if defined BOARD_CORE64_TEENSY_32
   // Pre-defined commands
 
   // On-the-fly commands -- instance is allocated dynamically
@@ -13,7 +21,15 @@ void CommandLineSetup ()
   commandLine.add("reboot", &handleReboot);
   commandLine.add("splash", &handleSplash);
   commandLine.add("stream", &handleStream);
-  commandLine.add("stream", &handleStream); 
+  #elif defined BOARD_CORE64C_RASPI_PICO
+  // Pre-defined commands
+
+  // On-the-fly commands -- instance is allocated dynamically
+  commandLine.add("help", &handleHelp);
+  commandLine.add("info", &handleInfo);
+  commandLine.add("mode", &handleMode);
+  commandLine.add("splash", &handleSplash);
+  #endif
 }
 
 /**
@@ -102,7 +118,13 @@ void CommandLineSetup ()
     Serial.println(EEPROMExtReadBornOnDay());    
     Serial.print("  Firmware Version: ");
     Serial.println(FIRMWAREVERSION);
-    Serial.println("  Microcontroller Board is Teensy 3.2 with hardware version and details in HardwareIOMap.h");
+    #if defined BOARD_CORE64_TEENSY_32
+      Serial.println("  Microcontroller Board is Teensy 3.2 with hardware version and details in HardwareIOMap.h");
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      Serial.println("  Microcontroller Board is RasPi Pico with hardware version and details in HardwareIOMap.h");
+    #else
+      Serial.println("  Microcontroller Board is unknown.");
+    #endif
     Serial.println();
   }
 

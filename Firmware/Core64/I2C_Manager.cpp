@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+
 #if (ARDUINO >= 100)
 #include <Arduino.h>
 #else
@@ -8,10 +9,27 @@
 
 #include "I2C_Manager.h"
 #include "HardwareIOMap.h"
-#include <Wire.h>   // Default is SCL0 and SDA0 on pins 19/18 of Teensy LC
+#include <Wire.h>   
+/* TEENSY LC
+// Default is SCL0 and SDA0 on pins 19/18 of Teensy LC
 // #define not needed, as Wire.h library takes care of this pin configuration.
 // #define Pin_I2C_Bus_Data       18
 // #define Pin_I2C_Bus_Clock      19
+
+// RASPI PICO
+    SOLVED in "Core64c_Test_Pico_I2C_Scanner"
+    Using the native Arduino Pico Board support through Boards Manager (Not the Earle version)
+    To enable RP2040 I2C channel 1 as Wire (this really needs to be cleaned up by Arduino so I2C channel 0 is Wire, and Channel 1 is Wire1),
+    change as follows in file "pins_arduino.h" located in Macintosh HD ▸ Users ▸ ageppert ▸ Library ▸ Arduino15 ▸ packages ▸ arduino ▸ hardware ▸ mbed_rp2040 ▸ 2.3.1 ▸ variants ▸ RASPBERRY_PI_PICO
+      // Wire
+      #define PIN_WIRE_SDA        (10u)  // I2C1_SDA GP10 is Pico pin 14
+      #define PIN_WIRE_SCL        (11u)  // I2C1_SCL GP11 is Pico pin 15
+      
+      // Default was:
+      // #define PIN_WIRE_SDA        (6u)  // I2C1_SDA GP6 is Pico pin 9
+      // #define PIN_WIRE_SCL        (7u)  // I2C1_SCL GP7 is Pico pin 10
+      // See https://github.com/arduino/ArduinoCore-mbed/issues/194
+*/
 
 /* TO DO: 
     Keep track of which chips are present to use in other functions.

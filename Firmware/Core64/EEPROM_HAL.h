@@ -11,21 +11,15 @@ http://arduino.cc/en/Reference/EEPROM
 #define EEPROM_HAL_H
 
 #if (ARDUINO >= 100)
-#include <Arduino.h>
+	#include <Arduino.h>
 #else
-#include <WProgram.h>
+	#include <WProgram.h>
 #endif
 
 #include <stdint.h>
 #include <stdbool.h>
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
 void EEPROM_Setup();
-// void EEPROM_Hardware_Version_Write(uint8_t address, uint8_t byte);
-uint8_t EEPROM_Hardware_Version_Read(uint8_t address);
 uint8_t EEPROMExtReadHardwareVersionMajor();
 uint8_t EEPROMExtReadHardwareVersionMinor();
 uint8_t EEPROMExtReadHardwareVersionPatch();
@@ -36,9 +30,5 @@ uint8_t EEPROMExtReadBornOnDay();
 byte EEPROMExtDefaultReadByte(uint8_t eeaddress); 
 uint8_t EEPROMExtReadCorePatternArrangement();
 void EEPROMExtWriteCorePatternArrangement(uint8_t value);
-
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
 
 #endif // EEPROM_HAL_H

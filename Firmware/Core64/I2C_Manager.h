@@ -5,30 +5,20 @@ SETUP:
 */
  
 #ifndef I2C_MANAGER_H
-#define I2C_MANAGER_H
+	#define I2C_MANAGER_H
 
-#if (ARDUINO >= 100)
-#include <Arduino.h>
-#else
-#include <WProgram.h>
-#endif
+	#if (ARDUINO >= 100)
+		#include <Arduino.h>
+	#else
+		#include <WProgram.h>
+	#endif
 
-#include <stdint.h>
-#include <stdbool.h>
+	#include <stdint.h>
+	#include <stdbool.h>
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+	void I2CManagerSetup();								// Prints setup message to serial port.
+	void I2CManagerBusScan();							// Scans all 7-bit addresses on the bus. Prints devices that are present to serial port.
+	bool I2CDetectExternalEEPROM(uint8_t address);		// Call with expected address of external EEPROM, returns 1 if present, 0 if not.
 
-// Prints setup message to serial port.
-void I2CManagerSetup();
-// Scans all 7-bit addresses on the bus. Prints devices that are present to serial port.
-void I2CManagerBusScan();
-// Call with expected address of external EEPROM, returns 1 if present, 0 if not.
-bool I2CDetectExternalEEPROM(uint8_t address);
-
-//#ifdef __cplusplus
-//} // extern "C"
-//#endif
 
 #endif
