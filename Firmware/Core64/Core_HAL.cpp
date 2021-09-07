@@ -19,8 +19,6 @@
 
 #include "Analog_Input_Test.h"
 
-#if defined BOARD_CORE64_TEENSY_32
-
   // TO DO: The CoreArrayMemory should not be written to and read from outside of the Core HAL.
   // The CoreArrayMemory is used as a buffer between external API calls and the real state of the core memory.
   // The CoreArrayMemory is only accurate after all real core memory bits have been read once.
@@ -46,6 +44,8 @@
   //                                  {1,1,0,0,1,1,0,0},
   //                                  {1,0,1,0,1,1,1,0},
   //                                  {0,0,0,0,0,0,0,0}  };
+
+#if defined BOARD_CORE64_TEENSY_32
 
   void CoreSetup() {
     Core_Driver_Setup();
@@ -173,7 +173,7 @@
     // TracingPulses(2); 
       CoreStateChangeFlag(0);                         // Polling for a change inside this function is faster than the for-loop.
     // Turn off all of the matrix signals
-  MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
     MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
     if (CoreStateChangeFlag(0) == true)               // If the core changed state, then it was a 0, and is now 1...
     {
@@ -222,7 +222,7 @@
   */
 
   void ScrollTextToCoreMemory() {
-    static unsigned long UpdatePeriodms = 100;  
+    static unsigned long UpdatePeriodms = 80;  
     static unsigned long NowTime = 0;
     static unsigned long UpdateTimer = 0;
 
@@ -334,5 +334,40 @@
   }
 
 #elif defined BOARD_CORE64C_RASPI_PICO
+  void ScrollTextToCoreMemory() {
+    static unsigned long UpdatePeriodms = 100;  
+    static unsigned long NowTime = 0;
+    static unsigned long UpdateTimer = 0;
+
+    static uint8_t stringPosition = 0;
+    static uint8_t stringLength = 15; // [space] I [heart] C O R E [space] M E M O R Y !
+    static uint8_t characterColumn = 0;
+    bool newBit = 0; 
+
+    NowTime = millis();
+    // Is it time to scroll again?
+    if ((NowTime - UpdateTimer) >= UpdatePeriodms)
+    {
+      UpdateTimer = NowTime;
+      // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
+        for (uint8_t x=1; x<=7; x++)
+        {
+          for (uint8_t y=0; y<=7; y++)
+          {
+            CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
+          }
+        }
+      // Bring in a new column on right edge.
+        if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
+      // Out of characters? Go back to the beginning and scroll again.
+        if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; }
+        for (uint8_t y=0; y<=7; y++) // iterate through the rows
+        {
+          newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
+          CoreArrayMemory [y][7] = newBit;
+        }
+        characterColumn++; // prepare for next column
+    }
+  }
 
 #endif

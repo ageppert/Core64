@@ -212,13 +212,17 @@ void loop() {
       break;
 
     case MODE_SCROLLING_TEXT:
-      #if defined BOARD_CORE64_TEENSY_32
-        LED_Array_Monochrome_Set_Color(140,255,255);
-        ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
+      LED_Array_Monochrome_Set_Color(135,255,255);  // 135,255,255 = OLED aqua
+      ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
+      #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
+      #else
         Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
         Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
-        CopyCoreMemoryToMonochromeLEDArrayMemory();
-        LED_Array_Matrix_Mono_Display();
+      #endif
+      CopyCoreMemoryToMonochromeLEDArrayMemory();
+      LED_Array_Matrix_Mono_Display();
+      
+      #if defined BOARD_CORE64_TEENSY_32
         delay(25);
         OLEDSetTopLevelMode(TopLevelMode);
         OLEDScreenUpdate();
@@ -260,6 +264,7 @@ void loop() {
       break;
 
     case MODE_MONOCHROME_DRAW:       // Simple drawing mode
+      LED_Array_Monochrome_Set_Color(0,255,255);
       // Monitor cores for changes. 
         Core_Mem_Monitor();
       // Which cores changed state?

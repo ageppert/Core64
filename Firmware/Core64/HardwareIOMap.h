@@ -54,14 +54,23 @@
 	#endif
 
 	// #define SDCARD_ENABLE                  			// 
-	#define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE   		// 
+	// #define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE   		// 
 	#define HALL_SENSOR_ENABLE							// 
 	// #define HALL_SWITCH_ENABLE
 	#define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 	#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
+    
+    #if defined BOARD_CORE64_TEENSY_32 
+      #define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
+	  //#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
+	  //#define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.		
+    #elif defined BOARD_CORE64C_RASPI_PICO
+	  #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
+	  #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.
+	#endif
+
 	#define OLED_64X128
 	// #define OLED_128X128
-
 
 	void DetectHardwareVersion ();		// Use once to detect and set the hardware version variables.
 	extern uint8_t HardwareVersionMajor  ;
@@ -83,10 +92,10 @@
 
 	const uint8_t FirmwareVersionMajor = 0 ;
 	const uint8_t FirmwareVersionMinor = 5 ;
-	const uint8_t FirmwareVersionPatch = 1 ;
+	const uint8_t FirmwareVersionPatch = 2 ;
 	const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
 	// TO DO: Drop the need to manually enter the following line.
-	#define FIRMWAREVERSION "210906.1217"
+	#define FIRMWAREVERSION "210906.2051"
 	// TO DO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 	const char FirmwareVersion[] = FIRMWAREVERSION;
 	// TO DO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
@@ -103,6 +112,7 @@
 		| v0.5.x  | 2021-03-20 | Accept V0.5.x hardware, manual default to the custom-fit LED Matrix.
 		| v0.5.x  | 2021-04-25 | Beta Kit Release
 		| v0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
+		| v0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
 		|         |            | 
 		------------------------------------------------------------------------------------------------------------
 	*/
@@ -212,8 +222,10 @@
 			// MATRIX SENSE
 				#define Pin_Sense_Reset         	21	// * Shared
 				#define Pin_Sense_Pulse         	22	// * Shared
+		*/
 			// LED ARRAY
-				#define Pin_RGB_LED_Array           20	// * Shared 
+				#define Pin_RGB_LED_Array           22	// * Shared 
+		/*
 			// SPI
 			    #define Pin_SPI_OLED_CS				 2	// * Shared, digital output
 			    #define Pin_SPI_TOUCH_CS			 4	// * Shared, digital output

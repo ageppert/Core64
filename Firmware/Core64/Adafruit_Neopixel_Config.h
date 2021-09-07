@@ -1,10 +1,10 @@
 /*
-PURPOSE: Configure the NeoPixel Style LED Array for the FastLED library
+PURPOSE: Configure the NeoPixel Style LED Array for the Adafruit NeoPixel library
 Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat 
 */
  
-#ifndef FASTLED_CONFIG_H
-	#define FASTLED_CONFIG_H
+#ifndef ADAFRUIT_NEOPIXEL_CONFIG_H
+	#define ADAFRUIT_NEOPIXEL_CONFIG_H
 
 	#if (ARDUINO >= 100)
 	#include <Arduino.h>
@@ -19,17 +19,18 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 	extern "C" {
 	#endif
 
-	#define COLOR_ORDER GRB
+	#define COLOR_ORDER 	NEO_GRB
+    #define NEO_FREQUENCY	NEO_KHZ800
 	#ifdef CORE64_LED_MATRIX
 		#define CHIPSET     WS2813			// Used in Core64 LED MATRIX
 	#else
 		#define CHIPSET     WS2812B			// Used in Pimoroni Unicorn Hat. Limited to a data rate of about 800Kbps, hard coded in FastLED library. 
 	#endif
-	#define BRIGHTNESS       75			// Initial brightness level
-	#define BRIGHTNESS_MIN	  5			// Lowest useable brightness
+	#define BRIGHTNESS      200			// Initial brightness level
+	#define BRIGHTNESS_MIN	100			// Lowest useable brightness
 	#define BRIGHTNESS_MAX	255			// Highest useable brightness
 
-	// 100 = GREEN
+	// 100,255,255 = GREEN
 	// 135,255,255 = OLED aqua
 	#define DEFAULTLEDArrayMonochromeColorH		135
 	#define DEFAULTLEDArrayMonochromeColorS		255
@@ -45,11 +46,11 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 	#endif
 
 	#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
-	CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
-	CRGB* const leds( leds_plus_safety_pixel + 1);
+	// CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
+	// CRGB* const leds( leds_plus_safety_pixel + 1);
 
 	#ifdef __cplusplus
 	} // extern "C"
 	#endif
 
-#endif
+#endif // ADAFRUIT_NEOPIXEL_CONFIG_H
