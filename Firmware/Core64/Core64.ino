@@ -212,7 +212,9 @@ void loop() {
       break;
 
     case MODE_SCROLLING_TEXT:
-      LED_Array_Monochrome_Set_Color(135,255,255);  // 135,255,255 = OLED aqua
+      if (TopLevelModeChanged) {
+        LED_Array_Monochrome_Set_Color(135,255,255);  // 135,255,255 = OLED aqua
+      }
       ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
       #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
       #else

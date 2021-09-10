@@ -170,6 +170,10 @@ void LED_Array_Auto_Brightness() {
     #endif 
   }
 
+  void LED_Array_Monochrome_Increment_Color(uint8_t HueIncrement) {
+    LEDArrayMonochromeColorHSV[0] = LEDArrayMonochromeColorHSV[0] + HueIncrement;
+  }
+
   uint16_t XY( uint8_t x, uint8_t y)
   {
     uint16_t i;

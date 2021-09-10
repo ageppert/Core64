@@ -15,7 +15,7 @@
 #include "Core_HAL.h"
 #include "Core_Driver.h" 
 #include "CharacterMap.h"
-#include "HardwareIOMap.h"
+#include "LED_Array_Hal.h"
 
 #include "Analog_Input_Test.h"
 
@@ -229,7 +229,9 @@
     static uint8_t stringPosition = 0;
     static uint8_t stringLength = 15; // [space] I [heart] C O R E [space] M E M O R Y !
     static uint8_t characterColumn = 0;
-    bool newBit = 0; 
+    static bool newBit = 0;
+    static uint8_t ScrollingTextHue = 135;
+    static bool ScrollingColorChangeEnable = 1;
 
     NowTime = millis();
     // Is it time to scroll again?
@@ -254,6 +256,9 @@
           CoreArrayMemory [y][7] = newBit;
         }
         characterColumn++; // prepare for next column
+        if (ScrollingColorChangeEnable) {
+          LED_Array_Monochrome_Increment_Color(1);
+        }
     }
   }
 
@@ -342,7 +347,9 @@
     static uint8_t stringPosition = 0;
     static uint8_t stringLength = 15; // [space] I [heart] C O R E [space] M E M O R Y !
     static uint8_t characterColumn = 0;
-    bool newBit = 0; 
+    static bool newBit = 0; 
+    static uint8_t ScrollingTextHue = 135;
+    static bool ScrollingColorChangeEnable = 1;
 
     NowTime = millis();
     // Is it time to scroll again?
@@ -367,6 +374,9 @@
           CoreArrayMemory [y][7] = newBit;
         }
         characterColumn++; // prepare for next column
+        if (ScrollingColorChangeEnable) {
+          LED_Array_Monochrome_Increment_Color(1);
+        }
     }
   }
 

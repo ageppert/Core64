@@ -24,6 +24,7 @@ USAGE: Init, Clear, Write to one of the buffers in monochrome or color mode, upd
 void LED_Array_Init();				// Called once from Setup. Set up the LED array with the driver using chipset, data pin, color order, correction, brightness from FastLED_Config.h, and clear the array.
 void LED_Array_Memory_Clear(); 		// Clears all of the LED Array memory buffers.
 void LED_Array_Monochrome_Set_Color(uint8_t hue, uint8_t saturation, uint8_t value); // Overide the default monochrome color for next pixel to be written to the any monochrome memory buffer.
+void LED_Array_Monochrome_Increment_Color(uint8_t HueIncrement); // Increment the color hue by this amount. 0-255
 
 void LED_Array_Test_Count_Binary(); // Test all 64 LEDs. Counting from 0 to 2^64 from bottom up.
 void LED_Array_Test_Pixel_String(); // Test all 64 LEDs. Turns on 1 pixel, sequentially, from left to right, top to bottom using 1D string addressing

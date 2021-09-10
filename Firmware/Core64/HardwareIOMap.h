@@ -92,10 +92,10 @@
 
 	const uint8_t FirmwareVersionMajor = 0 ;
 	const uint8_t FirmwareVersionMinor = 5 ;
-	const uint8_t FirmwareVersionPatch = 2 ;
+	const uint8_t FirmwareVersionPatch = 3 ;
 	const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
 	// TO DO: Drop the need to manually enter the following line.
-	#define FIRMWAREVERSION "210906.2051"
+	#define FIRMWAREVERSION "210909.2117"
 	// TO DO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 	const char FirmwareVersion[] = FIRMWAREVERSION;
 	// TO DO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
@@ -113,6 +113,7 @@
 		| v0.5.x  | 2021-04-25 | Beta Kit Release
 		| v0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
 		| v0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
+		| v0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
 		|         |            | 
 		------------------------------------------------------------------------------------------------------------
 	*/
