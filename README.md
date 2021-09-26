@@ -1,5 +1,5 @@
-# Core64
-Official Core64 Interactive Core Memory Kit Firmware and Documentation
+# Core64 and Core64c
+Official Core64 and Core64c Interactive Core Memory Badge Kit Firmware and Documentation for the end user!
 
 Weave your own 64 bits of core memory over the top of LEDs to interact with directly using a magnetic wand.
 
