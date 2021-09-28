@@ -17,7 +17,8 @@
   #include "src/Si7210/si7210_defs.h"
 #endif // HALL_SENSOR_ENABLE
 
-// #define DEBUG_HALL_SENSORS  
+// #define DEBUG_HALL_SENSORS
+// #define DEBUG_HALL_SWITCHES
 
 #ifdef HALL_SENSOR_ENABLE
   #define HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL      2     // Level of mT which registers as a button press
@@ -179,86 +180,126 @@ void Buttons_Setup() {
   }
 }
 
-uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) { // send a 1 or more to clear, 0 to use normally)
-  static uint32_t lasttime;
+uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1 or more to clear, 0 to use normally)
+{ 
   static uint32_t thistime = 0;
-  static uint32_t delta = 0;
+  static uint32_t Button1lasttime = 0;
+  static uint32_t Button2lasttime = 0;
+  static uint32_t Button3lasttime = 0;
+  static uint32_t Button4lasttime = 0;
+  static uint32_t Button1delta = 0;
+  static uint32_t Button2delta = 0;
+  static uint32_t Button3delta = 0;
+  static uint32_t Button4delta = 0;
   static uint32_t duration_b1 = 0;  // Button 1 duration ON
   static uint32_t duration_b2 = 0;  // Button 2 duration ON
   static uint32_t duration_b3 = 0;  // Button 3 duration ON
   static uint32_t duration_b4 = 0;  // Button 4 duration ON
-  static uint8_t  state_b1 = 0;
-  static uint8_t  state_b2 = 0;
-  static uint8_t  state_b3 = 0;
-  static uint8_t  state_b4 = 0;
+  // static uint8_t  state_b1 = 0;
+  // static uint8_t  state_b2 = 0;
+  // static uint8_t  state_b3 = 0;
+  // static uint8_t  state_b4 = 0;
+  static bool     sensed = false;
 
-  if(clear_duration == 1) { duration_b1 = 0 ;}
+    #ifdef HALL_SWITCH_ENABLE             // These need to be set every time to ensure they are configured for use here.
+      pinMode(PIN_HALL_SWITCH_1, INPUT);
+      pinMode(PIN_HALL_SWITCH_2, INPUT);
+      pinMode(PIN_HALL_SWITCH_3, INPUT);
+      pinMode(PIN_HALL_SWITCH_4, INPUT);
+    #endif // HALL_SWITCH_ENABLE
 
-  thistime = millis();
-  delta = thistime - lasttime ;
-
-      float field_strength;
+    thistime = millis();
+    sensed = false;
+    float field_strength;
+  
       switch (button_number) {
         case 1:
-          si7210_get_field_strength(&HallSensor1, &field_strength);
-          if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-             || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
-            { duration_b1 = duration_b1 + delta ; }
-          #ifdef HALL_SWITCH_ENABLE
-          else if(!PIN_HALL_SWITCH_1) { duration_b1 = duration_b1 + delta ; }
+          if(clear_duration == 1) { duration_b1 = 0 ;}
+          Button1delta = thistime - Button1lasttime ;
+          #ifdef HALL_SENSOR_ENABLE
+            si7210_get_field_strength(&HallSensor1, &field_strength);
+            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
+               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+              { duration_b1 = duration_b1 + Button1delta ; sensed = true; }
           #endif
-          else { duration_b1 = 0; }
+          #ifdef HALL_SWITCH_ENABLE
+            if(digitalRead(PIN_HALL_SWITCH_1)==0) { duration_b1 = duration_b1 + Button1delta ; sensed = true; }
+          #endif
+          if(!sensed) { duration_b1 = 0; }
           break;
+        
         case 2:
-          si7210_get_field_strength(&HallSensor2, &field_strength);
-          if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-             || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
-            { duration_b2 = duration_b2 + delta ; }
-          #ifdef HALL_SWITCH_ENABLE
-          else if(!PIN_HALL_SWITCH_2) { duration_b2 = duration_b2 + delta ; }
+          if(clear_duration == 1) { duration_b2 = 0 ;}
+          Button2delta = thistime - Button2lasttime ;
+          #ifdef HALL_SENSOR_ENABLE
+            si7210_get_field_strength(&HallSensor2, &field_strength);
+            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
+               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+              { duration_b2 = duration_b2 + Button2delta ; sensed = true; }
           #endif
-          else { duration_b2 = 0; }
+          #ifdef HALL_SWITCH_ENABLE
+            if(digitalRead(PIN_HALL_SWITCH_2)==0) { duration_b2 = duration_b2 + Button2delta ; sensed = true; }
+          #endif
+          if(!sensed) { duration_b2 = 0; }
           break;
+
         case 3:
-          si7210_get_field_strength(&HallSensor3, &field_strength);
-          if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-             || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
-            { duration_b3 = duration_b3 + delta ; }
-          #ifdef HALL_SWITCH_ENABLE
-          else if(!PIN_HALL_SWITCH_3) { duration_b3 = duration_b3 + delta ; }
+          if(clear_duration == 1) { duration_b3 = 0 ;}
+          Button3delta = thistime - Button3lasttime ;
+          #ifdef HALL_SENSOR_ENABLE
+            si7210_get_field_strength(&HallSensor3, &field_strength);
+            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
+               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+              { duration_b3 = duration_b3 + Button3delta ; sensed = true; }
           #endif
-          else { duration_b3 = 0; }
+          #ifdef HALL_SWITCH_ENABLE
+            if(digitalRead(PIN_HALL_SWITCH_3)==0) { duration_b3 = duration_b3 + Button3delta ; sensed = true; }
+          #endif
+          if(!sensed) { duration_b3 = 0; }
           break;
         case 4:
-          si7210_get_field_strength(&HallSensor4, &field_strength);
-          if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-             || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
-            { duration_b4 = duration_b4 + delta ; }
-          #ifdef HALL_SWITCH_ENABLE
-          else if(!PIN_HALL_SWITCH_4) { duration_b4 = duration_b4 + delta ; }
+          if(clear_duration == 1) { duration_b4 = 0 ;}
+          Button4delta = thistime - Button4lasttime ;
+          #ifdef HALL_SENSOR_ENABLE
+            si7210_get_field_strength(&HallSensor4, &field_strength);
+            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
+               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+              { duration_b4 = duration_b4 + Button4delta ; sensed = true; }
           #endif
-          else { duration_b4 = 0; }
+          #ifdef HALL_SWITCH_ENABLE
+            if(digitalRead(PIN_HALL_SWITCH_4)==0) { duration_b4 = duration_b4 + Button4delta ; sensed = true; }
+          #endif
+          if(!sensed) { duration_b4 = 0; }
           break;
 
         default:
-          //Serial.println("Invalid Button");
+          Serial.println("Invalid Button");
           break;
-        // Serial.print(state_test);
-        // Serial.println(state);
         }
-#if defined DEBUG_HALL_SENSORS  
-  Serial.print("HALL 1,2,3,4: ");
-  Serial.print(duration_b1);
-  Serial.print(", ");
-  Serial.print(duration_b2);
-  Serial.print(", ");
-  Serial.print(duration_b3);
-  Serial.print(", ");
-  Serial.print(duration_b4);
-  Serial.println("");
-#endif
 
-  lasttime = thistime;
+  #if defined DEBUG_HALL_SENSORS  
+    Serial.print("HALL SENSOR 1,2,3,4: ");
+    Serial.print(duration_b1);
+    Serial.print(", ");
+    Serial.print(duration_b2);
+    Serial.print(", ");
+    Serial.print(duration_b3);
+    Serial.print(", ");
+    Serial.print(duration_b4);
+    Serial.println("");
+  #endif
+
+  #if defined DEBUG_HALL_SWITCHES  
+    Serial.print("HALL SWITCH 1,2,3,4: ");
+    Serial.print(digitalRead(PIN_HALL_SWITCH_1));
+    Serial.print(", ");
+    Serial.print(digitalRead(PIN_HALL_SWITCH_2));
+    Serial.print(", ");
+    Serial.print(digitalRead(PIN_HALL_SWITCH_3));
+    Serial.print(", ");
+    Serial.print(digitalRead(PIN_HALL_SWITCH_4));
+    Serial.println("");
+  #endif
 
           // DEBUG
           // Serial.print("Hall 1 Field / On Duration: ");
@@ -268,20 +309,24 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) { // send a
   
   switch (button_number) {
     case 1:
+      Button1lasttime = thistime;
       return duration_b1; // in ms
       break;
     case 2:
+      Button2lasttime = thistime;
       return duration_b2; // in ms
       break;
     case 3:
+      Button3lasttime = thistime;
       return duration_b3; // in ms
       break;
     case 4:
+      Button4lasttime = thistime;
       return duration_b4; // in ms
       break;
 
     default:
-      //Serial.println("Invalid Button");
+      Serial.println("Invalid Button");
       break;
   }
 

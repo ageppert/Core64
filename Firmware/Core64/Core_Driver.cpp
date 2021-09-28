@@ -329,8 +329,6 @@
       pinMode(PIN_MATRIX_DRIVE_Q10P, OUTPUT);
       pinMode(PIN_MATRIX_DRIVE_Q10N, OUTPUT);
       pinMode(PIN_WRITE_ENABLE, OUTPUT);
-      pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
-      pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
       #ifdef Pin_SPARE_3_Assigned_To_Spare_3_Output
         pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
       #endif
@@ -342,16 +340,16 @@
       #endif
 
       #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
-       pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
-       #define CORE_PLANE_SELECT_ACTIVE
+        pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
+        #define CORE_PLANE_SELECT_ACTIVE
       #endif
       #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
-       pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
-       #define CORE_PLANE_SELECT_ACTIVE
+        pinMode(Pin_SAO_G2_SPARE_2_CP_ADDR_1, OUTPUT);
+        #define CORE_PLANE_SELECT_ACTIVE
       #endif
       #ifdef Pin_SPARE_3_CP_ADDR_2_Assigned_To_CP_ADDR_2_Output
         pinMode(Pin_SPARE_3_CP_ADDR_2, OUTPUT);
-       #define CORE_PLANE_SELECT_ACTIVE
+        #define CORE_PLANE_SELECT_ACTIVE
       #endif
 
       Serial.println();
@@ -389,8 +387,12 @@
   }
 
   void Core_Plane_Set_Addr(uint8_t plane) {
-    digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0,  CorePlaneAddr [plane] [2] );
-    digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1,  CorePlaneAddr [plane] [1] );
+    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+      digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0,  CorePlaneAddr [plane] [2] );
+    #endif
+    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+      digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1,  CorePlaneAddr [plane] [1] );
+    #endif
     #ifdef Pin_SPARE_3_CP_ADDR_2
       digitalWriteFast(Pin_SPARE_3_CP_ADDR_2,         CorePlaneAddr [plane] [0] );
     #endif
@@ -499,20 +501,34 @@
     return temp;
   }
 
+    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+    #endif
+    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+    #endif
+
+
   void DebugIOESpare1_On() {
-    digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0, 1);
+    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+      digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0, 1);
+    #endif
   }
 
   void DebugIOESpare1_Off() {
-    digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0, 0);
+    #ifdef Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+      digitalWriteFast(Pin_SAO_G1_SPARE_1_CP_ADDR_0, 0);
+    #endif
   }
 
   void DebugIOESpare2_On() {
-    digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1, 1);
+    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+      digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1, 1);
+    #endif
   }
 
   void DebugIOESpare2_Off() {
-    digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1, 0);
+    #ifdef Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+      digitalWriteFast(Pin_SAO_G2_SPARE_2_CP_ADDR_1, 0);
+    #endif
   }
 
   void DebugPin14_On() {

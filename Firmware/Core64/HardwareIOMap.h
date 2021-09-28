@@ -56,7 +56,7 @@
 	// #define SDCARD_ENABLE                  			// 
 	// #define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE   		// 
 	#define HALL_SENSOR_ENABLE							// 
-	// #define HALL_SWITCH_ENABLE
+	#define HALL_SWITCH_ENABLE
 	#define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 	#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
     
@@ -92,10 +92,10 @@
 
 	const uint8_t FirmwareVersionMajor = 0 ;
 	const uint8_t FirmwareVersionMinor = 5 ;
-	const uint8_t FirmwareVersionPatch = 3 ;
+	const uint8_t FirmwareVersionPatch = 4 ;
 	const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
 	// TO DO: Drop the need to manually enter the following line.
-	#define FIRMWAREVERSION "210909.2117"
+	#define FIRMWAREVERSION "210927.2225"
 	// TO DO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 	const char FirmwareVersion[] = FIRMWAREVERSION;
 	// TO DO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
@@ -114,6 +114,7 @@
 		| v0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
 		| v0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
 		| v0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
+		| v0.5.4  | 2021-09-26 | Moving towards enabling all four hall sensors and/or switches for Core64 V0.5.0 and Core64c V0.2.0
 		|         |            | 
 		------------------------------------------------------------------------------------------------------------
 	*/
@@ -153,14 +154,14 @@
 				#define Pin_SPI_SD_CS     		     6	// * Shared, digital output
 			    #define Pin_SPI_LCD_CS				 8	// * Shared, digital output
 			    #define Pin_SPI_LCD_DC				 9	// * Shared, digital output
-			    #define Pin_SPI_TeensyView_CS		10	// * Shared, digital output
+			    // #define Pin_SPI_TeensyView_CS		10	// * Shared, digital output
 			    #define Pin_SPI_SDO					11  // Default Teensy
 			    #define Pin_SPI_SDI					12  // Default Teensy
-				#define Pin_SPI_SD_CD     		    14	// * Shared, digital input and output
+				// #define Pin_SPI_SD_CD     		    14	// * Shared, digital input and output
 			    #define Pin_SPI_CLK                 13	// * Shared, digital output
 				#define Pin_SPI_Reset_Spare_5		15	// * Shared, digital output, multipurpose use, choose one #define below to uncomment and activate
 					// #define Pin_SPARE_5_Assigned_To_Spare_5_Output
-					#define Pin_SPARE_5_Assigned_To_Spare_5_Analog
+					// #define Pin_SPARE_5_Assigned_To_Spare_5_Analog
 			    #define Pin_SPI_LCD_BACKLIGHT		20	// * Shared, digital output
 				#define Pin_SPI_TeensyView_DC		21	// * Shared, digital output
 				#define Pin_SPI_OLED_DC				23	// * Shared, digital output
@@ -168,28 +169,28 @@
 				#define Pin_I2C_Bus_Data         	18  // Default Teensy. #define not needed, as Wire.h library takes care of this pin configuration.
 				#define Pin_I2C_Bus_Clock        	19  // Default Teensy. #define not needed, as Wire.h library takes care of this pin configuration.
 			// MISC
-				#define Pin_SAO_G1_SPARE_1_CP_ADDR_0 0	// * Shared, multipurpose use, choose one #define below to uncomment and activate
-					#define Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
-				#define Pin_SAO_G2_SPARE_2_CP_ADDR_1 1	// * Shared, multipurpose use, choose one #define below to uncomment and activate
-					#define Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
+				// #define Pin_SAO_G1_SPARE_1_CP_ADDR_0 0	// * Shared, multipurpose use, choose one #define below to uncomment and activate
+					// #define Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
+				// #define Pin_SAO_G2_SPARE_2_CP_ADDR_1 1	// * Shared, multipurpose use, choose one #define below to uncomment and activate
+					// #define Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
 				#define Pin_IR_OUT					 5	// * Shared, digital output, multipurpose use, choose one #define below to uncomment and activate
-			    #define Pin_Spare_4_IR_IN			10	// * Shared
-					#define Pin_Spare_4_IR_IN_Assigned_To_Spare_4_Output
+			    // #define Pin_Spare_4_IR_IN			10	// * Shared
+					// #define Pin_Spare_4_IR_IN_Assigned_To_Spare_4_Output
 				#define Pin_Built_In_LED         	13  // * Shared with SPI CLOCK
 				//#define Pin_SPARE_3_CP_ADDR_2		14	// * Shared, multipurpose use, choose one #define below to uncomment and activate
 					// #define Pin_SPARE_3_Assigned_To_Spare_3_Output
 					// #define Pin_SPARE_3_CP_ADDR_2_Assigned_To_CP_ADDR_2_Output
 					// #define Pin_SPARE_3_Assigned_To_Spare_3_Input
 					// #define Pin_SPARE_3_Assigned_To_SPI_SD_CD_Input
-					#define Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input A0
+					// #define Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input A0
 				#define Pin_Battery_Voltage        A10  // 1/2 the battery voltage (otherwise known as Digital pin 24)
 				#define Pin_SPARE_ANA_6			   A11
 				#define Pin_SPARE_ANA_7			   A12
 				#define Pin_SPARE_ANA_8			   A13
 			    #define Pin_Spare_ADC_DAC		   A14
 			    #ifdef HALL_SWITCH_ENABLE
-					#define PIN_HALL_SWITCH_1		 1
-					#define PIN_HALL_SWITCH_2		 2
+					#define PIN_HALL_SWITCH_1		 0
+					#define PIN_HALL_SWITCH_2		 1
 					#define PIN_HALL_SWITCH_3		14
 					#define PIN_HALL_SWITCH_4		10		
 			    #endif
@@ -276,8 +277,8 @@
 			    */
 		/*
 			    #ifdef HALL_SWITCH_ENABLE
-					#define PIN_HALL_SWITCH_1		 1
-					#define PIN_HALL_SWITCH_2		 2
+					#define PIN_HALL_SWITCH_1		 0
+					#define PIN_HALL_SWITCH_2		 1
 					#define PIN_HALL_SWITCH_3		14
 					#define PIN_HALL_SWITCH_4		10		
 			    #endif

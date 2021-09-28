@@ -63,7 +63,9 @@
     if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) ) 
     {
       Analog_A10 = analogRead ( Pin_Battery_Voltage   );  //  VBAT_MON
+      #if defined Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input
       Analog_A0  = analogRead ( Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input );  //  5V0       // TO DO: Test with serial
+      #endif
       Analog_A1  = analogRead ( Pin_SPI_Reset_Spare_5 );  //  VMEM (3V3 or "top of upper drive transitor, emitter")
       Analog_A11 = analogRead ( Pin_SPARE_ANA_6       );  //  R9 ("top of COL0 resistor" between Q3P and Q3N transistors)
       Analog_A12 = analogRead ( Pin_SPARE_ANA_7       );  //  D7 ("bottom of COL0 resistor" or "top of diode" before it enters the diode drop)

@@ -138,10 +138,16 @@ void setup() {
 */
 
 void loop() {
-  static uint8_t ColorFontSymbolToDisplay = 2;
-  static bool ButtonReleased = true;
+  static uint8_t  ColorFontSymbolToDisplay = 2;
+  static bool     Button1Released = true;
+  static bool     Button2Released = true;
+  static bool     Button3Released = true;
+  static bool     Button4Released = true;
   static uint32_t Button1HoldTime = 0;
-  static uint8_t coreToTest = 0;
+  static uint32_t Button2HoldTime = 0;
+  static uint32_t Button3HoldTime = 0;
+  static uint32_t Button4HoldTime = 0;
+  static uint8_t  coreToTest = 0;
 
   /*                      *********************
                           *** Housekeepting ***
@@ -181,9 +187,12 @@ void loop() {
     }
   #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
-    if ( (ButtonReleased == true) && (Button1HoldTime >= 500) ){
+    Button2HoldTime = ButtonState(2,0);
+    Button3HoldTime = ButtonState(3,0);
+    Button4HoldTime = ButtonState(4,0);
+    if ( (Button1Released == true) && (Button1HoldTime >= 500) ){
       ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
-      ButtonReleased = false;
+      Button1Released = false;
       ColorFontSymbolToDisplay++;
       if(ColorFontSymbolToDisplay>3) { ColorFontSymbolToDisplay = 0; }
       TopLevelMode++;
@@ -191,7 +200,7 @@ void loop() {
     }
     else {
       if (Button1HoldTime == 0) {
-        ButtonReleased = true;
+        Button1Released = true;
         TopLevelModeChanged = false;
       }
     }
@@ -284,7 +293,7 @@ void loop() {
         }
       }
       // Quick touch of the hall sensor clears the screen.
-      if ( (ButtonReleased) && (ButtonState(1,0) > 50 ) ) { 
+      if ( (Button1Released) && (ButtonState(1,0) > 50 ) ) { 
         LED_Array_Memory_Clear(); 
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Memory_Clear();
@@ -427,10 +436,10 @@ void loop() {
       LED_Array_Memory_Clear();
 
       // IOESpare1_On();
-      if(ButtonState(1,0)) { LED_Array_String_Write(57,1); Serial.println(ButtonState(1,0)); }
-      if(ButtonState(2,0)) { LED_Array_String_Write(59,1); Serial.println(ButtonState(2,0)); }
-      if(ButtonState(3,0)) { LED_Array_String_Write(61,1); Serial.println(ButtonState(3,0)); }
-      if(ButtonState(4,0)) { LED_Array_String_Write(63,1); Serial.println(ButtonState(4,0)); }
+      if(Button1HoldTime) { LED_Array_String_Write(56,1); Serial.println(Button1HoldTime); }
+      if(Button2HoldTime) { LED_Array_String_Write(58,1); Serial.println(Button2HoldTime); }
+      if(Button3HoldTime) { LED_Array_String_Write(60,1); Serial.println(Button3HoldTime); }
+      if(Button4HoldTime) { LED_Array_String_Write(62,1); Serial.println(Button4HoldTime); }
       // IOESpare1_Off();
 
       LED_Array_String_Display();
