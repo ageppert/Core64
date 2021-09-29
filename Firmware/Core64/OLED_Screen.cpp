@@ -10,7 +10,6 @@
 */
 
 #include "HardwareIOMap.h"
-#if defined BOARD_CORE64_TEENSY_32
 
   #include <Wire.h>   // Default is SCL0 and SDA0 on pins 19/18 of Teensy LC
   // #define not needed, as Wire.h library takes care of this pin configuration.
@@ -24,8 +23,8 @@
 
   // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
   #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-  #define CLK_DURING   2000000   // I2C frequency during OLED write, like Wire.setClock(). Default was 400 kHz if not specified.
-  #define CLK_AFTER    2000000   // I2C frequency during OLED write, like Wire.setClock(). Default was 100 kHz if not specified.
+  #define CLK_DURING   1000000   // I2C frequency during OLED write, like Wire.setClock(). Default was 400 kHz if not specified.
+  #define CLK_AFTER    1000000   // I2C frequency during OLED write, like Wire.setClock(). Default was 100 kHz if not specified.
 
   #if defined OLED_64X128
     #include <Adafruit_SSD1306.h>
@@ -68,7 +67,11 @@
     display.clearDisplay();
     display.setCursor(0, 10);     // Start at top-left corner
     display.println(F(" Core64.io"));
-    display.print(F("HV:"));
+    #if defined BOARD_CORE64_TEENSY_32
+      display.print(F("HV:"));
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      display.print(F("cHV:"));    
+    #endif
     display.print(HardwareVersionMajor);
     display.print(F("."));
     display.print(HardwareVersionMinor);
@@ -79,7 +82,11 @@
     display.print(TopLevelModeLocal,DEC);  
     display.print(F(" "));
     display.print(F("V:"));
+#if defined BOARD_CORE64_TEENSY_32
     display.println(GetBatteryVoltageV(),2);
+#elif defined BOARD_CORE64C_RASPI_PICO
+
+#endif
     // display.println(F("mV"));
     OLED_Display_Stability_Work_Around();
   }
@@ -189,7 +196,3 @@
       OLED_Display_Stability_Work_Around();
     }
   }
-
-#elif defined BOARD_CORE64C_RASPI_PICO
-
-#endif

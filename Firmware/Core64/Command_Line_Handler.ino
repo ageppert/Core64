@@ -102,6 +102,19 @@ void CommandLineSetup ()
     Serial.println("  ----------------");
     Serial.println("  ----- INFO -----");
     Serial.println("  ----------------");
+
+    #if defined BOARD_CORE64_TEENSY_32
+      Serial.print("  Core64 Logic Board with ");
+      Serial.print(BOARD);
+      Serial.println(". Hardware configuration in HardwareIOMap.h");
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      Serial.print("  Core64c Logic Board with ");
+      Serial.print(BOARD);
+      Serial.println(". Hardware configuration in HardwareIOMap.h");
+    #else
+      Serial.println("  Microcontroller Board is unknown.");
+    #endif
+
     Serial.print("  Hardware Version: ");
     Serial.print(HardwareVersionMajor);
     Serial.print(".");
@@ -116,17 +129,6 @@ void CommandLineSetup ()
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
-    #if defined BOARD_CORE64_TEENSY_32
-      Serial.print("  Core64 Logic Board with ");
-      Serial.print(BOARD);
-      Serial.println(". Hardware details in HardwareIOMap.h");
-    #elif defined BOARD_CORE64C_RASPI_PICO
-      Serial.print("  Core64c Logic Board with ");
-      Serial.print(BOARD);
-      Serial.println(". Hardware details in HardwareIOMap.h");
-    #else
-      Serial.println("  Microcontroller Board is unknown.");
-    #endif
 
     Serial.print("  Firmware Version: ");
     Serial.print(FirmwareVersionMajor);
@@ -139,6 +141,7 @@ void CommandLineSetup ()
     Serial.print(" (Compiled on: ");
     Serial.print(compile_date);
     Serial.println(")");
+
     Serial.print("  ");
     Serial.println(FIRMWARE_SUMMARY);
 
@@ -187,6 +190,8 @@ void CommandLineSetup ()
     Serial.println("  Core64 Interactive Core Memory - Project website: www.Core64.io");
     Serial.println("  2019-2021 Concept and Design by Andy Geppert of www.MachineIdeas.com");
     Serial.println("  This source code: https://www.github.com/ageppert/Core64");
+    Serial.println("  See Core64.ino for IDE and library requirements.");
+    Serial.println("  See HardwareIOMap.h for hardware configuration.");
     Serial.println();
   }
 

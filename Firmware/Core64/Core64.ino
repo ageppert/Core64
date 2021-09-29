@@ -22,7 +22,7 @@
       The libraries should end up being in your "Libraries" folder in your default Arduino Sketchbook location.
       Adafruit_SSD1306                              2.2.0   by Adafruit for Monochrome OLED 128x64 and 128x32
       Adafruit_GFX_Library                          1.10.6  by Adafruit
-      Adafruit_BusIO                                1.3.1   by Adafruit
+      Adafruit_BusIO                                1.3.1   by Adafruit, testeing 1.9.3 with RP2040 support
     TEENSYDUINO LOADER 1.53 INSTALLED THESE
       Wire                                          1.0     in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/Wire/
       FastLED                                       3.3.3   in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/FastLED by Daniel Garcia
@@ -126,6 +126,7 @@ void setup() {
     I2CManagerSetup();
       delay(3000);
     I2CManagerBusScan();
+    OLEDScreenSetup();
     Buttons_Setup();
   #endif
     CommandLineSetup();
@@ -185,7 +186,7 @@ void loop() {
       Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
       TopLevelModeChanged = false;
     }
-//  #if defined BOARD_CORE64_TEENSY_32
+
     Button1HoldTime = ButtonState(1,0);
     Button2HoldTime = ButtonState(2,0);
     Button3HoldTime = ButtonState(3,0);
@@ -204,14 +205,11 @@ void loop() {
         TopLevelModeChanged = false;
       }
     }
- // #elif defined BOARD_CORE64C_RASPI_PICO
-    
- // #endif
 
     switch(TopLevelMode)
     {
     case MODE_STARTUP:
-      delay(1500);               // Wait a little bit for the serial port to connect if this is connected to a computer terminal
+      // delay(1500);               // Wait a little bit for the serial port to connect if this is connected to a computer terminal
       handleSplash("");             // Splash screen
       handleInfo("");               // Print some info about the system (this also checks hardware version, born-on, and serial number)
       handleHelp("");               // Print the help menu
@@ -242,7 +240,8 @@ void loop() {
           CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
         #endif
       #elif defined BOARD_CORE64C_RASPI_PICO
-    
+        OLEDSetTopLevelMode(TopLevelMode);
+        OLEDScreenUpdate();    
       #endif
       break;
 
@@ -430,6 +429,9 @@ void loop() {
       OLEDSetTopLevelMode(TopLevelMode);
       OLEDScreenUpdate();
       break;
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    
+  #endif
 
     case MODE_HALL_TEST:
       LED_Array_Monochrome_Set_Color(25,255,255);
@@ -456,9 +458,6 @@ void loop() {
       OLEDScreenUpdate();
       TopLevelMode = MODE_STARTUP;   
       break;
-  #elif defined BOARD_CORE64C_RASPI_PICO
-    
-  #endif
 
     default:
       Serial.println("Invalid TopLevelMode");

@@ -3,21 +3,7 @@
 				Map out all of the IO for each version of the Core 64 hardware.
          		The Hardware_IO_Map.cpp file detects and sets the hardware version.
          		Specify firmware version manually in this file as a string.
-	SETUP: Manually update the field assigned as VERSION
-
-
-  	HARDWARE VERSION SCHEME (see https://semver.org/)
-		Given a version number MAJOR.MINOR.PATCH, increment the:
-			MAJOR version when you make incompatible API changes,
-			MINOR version when you add functionality in a backwards compatible manner, and
-			PATCH version when you make backwards compatible bug fixes.
-	
-	FIRMWARE VERSION SCHEME 
-	    Same as hardware version scheme, with additional metadata extensions:
-		    -DATE 		Example: -200101
-						Two digit month, two digit day of the month
-			.TIME 	    Example: |0800
-						Time increments from build to build to clearly denote each unqiue iteration
+	SETUP: Manually update the field assigned as VERSION	
 */
 
 #ifndef HARDWARE_IO_MAP_H
@@ -73,6 +59,13 @@
 			#define OLED_64X128
 			// #define OLED_128X128
 
+		/*  HARDWARE VERSION SCHEME (see https://semver.org/)
+				Given a version number MAJOR.MINOR.PATCH, increment the
+					MAJOR version when you make incompatible API changes,
+					MINOR version when you add functionality in a backwards compatible manner, and
+					PATCH version when you make backwards compatible bug fixes.
+				Hardware version is stored in Board ID EEPROM on the Logic Board.
+		*/
 	  /********************************** CORE64 HARDWARE VERSION TABLE ******************************************
 		| VERSION |  DATE      | DESCRIPTION                                                                       |
 		------------------------------------------------------------------------------------------------------------
@@ -97,6 +90,12 @@
 		extern uint8_t HardwareVersionMinor  ;
 		extern uint8_t HardwareVersionPatch  ;
 
+		/*	FIRMWARE VERSION SCHEME 
+		    Same as hardware version scheme, with additional metadata extensions:
+			    -DATE 		Ex. -200101			Two digit month, two digit day of the month
+					.TIME 	  Ex. .0800 			Time increments from build to build to clearly denote each unqiue iteration
+				Firmware version is manually entered below.
+		*/
 		/***************************************** FIRMWARE VERSION TABLE ******************************************
 		| VERSION |  DATE      | DESCRIPTION                                                                       |
 		------------------------------------------------------------------------------------------------------------
@@ -110,7 +109,7 @@
 		|  0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
 		|  0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
 		|  0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
-		|  0.5.4  | 2021-09-26 | Moving towards enabling all four hall sensors and/or switches for Core64 V0.5.0 and Core64c V0.2.0
+		|  0.5.4  | 2021-09-29 | Enable all four hall sensors and/or switches, and OLED, for Core64 V0.5.0 and Core64c V0.2.0
 		|         |            | 
 		----------------------------------------------------------------------------------------------------------*/
 		const uint8_t FirmwareVersionMajor = 0 ;
@@ -119,7 +118,7 @@
 		const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
 		#define FIRMWARE_SUMMARY "Moving towards enabling all four hall sensors and/or switches for Core64 V0.5.0 and Core64c V0.2.0"
 		// TODO: Drop the need to manually enter the following line.
-		#define FIRMWAREVERSION "210928.2207"
+		#define FIRMWAREVERSION "210929.0920"
 		// TODO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 		const char FirmwareVersion[] = FIRMWAREVERSION;
 		// TODO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
