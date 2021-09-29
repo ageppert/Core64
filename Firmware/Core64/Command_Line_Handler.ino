@@ -116,6 +116,18 @@ void CommandLineSetup ()
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
+    #if defined BOARD_CORE64_TEENSY_32
+      Serial.print("  Core64 Logic Board with ");
+      Serial.print(BOARD);
+      Serial.println(". Hardware details in HardwareIOMap.h");
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      Serial.print("  Core64c Logic Board with ");
+      Serial.print(BOARD);
+      Serial.println(". Hardware details in HardwareIOMap.h");
+    #else
+      Serial.println("  Microcontroller Board is unknown.");
+    #endif
+
     Serial.print("  Firmware Version: ");
     Serial.print(FirmwareVersionMajor);
     Serial.print(".");
@@ -127,13 +139,9 @@ void CommandLineSetup ()
     Serial.print(" (Compiled on: ");
     Serial.print(compile_date);
     Serial.println(")");
-    #if defined BOARD_CORE64_TEENSY_32
-      Serial.println("  Microcontroller Board is Teensy 3.2 with hardware version and details in HardwareIOMap.h");
-    #elif defined BOARD_CORE64C_RASPI_PICO
-      Serial.println("  Microcontroller Board is RasPi Pico with hardware version and details in HardwareIOMap.h");
-    #else
-      Serial.println("  Microcontroller Board is unknown.");
-    #endif
+    Serial.print("  ");
+    Serial.println(FIRMWARE_SUMMARY);
+
     Serial.println();
   }
 

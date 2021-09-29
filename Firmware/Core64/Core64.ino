@@ -121,14 +121,14 @@ void setup() {
     SDCardSetup();
     AmbientLightSetup();
     Neon_Pixel_Array_Init();
-    CommandLineSetup();
   #elif defined BOARD_CORE64C_RASPI_PICO
     EEPROM_Setup();
     I2CManagerSetup();
       delay(3000);
     I2CManagerBusScan();
-    CommandLineSetup();
+    Buttons_Setup();
   #endif
+    CommandLineSetup();
 }
 
 /*                      
@@ -185,7 +185,7 @@ void loop() {
       Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
       TopLevelModeChanged = false;
     }
-  #if defined BOARD_CORE64_TEENSY_32
+//  #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
     Button2HoldTime = ButtonState(2,0);
     Button3HoldTime = ButtonState(3,0);
@@ -204,14 +204,14 @@ void loop() {
         TopLevelModeChanged = false;
       }
     }
-  #elif defined BOARD_CORE64C_RASPI_PICO
+ // #elif defined BOARD_CORE64C_RASPI_PICO
     
-  #endif
+ // #endif
 
     switch(TopLevelMode)
     {
     case MODE_STARTUP:
-      // delay(3000);               // Wait a little bit for the serial port to connect if this is connected to a computer terminal
+      delay(1500);               // Wait a little bit for the serial port to connect if this is connected to a computer terminal
       handleSplash("");             // Splash screen
       handleInfo("");               // Print some info about the system (this also checks hardware version, born-on, and serial number)
       handleHelp("");               // Print the help menu
@@ -462,6 +462,7 @@ void loop() {
 
     default:
       Serial.println("Invalid TopLevelMode");
+      TopLevelMode = MODE_STARTUP;   
       break;
     }
 }

@@ -202,10 +202,10 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
   static bool     sensed = false;
 
     #ifdef HALL_SWITCH_ENABLE             // These need to be set every time to ensure they are configured for use here.
-      pinMode(PIN_HALL_SWITCH_1, INPUT);
-      pinMode(PIN_HALL_SWITCH_2, INPUT);
-      pinMode(PIN_HALL_SWITCH_3, INPUT);
-      pinMode(PIN_HALL_SWITCH_4, INPUT);
+      pinMode(PIN_HALL_SWITCH_1, INPUT_PULLUP);
+      pinMode(PIN_HALL_SWITCH_2, INPUT_PULLUP);
+      pinMode(PIN_HALL_SWITCH_3, INPUT_PULLUP);
+      pinMode(PIN_HALL_SWITCH_4, INPUT_PULLUP);
     #endif // HALL_SWITCH_ENABLE
 
     thistime = millis();
