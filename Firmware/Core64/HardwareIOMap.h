@@ -110,15 +110,16 @@
 		|  0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
 		|  0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
 		|  0.5.4  | 2021-09-29 | Enable all four hall sensors and/or switches, and OLED, for Core64 V0.5.0 and Core64c V0.2.0
+		|  0.5.5  | 2021-10-01 | Display Voltage Input (USB or Bat.) for Core64 V0.5.0 and Core64c V0.2.0.
 		|         |            | 
 		----------------------------------------------------------------------------------------------------------*/
 		const uint8_t FirmwareVersionMajor = 0 ;
 		const uint8_t FirmwareVersionMinor = 5 ;
-		const uint8_t FirmwareVersionPatch = 4 ;
+		const uint8_t FirmwareVersionPatch = 5 ;
 		const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
-		#define FIRMWARE_SUMMARY "Moving towards enabling all four hall sensors and/or switches for Core64 V0.5.0 and Core64c V0.2.0"
+		#define FIRMWARE_SUMMARY "Display Voltage Input (USB or Bat.) for Core64 V0.5.0 and Core64c V0.2.0"
 		// TODO: Drop the need to manually enter the following line.
-		#define FIRMWAREVERSION "210929.0920"
+		#define FIRMWAREVERSION "211001.0801"
 		// TODO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 		const char FirmwareVersion[] = FIRMWAREVERSION;
 		// TODO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
@@ -227,6 +228,8 @@
 							#define PIN_HALL_SWITCH_3				 7
 							#define PIN_HALL_SWITCH_4				 8		
 				    #endif
+			  // DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
+						#define Pin_Battery_Voltage     	A0  // 1/2 the battery voltage (otherwise known as Digital pin 26)
 
 	#endif
 

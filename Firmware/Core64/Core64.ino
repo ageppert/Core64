@@ -115,7 +115,6 @@ void setup() {
       delay(3000);
     I2CManagerBusScan();
     // TO DO: Most of this setup should occur after the hardware version is determined, so setup is configured appropriately
-    AnalogSetup();
     Buttons_Setup();
     CoreSetup();
     SDCardSetup();
@@ -129,7 +128,10 @@ void setup() {
     OLEDScreenSetup();
     Buttons_Setup();
   #endif
+    DetectHardwareVersion();
     CommandLineSetup();
+    AnalogSetup();
+    AnalogUpdate();
 }
 
 /*                      
@@ -155,9 +157,9 @@ void loop() {
                           *********************
   */
   HeartBeat(); 
+  AnalogUpdate();
   commandLine.update();
   #if defined BOARD_CORE64_TEENSY_32
-    AnalogUpdate();
     AmbientLightUpdate();
     SDCardVoltageLog(1000);
     if (StreamEnable)
@@ -170,6 +172,8 @@ void loop() {
   #elif defined BOARD_CORE64C_RASPI_PICO
     
   #endif
+    // Serial.print("  Switched Voltage: ");
+    // Serial.println(GetBatteryVoltageV(),2);
     /*                      ************************
                             *** User Interaction ***
                             ************************
@@ -224,6 +228,7 @@ void loop() {
       }
       ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
       #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
+        // Nothing here
       #else
         Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
         Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
@@ -231,17 +236,15 @@ void loop() {
       CopyCoreMemoryToMonochromeLEDArrayMemory();
       LED_Array_Matrix_Mono_Display();
       
+      OLEDSetTopLevelMode(TopLevelMode);
+      OLEDScreenUpdate();
       #if defined BOARD_CORE64_TEENSY_32
-        delay(25);
-        OLEDSetTopLevelMode(TopLevelMode);
-        OLEDScreenUpdate();
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_Mono_Display();
           CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
         #endif
       #elif defined BOARD_CORE64C_RASPI_PICO
-        OLEDSetTopLevelMode(TopLevelMode);
-        OLEDScreenUpdate();    
+        // Nothing here
       #endif
       break;
 

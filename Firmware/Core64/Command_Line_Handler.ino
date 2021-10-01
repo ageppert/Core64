@@ -112,7 +112,7 @@ void CommandLineSetup ()
       Serial.print(BOARD);
       Serial.println(". Hardware configuration in HardwareIOMap.h");
     #else
-      Serial.println("  Microcontroller Board is unknown.");
+      Serial.println("  Unknown Logic Board with unknown Microcontroller Board.");
     #endif
 
     Serial.print("  Hardware Version: ");
@@ -129,6 +129,9 @@ void CommandLineSetup ()
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
+
+    Serial.print("  Voltage Input (USB or Bat.): ");
+    Serial.println(GetBatteryVoltageV(),2);
 
     Serial.print("  Firmware Version: ");
     Serial.print(FirmwareVersionMajor);

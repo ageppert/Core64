@@ -82,12 +82,7 @@
     display.print(TopLevelModeLocal,DEC);  
     display.print(F(" "));
     display.print(F("V:"));
-#if defined BOARD_CORE64_TEENSY_32
     display.println(GetBatteryVoltageV(),2);
-#elif defined BOARD_CORE64C_RASPI_PICO
-
-#endif
-    // display.println(F("mV"));
     OLED_Display_Stability_Work_Around();
   }
 
