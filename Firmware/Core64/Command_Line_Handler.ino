@@ -130,8 +130,12 @@ void CommandLineSetup ()
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
 
-    Serial.print("  Voltage Input (USB or Bat.): ");
-    Serial.println(GetBatteryVoltageV(),2);
+    Serial.print("  Voltages: Input (USB or Bat.): ");
+    Serial.print(GetBatteryVoltageV(),2);
+    Serial.print(", 5V0 Rail: ");
+    Serial.print(GetBus5V0VoltageV(),2);
+    Serial.print(", 3V3 Rail: ");
+    Serial.println(GetBus3V3VoltageV(),2);
 
     Serial.print("  Firmware Version: ");
     Serial.print(FirmwareVersionMajor);
@@ -147,6 +151,7 @@ void CommandLineSetup ()
 
     Serial.print("  ");
     Serial.println(FIRMWARE_SUMMARY);
+    Serial.println("  For more details see https://www.github.com/ageppert/Core64");
 
     Serial.println();
   }

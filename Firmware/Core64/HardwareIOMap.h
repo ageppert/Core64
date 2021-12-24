@@ -42,7 +42,7 @@
   // SELECT HARDWARE TO ACTIVATE
 	// TODO: Move all of these to variables which can be configured on-the-fly.
 			#define HALL_SENSOR_ENABLE							// 
-			#define HALL_SWITCH_ENABLE
+			// #define HALL_SWITCH_ENABLE
 			#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 			#define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 			#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
@@ -111,15 +111,16 @@
 		|  0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
 		|  0.5.4  | 2021-09-29 | Enable all four hall sensors and/or switches, and OLED, for Core64 V0.5.0 and Core64c V0.2.0
 		|  0.5.5  | 2021-10-01 | Display Voltage Input (USB or Bat.) for Core64 V0.5.0 and Core64c V0.2.0.
+		|  0.6.0  | 2021-12-23 | Enable Core64 V0.6.0 like V0.5.0 for bring-up. Maintain backwards compatibility.
 		|         |            | 
 		----------------------------------------------------------------------------------------------------------*/
 		const uint8_t FirmwareVersionMajor = 0 ;
-		const uint8_t FirmwareVersionMinor = 5 ;
-		const uint8_t FirmwareVersionPatch = 5 ;
+		const uint8_t FirmwareVersionMinor = 6 ;
+		const uint8_t FirmwareVersionPatch = 0 ;
 		const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
-		#define FIRMWARE_SUMMARY "Display Voltage Input (USB or Bat.) for Core64 V0.5.0 and Core64c V0.2.0"
+		#define FIRMWARE_SUMMARY "Enable Core64 V0.6.0, backwards compatible, add Row/Col 0 Voltage monitor, loopback test."
 		// TODO: Drop the need to manually enter the following line.
-		#define FIRMWAREVERSION "211001.0801"
+		#define FIRMWAREVERSION "211223.2136"
 		// TODO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
 		const char FirmwareVersion[] = FIRMWAREVERSION;
 		// TODO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
@@ -170,7 +171,7 @@
 			  // DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
 				    #ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 							#define Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input A0	// * Shared with Digital Pin 14
-							#define Pin_Battery_Voltage    A10  // 1/2 the battery voltage (otherwise known as Digital pin 24)
+							#define Pin_Battery_Voltage    A10  // 1/4 the battery voltage (otherwise known as Digital pin 24)
 							#define Pin_SPARE_ANA_6			   A11
 							#define Pin_SPARE_ANA_7			   A12
 							#define Pin_SPARE_ANA_8			   A13
@@ -198,12 +199,12 @@
 						#define Pin_SPI_OLED_DC							23	// * Shared, digital output
 				// IR COMMUNICATION
 						#define Pin_IR_OUT					 				 5	// * Shared, digital output, multipurpose use, choose one #define below to uncomment and activate
-			    	// #define Pin_Spare_4_IR_IN					10	// * Shared
+			    	#define Pin_Spare_4_IR_IN					  10	// * Shared
 						// #define Pin_Spare_4_IR_IN_Assigned_To_Spare_4_Output
 				// CORE PLANE SELECT, REQUIRES ADDITIONAL COMPONENTS AND MODIFICATIONS
-						// #define Pin_SAO_G1_SPARE_1_CP_ADDR_0 0	// * Shared, multipurpose use, choose one #define below to uncomment and activate
+						#define Pin_SAO_G1_SPARE_1_CP_ADDR_0 0	// * Shared, multipurpose use, choose one #define below to uncomment and activate
 						// #define Pin_SAO_G1_SPARE_1_CP_ADDR_0_Assigned_To_CP_ADDR_0_Output
-						// #define Pin_SAO_G2_SPARE_2_CP_ADDR_1 1	// * Shared, multipurpose use, choose one #define below to uncomment and activate
+						#define Pin_SAO_G2_SPARE_2_CP_ADDR_1 1	// * Shared, multipurpose use, choose one #define below to uncomment and activate
 						// #define Pin_SAO_G2_SPARE_2_CP_ADDR_1_Assigned_To_CP_ADDR_1_Output
 						// #define Pin_SPARE_3_CP_ADDR_2		14	// * Shared, multipurpose use, choose one #define below to uncomment and activate
 						// #define Pin_SPARE_3_Assigned_To_Spare_3_Output

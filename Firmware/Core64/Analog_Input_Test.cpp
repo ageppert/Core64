@@ -43,21 +43,23 @@
   static uint8_t BatteryVoltageFilterArrayPosition = 0;
   static bool BatteryVoltageFilterLoaded = false;
 
-  static float Bus_5V0      = 0 ;
-  static float Core_Col0_Q5  = 0 ;
-  static float Core_Col0_R9  = 0 ;
-  static float Core_Col0_U7  = 0 ;
-  static float Core_Col0_Q2  = 0 ;
-  static float Core_Col0_Q21 = 0 ;
+  static float Bus_5V0_V         = 0 ;
+  static float Bus_3V3_V         = 0 ;
+  static float Core_Col0_Q3P_Q3N_V = 0 ;
+  static float Core_Col0_Q1P_Q1N_V = 0 ;
+  static float Core_Row0_Q7P_Q7N_V = 0 ;
+  static float Core_Row0_Q9P_Q9N_V = 0 ;
 
   static uint16_t Analog_A0  = 0 ;
-  static float    Bus_5V0_ADCtomV = 6.452; // 1:2
   static uint16_t Analog_A1  = 0 ;
   static uint16_t Analog_A11 = 0 ;
   static uint16_t Analog_A12 = 0 ;
   static uint16_t Analog_A13 = 0 ;
   static uint16_t Analog_A14 = 0 ;
+  static float    Bus_5V0_ADCtomV   = 6.452; // 1:2
+  static float    Bus_3V3_ADCtomV   = 3.226; // 1:1
   static float    Core_Col0_ADCtomV = 3.226; // 1:1
+  static float    Core_Row0_ADCtomV = 3.226; // 1:1
 
   uint16_t GetBatteryVoltagemV() {
     return (BatteryAvgmV);
@@ -67,20 +69,44 @@
     return (BatteryAvgV);
   }
 
+  float GetBus5V0VoltageV() {
+    return (Bus_5V0_V);
+  }
+
+  float GetBus3V3VoltageV() {
+    return (Bus_3V3_V);
+  }
+
+  float GetCoreTC0V() {
+    return (Core_Col0_Q3P_Q3N_V);
+  }
+
+  float GetCoreBC0V() {
+    return (Core_Col0_Q1P_Q1N_V);
+  }
+
+  float GetCoreLR0V() {
+    return (Core_Row0_Q7P_Q7N_V);
+  }
+
+  float GetCoreRR0V() {
+    return (Core_Row0_Q9P_Q9N_V);
+  }
+
   void ReadAnalogVoltage() {
 
     #if defined BOARD_CORE64_TEENSY_32
-      if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) ) 
+      if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) ) 
       {
         Analog_A10 = analogRead ( Pin_Battery_Voltage   );  //  VBAT_MON
         #if defined Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input
-        Analog_A0  = analogRead ( Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input );  //  5V0       // TO DO: Test with serial
+        Analog_A0  = analogRead ( Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input );  //  5V0_MON
         #endif
-        Analog_A1  = analogRead ( Pin_SPI_Reset_Spare_5 );  //  VMEM (3V3 or "top of upper drive transitor, emitter")
-        Analog_A11 = analogRead ( Pin_SPARE_ANA_6       );  //  R9 ("top of COL0 resistor" between Q3P and Q3N transistors)
-        Analog_A12 = analogRead ( Pin_SPARE_ANA_7       );  //  D7 ("bottom of COL0 resistor" or "top of diode" before it enters the diode drop)
-        Analog_A13 = analogRead ( Pin_SPARE_ANA_8       );  //  Q2 ("top of bottom drive transistor, collector")
-        Analog_A14 = analogRead ( Pin_Spare_ADC_DAC     );  //  Q21 ("top of Enable FET, drain")
+        Analog_A1  = analogRead ( Pin_SPI_Reset_Spare_5 );  //  3V3_MON and VMEM
+        Analog_A11 = analogRead ( Pin_SPARE_ANA_6       );  //  TC0_MON ("top of COL 0 resistor" between Q3P and Q3N transistors)
+        Analog_A12 = analogRead ( Pin_SPARE_ANA_7       );  //  BC0_MON ("bottom of COL 0 resistor" between Q1P and Q1N transistors)
+        Analog_A13 = analogRead ( Pin_SPARE_ANA_8       );  //  LR0_MON ("left of ROW 0 resistor" between Q7P and Q7N transistors)
+        Analog_A14 = analogRead ( Pin_Spare_ADC_DAC     );  //  RR0_MON ("right of ROW 0 resistor" between Q9P and Q9N transistors)
       }
     #elif defined BOARD_CORE64C_RASPI_PICO
       if ( (HardwareVersionMinor == 2) ) 
@@ -118,12 +144,12 @@
     BatteryAvgmV        = (uint16_t)(BatteryQuarterAvgmV * BatteryScalarADCtomV);
     BatteryAvgV         = (float)(BatteryAvgmV / 1000.0) ;
 
-    Bus_5V0       = Analog_A0  * Bus_5V0_ADCtomV   / 1000.0 ;
-    Core_Col0_Q5  = Analog_A1  * Core_Col0_ADCtomV / 1000.0 ;
-    Core_Col0_R9  = Analog_A11 * Core_Col0_ADCtomV / 1000.0 ;
-    Core_Col0_U7  = Analog_A12 * Core_Col0_ADCtomV / 1000.0 ;
-    Core_Col0_Q2  = Analog_A13 * Core_Col0_ADCtomV / 1000.0 ;
-    Core_Col0_Q21 = Analog_A14 * Core_Col0_ADCtomV / 1000.0 ;
+    Bus_5V0_V           = Analog_A0  * Bus_5V0_ADCtomV   / 1000.0 ;
+    Bus_3V3_V           = Analog_A1  * Bus_3V3_ADCtomV   / 1000.0 ;
+    Core_Col0_Q3P_Q3N_V = Analog_A11 * Core_Col0_ADCtomV / 1000.0 ;
+    Core_Col0_Q1P_Q1N_V = Analog_A12 * Core_Col0_ADCtomV / 1000.0 ;
+    Core_Row0_Q7P_Q7N_V = Analog_A13 * Core_Row0_ADCtomV / 1000.0 ;
+    Core_Row0_Q9P_Q9N_V = Analog_A14 * Core_Row0_ADCtomV / 1000.0 ;
 
   }
 
@@ -144,18 +170,36 @@
       #ifdef SEND_ANALOG_TO_SERIAL_PORT
         Serial.print((BatteryAvgV),2);
         Serial.print(", ");
-        Serial.print(Bus_5V0,2);
+        Serial.print(Bus_5V0_V,2);
         Serial.print(", ");
-        Serial.print(Core_Col0_Q5,2);
+        Serial.print(Bus_3V3_V,2);
         Serial.print(", ");
-        Serial.print(Core_Col0_R9,2);
+        Serial.print(Core_Col0_Q3P_Q3N_V,2);
         Serial.print(", ");
-        Serial.print(Core_Col0_U7,2);
+        Serial.print(Core_Col0_Q1P_Q1N_V,2);
         Serial.print(", ");
-        Serial.print(Core_Col0_Q2,2);
+        Serial.print(Core_Row0_Q7P_Q7N_V,2);
         Serial.print(", ");
-        Serial.print(Core_Col0_Q21,2);
+        Serial.print(Core_Row0_Q9P_Q9N_V,2);
         Serial.println();
       #endif
     }
+  }
+
+  void AnalogUpdateCoresOnly() {
+    ReadAnalogVoltage();
+    Serial.print((BatteryAvgV),2);
+    Serial.print(", ");
+    Serial.print(Bus_5V0_V,2);
+    Serial.print(", ");
+    Serial.print(Bus_3V3_V,2);
+    Serial.print(", ");
+    Serial.print(Core_Col0_Q3P_Q3N_V,2);
+    Serial.print(", ");
+    Serial.print(Core_Col0_Q1P_Q1N_V,2);
+    Serial.print(", ");
+    Serial.print(Core_Row0_Q7P_Q7N_V,2);
+    Serial.print(", ");
+    Serial.print(Core_Row0_Q9P_Q9N_V,2);
+    Serial.println();
   }

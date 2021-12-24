@@ -20,8 +20,15 @@ SETUP:
 //#endif
 uint16_t GetBatteryVoltagemV();
 float 	 GetBatteryVoltageV();
-void AnalogSetup();
-void AnalogUpdate();
+float 	 GetBus5V0VoltageV();
+float 	 GetBus3V3VoltageV();
+float    GetCoreTC0V();
+float    GetCoreBC0V();
+float    GetCoreLR0V();
+float    GetCoreRR0V();
+void     AnalogSetup();
+void     AnalogUpdate();
+void     AnalogUpdateCoresOnly();
 
 //#ifdef __cplusplus
 //} // extern "C"

@@ -147,7 +147,32 @@
     TracingPulses(3);
     MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
     delayMicroseconds(20);                            // give the core time to change state
-    // AnalogUpdate();                                   // Testing analog updates only during active core time.
+    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+    // Turn off all of the matrix signals
+    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    TracingPulses(4);
+    CoreSenseReset();
+    sei();                                            // Testing for consistent timing.
+  }
+
+  void Core_Mem_Bit_Write_With_V_MON(uint8_t bit, bool value) {
+    // Turn off all of the matrix signals
+    cli();                                            // Testing for consistent timing.
+    CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+    TracingPulses(1);
+    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    // Enable the matrix drive transistors
+    TracingPulses(2);
+    // Activate the selected matrix drive transistors according to bit position and the set/clear request
+    if (value == 1) { AllDriveIoSetBit(bit); } 
+    else { AllDriveIoClearBit(bit); }
+    TracingPulses(3);
+    MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
+    delayMicroseconds(20);                            // give the core time to change state
+    #if defined BOARD_CORE64_TEENSY_32
+      AnalogUpdateCoresOnly();                          // Testing analog updates only during active core time.
+    #endif
     MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
     // Turn off all of the matrix signals
     MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors

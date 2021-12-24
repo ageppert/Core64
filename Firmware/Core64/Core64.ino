@@ -58,6 +58,7 @@
 #include "Ambient_Light_Sensor.h"
 #include "src/CommandLine/CommandLine.h"
 #include "Core_Driver.h"
+#include "Test_Functions.h"
 
 // Command Line Stuff:
   #if defined BOARD_CORE64_TEENSY_32
@@ -90,7 +91,8 @@ enum TopLevelMode                  // Top Level Mode State Machine
   MODE_CORE_TEST_ONE,              //  11 Testing core #coreToTest and displaying core state
   MODE_CORE_TEST_MANY,             //  12 Testing multiple cores and displaying core state
   MODE_HALL_TEST,                  //  13 Testing hall switch and sensor response
-  MODE_LAST,                       //  14 last one, return to 0.
+  MODE_LOOPBACK_TEST,              //  14 For the manufacturing test fixture, test unused IO pins
+  MODE_LAST,                       //  15 last one, return to 0.
 } ;
 static uint8_t TopLevelModeDefault = MODE_STARTUP;
 static uint8_t TopLevelMode = TopLevelModeDefault;
@@ -375,14 +377,14 @@ void loop() {
       for (uint8_t bit = coreToTest; bit<(coreToTest+1); bit++)
         {
           // IOESpare1_On();
-          Core_Mem_Bit_Write(bit,0);
+          Core_Mem_Bit_Write_With_V_MON(bit,0);
           LED_Array_String_Write(bit,0);
           LED_Array_String_Display();
           // IOESpare1_Off();
           // delay(5);
 
           // IOESpare1_On();
-          Core_Mem_Bit_Write(bit,1);
+          Core_Mem_Bit_Write_With_V_MON(bit,1);
           LED_Array_String_Write(bit,1);
           LED_Array_String_Display();
           // IOESpare1_Off();
@@ -451,6 +453,32 @@ void loop() {
       OLEDSetTopLevelMode(TopLevelMode);
       OLEDScreenUpdate();
     
+      break;
+
+    case MODE_LOOPBACK_TEST:
+      LED_Array_Monochrome_Set_Color(125,255,255);
+      LED_Array_Memory_Clear();
+      LED_Array_Matrix_Mono_Display();
+      OLEDSetTopLevelMode(TopLevelMode);
+      OLEDScreenUpdate();
+      if (LoopBackTest() == 0) {
+        Serial.print("LoopBackTest passed. Results code: ");
+        Serial.println(LoopBackTest());
+        Serial.println();
+      }
+      else {
+        Serial.print("LoopBackTest FAILED. Results code: ");
+        Serial.println(LoopBackTest());
+      }
+      Serial.println("  Result values");
+      Serial.println("        0 = PASS");
+      Serial.println("    1-200 = FAIL as number of test failures");
+      Serial.println("      253 = Not implemented for Core64 Vx.5.x.");
+      Serial.println("      254 = Not implemented for Core64c.");
+      Serial.println("      255 = Unhandled exception");
+      Serial.println("Rebooting to return all IO to default states.");      
+      delay(8000);
+      handleReboot(" ");
       break;
 
     case MODE_LAST:
