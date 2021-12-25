@@ -122,9 +122,14 @@ void CommandLineSetup ()
     Serial.print(".");
     Serial.print(HardwareVersionPatch);
     Serial.print("     Serial Number: ");
-    char SerialNumberPadded[6];
-    sprintf(SerialNumberPadded, "%06d", SerialNumber);
-    Serial.print(SerialNumberPadded);
+    #if defined BOARD_CORE64_TEENSY_32
+      char SerialNumberPadded[6];
+      sprintf(SerialNumberPadded, "%06d", SerialNumber);
+      Serial.print(SerialNumberPadded);
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      //TODO: print the serial number padded with leading zeros with RP2040
+      Serial.print(SerialNumber);
+    #endif
     Serial.print("     Born on: 20");
     Serial.print(EEPROMExtReadBornOnYear());
     Serial.print("-");
