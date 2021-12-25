@@ -77,8 +77,14 @@
     display.print(HardwareVersionMinor);
     display.print(F("."));
     display.println(HardwareVersionPatch);
-    display.println(FirmwareVersion);
-    display.print(F("S:"));
+    display.print(F("FV:"));
+    display.print(FirmwareVersionMajor);
+    display.print(".");
+    display.print(FirmwareVersionMinor);
+    display.print(".");
+    display.println(FirmwareVersionPatch);
+    display.setCursor(0, 63);
+    display.print(F("M:"));
     display.print(TopLevelModeLocal,DEC);  
     display.print(F(" "));
     display.print(F("V:"));
@@ -118,7 +124,7 @@
 
     display.clearDisplay();
     display.display();
-    display.setTextSize(2);      // Normal 1:1 pixel scale
+    display.setTextSize(1);      // Normal 1:1 pixel scale
     display.setCursor(0, 0);     // Start at top-left corner
     display.cp437(true);         // Use full 256 char 'Code Page 437' font
     display.setFont(&FreeMono9pt7b);
@@ -183,7 +189,7 @@
         if (i==32) {display.println(); display.print(F(" "));}
       }
       display.println();
-      display.print(F("S:"));
+      display.print(F("M:"));
       display.print(TopLevelModeLocal,DEC);  
       display.print(F(" "));
       display.print(F("V:"));

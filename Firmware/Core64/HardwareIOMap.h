@@ -114,13 +114,14 @@
 		|  0.6.0  | 2021-12-23 | Enable Core64 V0.6.0 like V0.5.0 for bring-up. Maintain backwards compatibility.
 		|  0.6.1  | 2021-12-25 | Print serial number zero-padded to 6 digits. Remove manual date/time from firmware version suffix.
 		|  0.6.2  | 2021-12-25 | Backout zero-padded S/N in Core64c with RP2040.
+		|  0.6.3  | 2021-12-25 | Display firmware version major.minor.patch to OLED, replacing manual text string.
 		|         |            | 
 		----------------------------------------------------------------------------------------------------------*/
 		const uint8_t FirmwareVersionMajor = 0 ;
 		const uint8_t FirmwareVersionMinor = 6 ;
-		const uint8_t FirmwareVersionPatch = 2 ;
+		const uint8_t FirmwareVersionPatch = 3 ;
 		const char compile_date[] = __DATE__ " at " __TIME__;	// The date and time this firmware was compiled.
-		#define FIRMWARE_SUMMARY "Description: Backout zero-padded S/N in Core64c with RP2040"
+		#define FIRMWARE_SUMMARY "Description: Display firmware version major.minor.patch to OLED, replacing manual text string"
 		// TODO: Drop the need to manually enter the following line.
 		#define FIRMWAREVERSION "    " // was "211225.1055"
 		// TODO: Expand the following to be an automatically concatenated printable string like this "0.4.0-210530.1340"
