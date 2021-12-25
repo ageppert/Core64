@@ -122,7 +122,9 @@ void CommandLineSetup ()
     Serial.print(".");
     Serial.print(HardwareVersionPatch);
     Serial.print("     Serial Number: ");
-    Serial.print(SerialNumber);
+    char SerialNumberPadded[6];
+    sprintf(SerialNumberPadded, "%06d", SerialNumber);
+    Serial.print(SerialNumberPadded);
     Serial.print("     Born on: 20");
     Serial.print(EEPROMExtReadBornOnYear());
     Serial.print("-");
@@ -143,7 +145,7 @@ void CommandLineSetup ()
     Serial.print(FirmwareVersionMinor);
     Serial.print(".");
     Serial.print(FirmwareVersionPatch);
-    Serial.print("-");
+//    Serial.print("-");
     Serial.print(FirmwareVersion);
     Serial.print(" (Compiled on: ");
     Serial.print(compile_date);
