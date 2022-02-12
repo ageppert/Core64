@@ -379,7 +379,7 @@ void LED_Array_Auto_Brightness() {
       {
         LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
         #if defined USE_FASTLED_LIBRARY
-          leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+          leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
         #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
           // strip.setPixelColor( LEDPixelPosition, strip.Color(strip.gamma8(LEDArrayMonochromeColorHSV[0]),strip.gamma8(LEDArrayMonochromeColorHSV[1]),strip.gamma8(LEDArrayMonochromeColorHSV[2])) );
           strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness

@@ -177,7 +177,7 @@ const static bool character_font_wide[15][8][8] PROGMEM = {   // Character, Row,
 }
 };
 
-const static uint8_t NumberOfColorFontSymbols = 4;
+const static uint8_t NumberOfColorFontSymbols = 5;
 const static uint8_t ColorFontSymbols[NumberOfColorFontSymbols][8][8] PROGMEM = {   // Character, Row, Column
 
 {  {1,1,1,0,1,1,1,0},
@@ -214,7 +214,17 @@ const static uint8_t ColorFontSymbols[NumberOfColorFontSymbols][8][8] PROGMEM = 
    { 96, 96,  0,  0,  0, 96, 96, 96},
    {  0,160,160,160,160,  0,  0,  0},
    {  0,  0,160,160,160,  0,  0,  0},
-   {  0,  0,  0,  0,  0,  0,  0,  0}  }   // C=
+   {  0,  0,  0,  0,  0,  0,  0,  0}  },  // C=
+
+{  {  0, 85, 85,  0,  0,  0, 42,  0},     // GAUSS
+   { 85,  0,  0,  0,  0, 42,  0, 42},     // G for Games, in fun Green 85
+   { 85,  0, 85,  0,  0, 42, 42, 42},     // A for Applications, in Yellow 42
+   {  0, 85, 85,  0,  0, 42,  0, 42},
+   {  0,  0,  0,  0,  0,  0,  0,  0},
+   {170,  0,170,  0,222,222,255,255},     // U for Utilities, in Blue 170
+   {170,  0,170,  0,222,  0,255,  0},     // S for Settings, in Purple 220
+   {170,170,170,222,222,255,255,  0}  }   // S for Special, in Red 255
+
 };
 
 #endif

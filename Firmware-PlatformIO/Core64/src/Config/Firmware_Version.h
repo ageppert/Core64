@@ -1,0 +1,58 @@
+/*
+	PURPOSE: Define and describe the firmware version scheme and number.
+         		Specify firmware version manually in this file as a string.
+	SETUP: Manually update the field assigned as VERSION	
+*/
+
+#ifndef FIRMWARE_VERSION_H
+	#define FIRMWARE_VERSION_H
+	#include <stdint.h>
+	#include <stdbool.h>
+
+	#define FIRMWARE_DESCRIPTION "Description: Organize TopLevelMode list, placeholder GAUSS menu."
+
+	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
+	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 4 ;				// Update manually.
+	const char compile_date[] = __DATE__ " at " __TIME__;	// Automatically updated date and time this firmware was compiled.
+	
+	// TODO: Drop the need to manually enter the following line.
+	#define FIRMWAREVERSION "    " // was "211225.1055"
+	// TODO: Expand the following text/character value to be an automatically concatenated and printable string like this "0.4.0-210530.1340"
+	const char FirmwareVersion[] = FIRMWAREVERSION;
+	// TODO: Using something like this and then get ride of the #define FIRMWAREVERSION above.
+	// const String FirmwareVersion[] = String ("V" + String(FirmwareVersionMajor) + "." + String(FirmwareVersionMinor) + "." + String(FirmwareVersionPatch) + "-" + __DATE__ + " " + __TIME__);
+
+	/*	FIRMWARE VERSION SCHEME 
+		Same as hardware version scheme, with additional metadata extensions:
+			-DATE 		Ex. -200101			Two digit month, two digit day of the month
+				.TIME 	  Ex. .0800 			Time increments from build to build to clearly denote each unqiue iteration
+			Firmware version is manually entered below.
+	/***************************************** FIRMWARE VERSION TABLE ******************************************
+	| VERSION |  DATE      | DESCRIPTION                                                                       |
+	------------------------------------------------------------------------------------------------------------
+	|  0.1.0  | 2019-      | 
+	|  0.1.5  | 2020-      | 
+	|  0.2.0  | 2020-      | 
+	|  0.3.x  | 2020-      | 
+	|  0.4.x  | 2020-11-28 | 
+	|  0.5.x  | 2021-03-20 | Accept V0.5.x hardware, manual default to the custom-fit LED Matrix.
+	|  0.5.x  | 2021-04-25 | Beta Kit Release
+	|  0.5.1  | 2021-09-06 | Display firmware version info, backwards compatible with Core64, adding basic Core64c functionality.
+	|  0.5.2  | 2021-09-06 | Compile time select FastLED or Neopixel library, scrolling text [only] on Core64c.
+	|  0.5.3  | 2021-09-09 | Add and enable scrolling text color change.
+	|  0.5.4  | 2021-09-29 | Enable all four hall sensors and/or switches, and OLED, for Core64 V0.5.0 and Core64c V0.2.0
+	|  0.5.5  | 2021-10-01 | Display Voltage Input (USB or Bat.) for Core64 V0.5.0 and Core64c V0.2.0.
+	|  0.6.0  | 2021-12-23 | Enable Core64 V0.6.0 like V0.5.0 for bring-up. Maintain backwards compatibility.
+	|  0.6.1  | 2021-12-25 | Print serial number zero-padded to 6 digits. Remove manual date/time from firmware version suffix.
+	|  0.6.2  | 2021-12-25 | Backout zero-padded S/N in Core64c with RP2040.
+	|  0.6.3  | 2021-12-25 | Display firmware version major.minor.patch to OLED, replacing manual text string.
+	|  0.7.0  | 2022-01-02 | Move from Arduino to PlatformIO, split files into sub-directories, broke Core64c (I2C1) compatibility.
+	|  0.7.1  | 2022-01-22 | Fixing I2C issues so Core64 and Core64c both work.
+	|  0.7.2  | 2022-01-30 | Move Commandline Handler and Mode Manager out to their own files, outside of main.c
+	|  0.7.3  | 2022-02-04 | Move Serial setup outside of main.c, add debug level to commandline.
+	|  0.7.4  | 2022-02-12 | Split Firmware_Version.h out of HardwareIOMap.h.
+	|         |            | 
+	----------------------------------------------------------------------------------------------------------*/
+
+#endif // FIRMWARE_VERSION_H

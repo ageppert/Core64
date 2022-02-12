@@ -29,48 +29,59 @@
 
 #include "SubSystems/Command_Line_Handler.h"
 
-static bool TopLevelModeChanged = false;
 enum TopLevelMode                  // Top Level Mode State Machine
-{                                  // Move to Submenu
-  MODE_STARTUP = 0,                // do not move       0 Start-up
-  MODE_SCROLLING_TEXT,             // APP               1 Scrolling text at power on
-  MODE_CORE_FLUX_DETECTOR,         // APP               2 Testing all cores and displaying core state
-  MODE_MONOCHROME_DRAW,            // APP               3 Test LED Driver with binary values
-  MODE_LED_TEST_ALL_BINARY,        // Special           4 Test LED Driver with binary values
-  MODE_LED_TEST_ONE_STRING,        // Special           5 Testing LED Driver
-  MODE_LED_TEST_ONE_MATRIX_MONO,   // Special           6 Testing LED Driver with matrix array and monochrome color
-  MODE_LED_TEST_ONE_MATRIX_COLOR,  // Special           7 Testing LED Driver with matrix array and multi-color symbols
-  MODE_TEST_EEPROM,                // Special           8
-  MODE_LED_TEST_ALL_COLOR,         // Special           9 Test LED Driver with all pixels and all colors
-  MODE_CORE_TOGGLE_BIT,            // Special          10 Test one core with one function
-  MODE_CORE_TEST_ONE,              // Special          11 Testing core #coreToTest and displaying core state
-  MODE_CORE_TEST_MANY,             // Special          12 Testing multiple cores and displaying core state
-  MODE_HALL_TEST,                  // Special          13 Testing hall switch and sensor response
-  MODE_LOOPBACK_TEST,              // Special          14 For the manufacturing test fixture, test unused IO pins
-  MODE_LAST,                       //                  15 last one, return to 0.
+{
+  MODE_STARTUP                    =   0,                  // Start-up, then go to APP #1 as the default
+  MODE_SCROLLING_TEXT             =   1,                  // Scrolling text at power on
+  MODE_CORE_FLUX_DETECTOR         =   2,                  // Testing all cores and displaying core state
+  MODE_MONOCHROME_DRAW            =   3,                  // Test LED Driver with binary values
+  
+  MODE_LED_TEST_ALL_BINARY        =   4,                  // Test LED Driver with binary values
+  MODE_LED_TEST_ONE_STRING        =   5,                  // Testing LED Driver
+  MODE_LED_TEST_ONE_MATRIX_MONO   =   6,                  // Testing LED Driver with matrix array and monochrome color
+  MODE_LED_TEST_ONE_MATRIX_COLOR  =   7,                  // Testing LED Driver with matrix array and multi-color symbols
+  MODE_TEST_EEPROM                =   8,                  // 
+  MODE_LED_TEST_ALL_COLOR         =   9,                  // Test LED Driver with all pixels and all colors
+  
+  MODE_GAUSS_MENU                 =  10,                  // GAUSS MENU (TOP LEVEL MENU)
+
+  MODE_CORE_TOGGLE_BIT            =  11,                  // Test one core with one function
+  MODE_CORE_TEST_ONE              =  12,                  // Testing core #coreToTest and displaying core state
+  MODE_CORE_TEST_MANY             =  13,                  // Testing multiple cores and displaying core state
+  MODE_HALL_TEST                  =  14,                  // Testing hall switch and sensor response
+  MODE_LOOPBACK_TEST              = 501,                  // For the manufacturing test fixture, test unused IO pins
+
+  MODE_LAST                       = 999,                  // Last one, return to Startup 0.
+  MODE_HARD_REBOOT               = 1000                   // Hard Reboot.
 } ;
-static uint8_t TopLevelModeDefault = MODE_STARTUP;
-static uint8_t TopLevelMode;
-  static uint8_t  ColorFontSymbolToDisplay = 2;
-  static bool     Button1Released = true;
-  static bool     Button2Released = true;
-  static bool     Button3Released = true;
-  static bool     Button4Released = true;
-  static uint32_t Button1HoldTime = 0;
-  static uint32_t Button2HoldTime = 0;
-  static uint32_t Button3HoldTime = 0;
-  static uint32_t Button4HoldTime = 0;
-  static uint8_t  coreToTest = 0;
+static uint16_t TopLevelModeDefault = MODE_STARTUP;
+static uint16_t TopLevelMode;
+static uint16_t TopLevelModePrevious;
+static bool     TopLevelModeChanged = false;
+
+static uint8_t  ColorFontSymbolToDisplay = 2;
+static bool     Button1Released = true;
+static bool     Button2Released = true;
+static bool     Button3Released = true;
+static bool     Button4Released = true;
+static uint32_t Button1HoldTime = 0;
+static uint32_t Button2HoldTime = 0;
+static uint32_t Button3HoldTime = 0;
+static uint32_t Button4HoldTime = 0;
+static uint8_t  coreToTest = 0;
 
 uint8_t EepromByteValue = 0;
 uint8_t Eeprom_Byte_Mem_Address = 0;
 extern int StreamTopLevelModeEnable;
 
-void SetModeTopLevelDefault() { TopLevelMode = TopLevelModeDefault; }
+void SetTopLevelModeDefault() { TopLevelMode = TopLevelModeDefault; }
 
-void SetTopLevelMode (uint8_t value) {   TopLevelMode = value; }
-uint8_t GetTopLevelMode ()           {   return (TopLevelMode); }
-void SetTopLevelModeInc ()           {   TopLevelMode++; }
+void SetTopLevelMode (uint16_t value) {   TopLevelMode = value; }
+uint16_t GetTopLevelMode ()           {   return (TopLevelMode); }
+void SetTopLevelModeInc ()            {   TopLevelMode++; }
+
+void SetTopLevelModePrevious (uint16_t value)   { TopLevelModePrevious = value; }
+uint16_t GetTopLevelModePrevious ()             { return (TopLevelModePrevious); }
 
 void SetTopLevelModeChanged (bool value) {   TopLevelModeChanged = value; }
 bool GetTopLevelModeChanged ()           {   return (TopLevelModeChanged); }
@@ -80,18 +91,8 @@ void TopLevelModeRun () {
     // If button is pressed, go to next mode.
     // Must be released and pressed again for subsequent action.
 
-    if (StreamTopLevelModeEnable)
-    {
-      Serial.println(GetTopLevelMode());
-    }
+    if (StreamTopLevelModeEnable) { Serial.println(GetTopLevelMode()); }
 
-    if (GetTopLevelModeChanged()) {
-      Serial.println("");
-      Serial.print("  Mode changed to: ");
-      Serial.println(GetTopLevelMode());
-      Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
-      SetTopLevelModeChanged (false);
-    }
     #if defined BOARD_CORE64_TEENSY_32
       Button1HoldTime = ButtonState(1,0);
       Button2HoldTime = ButtonState(2,0);
@@ -100,19 +101,31 @@ void TopLevelModeRun () {
     #elif defined BOARD_CORE64C_RASPI_PICO
       // Not yet implemented
     #endif
-    if ( (Button1Released == true) && (Button1HoldTime >= 500) ){
+
+    if ( (Button1Released == true) && (Button1HoldTime >= 500) ) {
       ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
       Button1Released = false;
       ColorFontSymbolToDisplay++;
       if(ColorFontSymbolToDisplay>3) { ColorFontSymbolToDisplay = 0; }
+      TopLevelModePrevious = TopLevelMode;
       SetTopLevelModeInc();
       SetTopLevelModeChanged (true); // User application has one time to use this before it is reset.
     }
     else {
       if (Button1HoldTime == 0) {
         Button1Released = true;
-        SetTopLevelModeChanged (false);
+        // SetTopLevelModeChanged (false);
       }
+    }
+
+    if (GetTopLevelModeChanged()) {
+      Serial.println("");
+      Serial.print("  TopLevelMode changed to ");
+      Serial.print(GetTopLevelMode());
+      Serial.print(" from ");
+      Serial.print(TopLevelModePrevious);
+      Serial.println(".");
+      Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
     }
 
     switch(TopLevelMode)
@@ -204,6 +217,7 @@ void TopLevelModeRun () {
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Memory_Clear();
         #endif
+        Serial.println("  LED Matrix Cleared.");      
       }
       // If this was the first time into this state, set default screen to be 0xDEADBEEF and 0xC0D3C4FE
       if (GetTopLevelModeChanged())
@@ -271,6 +285,11 @@ void TopLevelModeRun () {
       LED_Array_Test_Rainbow_Demo();
       OLEDSetTopLevelMode(TopLevelMode);
       OLEDScreenUpdate();
+      break;
+      
+    case MODE_GAUSS_MENU:
+      WriteColorFontSymbolToLedScreenMemoryMatrixColor(4);
+      LED_Array_Matrix_Color_Display(); 
       break;
 
     case MODE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
@@ -364,12 +383,12 @@ void TopLevelModeRun () {
       OLEDSetTopLevelMode(TopLevelMode);
       OLEDScreenUpdate();
       if (LoopBackTest() == 0) {
-        Serial.print("LoopBackTest passed. Results code: ");
+        Serial.print("  LoopBackTest passed. Results code: ");
         Serial.println(LoopBackTest());
         Serial.println();
       }
       else {
-        Serial.print("LoopBackTest FAILED. Results code: ");
+        Serial.print("  LoopBackTest FAILED. Results code: ");
         Serial.println(LoopBackTest());
       }
       Serial.println("  Result values");
@@ -378,7 +397,7 @@ void TopLevelModeRun () {
       Serial.println("      253 = Not implemented for Core64 Vx.5.x.");
       Serial.println("      254 = Not implemented for Core64c.");
       Serial.println("      255 = Unhandled exception");
-      Serial.println("Rebooting to return all IO to default states.");      
+      Serial.println("  Hard rebooting to return all IO to default states. 8 seconds to go...");      
       delay(8000);
       handleReboot(" ");
       break;
@@ -389,12 +408,31 @@ void TopLevelModeRun () {
       LED_Array_Monochrome_Set_Color(125,255,255);
       OLEDSetTopLevelMode(TopLevelMode);
       OLEDScreenUpdate();
+      Serial.println("  TopLevelMode reached the end of the mode list. Soft restart back to MODE_STARTUP.");      
       TopLevelMode = MODE_STARTUP;   
       break;
 
+    case MODE_HARD_REBOOT:
+      LED_Array_Memory_Clear();
+      LED_Array_Matrix_Mono_Display();
+      LED_Array_Monochrome_Set_Color(125,255,255);
+      OLEDSetTopLevelMode(TopLevelMode);
+      OLEDScreenUpdate();
+      Serial.println("  Hard rebooting in 3 seconds.");      
+      delay(3000);
+      handleReboot(" ");
+      break;
+
     default:
-      Serial.println("Invalid TopLevelMode");
+      Serial.print("  ");      
+      Serial.print(GetTopLevelMode());
+      Serial.println(" is an undefined TopLevelMode. Soft restart back to MODE_STARTUP.");
       TopLevelMode = MODE_STARTUP;   
       break;
     }
+
+    if (GetTopLevelModeChanged()) {
+      SetTopLevelModeChanged (false);
+    }
+
 }

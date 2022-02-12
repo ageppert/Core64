@@ -11,6 +11,7 @@
 
 #include "SubSystems/OLED_Screen.h"
 #include "Config/HardwareIOMap.h"
+#include "Config/Firmware_Version.h"
 
   #include <Wire.h>   // Default is SCL0 and SDA0 on pins 19/18 of Teensy LC
   // #define not needed, as Wire.h library takes care of this pin configuration.

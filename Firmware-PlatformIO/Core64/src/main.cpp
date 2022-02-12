@@ -70,7 +70,7 @@ extern uint8_t DebugLevel;  // See Serial_Debug.cpp to set default
 
 void setup() {
   SerialPortSetup();
-  SetModeTopLevelDefault();
+  SetTopLevelModeDefault();
   HeartBeatSetup();
   #if defined BOARD_CORE64_TEENSY_32
     LED_Array_Init();

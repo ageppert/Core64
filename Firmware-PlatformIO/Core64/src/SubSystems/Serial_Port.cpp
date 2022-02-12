@@ -15,6 +15,8 @@ void SerialPortSetup() {
   delay(500);                               // Provide a little time for a connected serial monitor to auto-open, such as in PlatformIO
   Serial.println();
   Serial.println("Serial Port Started.");
+  Serial.print("Debug Level = ");
+  Serial.println(DebugLevel);
 }
 
 void SerialPortProcess() {

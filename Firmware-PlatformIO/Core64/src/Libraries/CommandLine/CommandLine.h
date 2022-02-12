@@ -8,7 +8,7 @@
 
 // Number of commands to support.
 #ifndef COMMANDLINE_COUNT
-    #define COMMANDLINE_COUNT 8
+    #define COMMANDLINE_COUNT 25
 #endif
 
 // Maximum number of characters in input buffer.

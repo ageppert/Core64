@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "Config/HardwareIOMap.h"
+#include "Config/Firmware_Version.h"
 #include "SubSystems/Heart_Beat.h"
 #include "SubSystems/Serial_Port.h"
 #include "Hal/LED_Array_HAL.h"
@@ -94,10 +95,12 @@ void CommandLineSetup ()
   commandLine.add("arrangement", &handleArrangement);
   commandLine.add("coretest", &handleCoreTest);
   commandLine.add("debug", &handleDebug);
+  commandLine.add("gauss", &handleGauss);
   commandLine.add("help", &handleHelp);
   commandLine.add("info", &handleInfo);
   commandLine.add("mode", &handleMode);
   commandLine.add("reboot", &handleReboot);
+  commandLine.add("restart", &handleRestart);
   commandLine.add("splash", &handleSplash);
   commandLine.add("stream", &handleStream);
   #elif defined BOARD_CORE64C_RASPI_PICO
@@ -165,24 +168,34 @@ void  CommandLineUpdate()
     }
   }
 
+  void handleGauss(char* tokens)
+  {
+    Serial.println("  Jump to GAUSS Menu.");
+    SetTopLevelModePrevious(GetTopLevelMode());
+    SetTopLevelMode(10);
+    SetTopLevelModeChanged (true);
+  }
+
   void handleHelp(char* tokens)
   {
     Serial.println("  ---------------------");
-    Serial.println("  ----- HELP MENU -----");
+    Serial.println("  |     HELP MENU     |");
     Serial.println("  ---------------------");
-    Serial.println("  arrangement            // Query EEPROM for core arrangement value.");
-    Serial.println("  arrangement normal     // Set EEPROM for core arrangement normal / \\. Requires reboot.");
-    Serial.println("  arrangement opposite   // Set EEPROM for core arrangement opposite \\ /.");
-    Serial.println("  coretest               // Test one core.");
-    Serial.println("  debug [#]              // Query or optionally set Debug Level.");
-    Serial.println("  help                   // This help menu.");
-    Serial.println("  info                   // Query hardware and firmware info.");
-    Serial.println("  mode [#]               // Query or optionally set Top Level Mode.");
-    Serial.println("  reboot                 // Software reboot.");
-    Serial.println("  splash                 // Splash screen text.");
-    Serial.println("  stream                 // Togggles the streaming mode.");
-    Serial.println("  stream start           // Starts the streaming mode.");
-    Serial.println("  stream stop            // Stops the streaming mode.");
+    Serial.println("  arrangement            -> Query EEPROM for core arrangement value.");
+    Serial.println("  arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires reboot.");
+    Serial.println("  arrangement opposite   -> Set EEPROM for core arrangement opposite \\ /.");
+    Serial.println("  coretest               -> Test one core.");
+    Serial.println("  debug [#]              -> Query or optionally set Debug Level.");
+    Serial.println("  gauss                  -> Go directly to GAUSS menu.");
+    Serial.println("  help                   -> This help menu.");
+    Serial.println("  info                   -> Query hardware and firmware info.");
+    Serial.println("  mode [#]               -> Query or optionally set Top Level Mode.");
+    Serial.println("  reboot                 -> Software initiated hard reboot.");
+    Serial.println("  restart                -> Software initiated soft restart.");
+    Serial.println("  splash                 -> Splash screen text.");
+    Serial.println("  stream                 -> Togggles the streaming mode.");
+    Serial.println("  stream start           -> Starts the streaming mode.");
+    Serial.println("  stream stop            -> Stops the streaming mode.");
     Serial.println();
   }
 
@@ -191,7 +204,7 @@ void  CommandLineUpdate()
     ReadHardwareVersion();
     SerialNumber = EEPROMExtReadSerialNumber();
     Serial.println("  ----------------");
-    Serial.println("  ----- INFO -----");
+    Serial.println("  |     INFO     |");
     Serial.println("  ----------------");
 
     #if defined BOARD_CORE64_TEENSY_32
@@ -248,7 +261,7 @@ void  CommandLineUpdate()
     Serial.println(")");
 
     Serial.print("  ");
-    Serial.println(FIRMWARE_SUMMARY);
+    Serial.println(FIRMWARE_DESCRIPTION);
     Serial.println("  For more details see https://www.github.com/ageppert/Core64");
 
     Serial.println();
@@ -268,6 +281,7 @@ void  CommandLineUpdate()
     char* token = strtok(NULL, " ");
 
     if (token != NULL) {
+      SetTopLevelModePrevious(GetTopLevelMode());
       SetTopLevelMode(atoi(token));
       SetTopLevelModeChanged (true);
     } 
@@ -279,10 +293,20 @@ void  CommandLineUpdate()
 
   void handleReboot(char* tokens)
   {
-    Serial.println("  SOFTWARE INITIATED REBOOT NOW!");
+    Serial.println("  SOFTWARE INITIATED HARD REBOOT NOW!");
     delay(1000);
     CPU_RESTART; // Teensy 3.2       
   }
+
+  void handleRestart(char* tokens)
+  {
+    Serial.println("  Software initiated soft restart now.");
+    delay(1000);
+    SetTopLevelModePrevious(GetTopLevelMode());
+    SetTopLevelMode(0);
+    SetTopLevelModeChanged (true); 
+  }
+
 
   void handleSplash(char* tokens)
   {

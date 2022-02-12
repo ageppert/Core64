@@ -8,15 +8,19 @@ SETUP:
 
     #include <stdint.h>
 
-    void    SetModeTopLevelDefault();
+    void    SetTopLevelModeDefault();
 
-    void    SetTopLevelMode         (uint8_t value);
-    void    SetTopLevelModeInc      ();
-    uint8_t GetTopLevelMode         ();
-    
-    void    SetTopLevelModeChanged  (bool value);
-    bool    GetTopLevelModeChanged  ();
+    void    SetTopLevelMode          (uint16_t value);
+    void    SetTopLevelModeInc       ();
+    uint16_t GetTopLevelMode         ();
 
-    void    TopLevelModeRun         ();
+    void SetTopLevelModePrevious     (uint16_t value);
+    uint16_t GetTopLevelModePrevious ();
+
+
+    void    SetTopLevelModeChanged   (bool value);
+    bool    GetTopLevelModeChanged   ();
+
+    void    TopLevelModeRun          ();
 
 #endif
