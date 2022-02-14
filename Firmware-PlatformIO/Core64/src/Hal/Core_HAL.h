@@ -33,7 +33,7 @@ void CoreSetAll();
 void Core_Mem_Array_Write();						// Transfer CoreArrayMemory 8x8 Array FLASH RAM into Core Memory RAM
 void Core_Mem_Array_Read();							// Transfer Core Memory RAM into CoreArrayMemory 8x8 Array FLASH RAM 
 void Core_Mem_Array_Write_Test_Pattern();
-void Core_Mem_Monitor();							// Monitor for flux interference in Core Memory RAM, reported through CoreArrayMemory
+void Core_Mem_Scan_For_Magnet();							// Monitor for flux interference in Core Memory RAM, reported through CoreArrayMemory
 
 // OLD API Command List
 // extern void CoreWriteBit(uint8_t bit, bool value);

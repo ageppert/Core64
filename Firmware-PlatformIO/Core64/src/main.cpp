@@ -67,10 +67,17 @@
 #include "Mode_Manager.h"
 
 extern uint8_t DebugLevel;  // See Serial_Debug.cpp to set default
+static uint32_t MainLoopStartTime = 0 ;
+static uint32_t MainLoopEndTime = 0 ;
+static uint32_t MainLoopDurationLast = 0 ;
+static uint32_t MainLoopDurationShortest = 123456 ;
+static uint32_t MainLoopDurationLongest = 0 ;
+const  uint32_t MainLoopDebugTimeUpdatePeriod = 1000; 
+static uint32_t MainLoopDebugTimeUpdateLast = 0; 
 
 void setup() {
   SerialPortSetup();
-  SetTopLevelModeDefault();
+  TopLevelModeSetToDefault();
   HeartBeatSetup();
   #if defined BOARD_CORE64_TEENSY_32
     LED_Array_Init();
@@ -101,6 +108,7 @@ void setup() {
 }
 
 void loop() {
+  MainLoopStartTime = millis(); 
   /*                      *********************
                           *** Housekeepting ***
                           *********************
@@ -111,18 +119,35 @@ void loop() {
   CommandLineUpdate();
   #if defined BOARD_CORE64_TEENSY_32
     AmbientLightUpdate();
-    SDCardVoltageLog(1000);
+    // SDCardVoltageLog(1000);
   #elif defined BOARD_CORE64C_RASPI_PICO
     // not yet implemented
   #endif
 
-  if(DebugLevel==1) { Serial.println("DEBUG: END OF HOUSEKEEPING"); }
+  if(DebugLevel==1) { Serial.println("DEBUG: START OF TOP LEVEL MODE FUNCTIONS"); }
 
     // Serial.print("  Switched Voltage: ");
     // Serial.println(GetBatteryVoltageV(),2);
-    /*                      ************************
-                            *** User Interaction ***
-                            ************************
-    */
-    TopLevelModeRun();
+  /*                      ************************
+                          *** User Interaction ***
+                          ************************
+  */
+  TopLevelModeManagerRun();
+  if(DebugLevel==1) { Serial.println("DEBUG: END OF TOP LEVEL MODE FUNCTIONS"); }
+  MainLoopEndTime = millis();
+  MainLoopDurationLast = MainLoopEndTime - MainLoopStartTime;
+  if (MainLoopDurationShortest > MainLoopDurationLast ) { MainLoopDurationShortest = MainLoopDurationLast; }
+  if (MainLoopDurationLongest < MainLoopDurationLast ) { MainLoopDurationLongest = MainLoopDurationLast; }
+  if(DebugLevel==3) { 
+    if ( (MainLoopEndTime - MainLoopDebugTimeUpdateLast) >= MainLoopDebugTimeUpdatePeriod) {
+      MainLoopDebugTimeUpdateLast = MainLoopEndTime; 
+      Serial.print("DEBUG: MAIN LOOP DURATION (Min, Max): "); 
+      Serial.print(MainLoopDurationLast); 
+      Serial.print(" (");
+      Serial.print(MainLoopDurationShortest);
+      Serial.print(",");
+      Serial.print(MainLoopDurationLongest);
+      Serial.println(")");
+    }
+  }
 }

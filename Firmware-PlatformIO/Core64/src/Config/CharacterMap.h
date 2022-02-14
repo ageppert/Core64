@@ -216,10 +216,10 @@ const static uint8_t ColorFontSymbols[NumberOfColorFontSymbols][8][8] PROGMEM = 
    {  0,  0,160,160,160,  0,  0,  0},
    {  0,  0,  0,  0,  0,  0,  0,  0}  },  // C=
 
-{  {  0, 85, 85,  0,  0,  0, 42,  0},     // GAUSS
-   { 85,  0,  0,  0,  0, 42,  0, 42},     // G for Games, in fun Green 85
-   { 85,  0, 85,  0,  0, 42, 42, 42},     // A for Applications, in Yellow 42
-   {  0, 85, 85,  0,  0, 42,  0, 42},
+{  {  0,  0,  0, 85, 85,  0, 42,  0},     // DGAUSS Menu Symbol
+   {  0,127, 85,  0,  0, 42,  0, 42},     // D for Demos, in blue 127
+   {127,127, 85,  0, 85, 42, 42, 42},     // G for Games, in fun Green 85
+   {127,127,  0, 85, 85, 42,  0, 42},     // A for Applications, in Yellow 42
    {  0,  0,  0,  0,  0,  0,  0,  0},
    {170,  0,170,  0,222,222,255,255},     // U for Utilities, in Blue 170
    {170,  0,170,  0,222,  0,255,  0},     // S for Settings, in Purple 220

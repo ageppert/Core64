@@ -9,13 +9,7 @@
 	#include <stdint.h>
 	#include <stdbool.h>
 
-	#define FIRMWARE_DESCRIPTION "Description: Organize TopLevelMode list, placeholder GAUSS menu."
-
-	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
-	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 4 ;				// Update manually.
 	const char compile_date[] = __DATE__ " at " __TIME__;	// Automatically updated date and time this firmware was compiled.
-	
 	// TODO: Drop the need to manually enter the following line.
 	#define FIRMWAREVERSION "    " // was "211225.1055"
 	// TODO: Expand the following text/character value to be an automatically concatenated and printable string like this "0.4.0-210530.1340"
@@ -51,8 +45,13 @@
 	|  0.7.1  | 2022-01-22 | Fixing I2C issues so Core64 and Core64c both work.
 	|  0.7.2  | 2022-01-30 | Move Commandline Handler and Mode Manager out to their own files, outside of main.c
 	|  0.7.3  | 2022-02-04 | Move Serial setup outside of main.c, add debug level to commandline.
-	|  0.7.4  | 2022-02-12 | Split Firmware_Version.h out of HardwareIOMap.h.
+	|  0.7.4  | 2022-02-12 | Organize TopLevelMode list, placeholder GAUSS menu.
+	|  0.7.5  | 2022-02-12 | Implement DGAUSS MENU, draw mode UI improved, organized sub-menu category modes.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
+	#define FIRMWARE_DESCRIPTION "Description: Implement DGAUSS MENU, draw mode UI improved, organized sub-menu category modes."
+	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
+	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 5 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

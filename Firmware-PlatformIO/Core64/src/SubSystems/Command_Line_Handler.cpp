@@ -22,6 +22,7 @@
 #include "Drivers/Core_Driver.h"
 #include "SubSystems/Test_Functions.h"
 #include "Hal/Debug_Pins_HAL.h"
+#include "Mode_Manager.h"
 
 #if defined BOARD_CORE64_TEENSY_32
   #define PROMPT "Core64> "
@@ -95,7 +96,7 @@ void CommandLineSetup ()
   commandLine.add("arrangement", &handleArrangement);
   commandLine.add("coretest", &handleCoreTest);
   commandLine.add("debug", &handleDebug);
-  commandLine.add("gauss", &handleGauss);
+  commandLine.add("dgauss", &handleDgauss);
   commandLine.add("help", &handleHelp);
   commandLine.add("info", &handleInfo);
   commandLine.add("mode", &handleMode);
@@ -165,15 +166,25 @@ void  CommandLineUpdate()
       Serial.println(GetDebugLevel());
       Serial.println("    1 = housekeeping start/end");
       Serial.println("    2 = hall sensors and switches");
+      Serial.println("    3 = system timers");
     }
   }
 
-  void handleGauss(char* tokens)
+  void handleDgauss(char* tokens)
   {
-    Serial.println("  Jump to GAUSS Menu.");
-    SetTopLevelModePrevious(GetTopLevelMode());
-    SetTopLevelMode(10);
-    SetTopLevelModeChanged (true);
+    if (TopLevelModeGet()==MODE_DGAUSS_MENU) {
+      if (TopLevelModeGetPrevious() == 10) { TopLevelModeSetPrevious(MODE_START_POWER_ON); } // If previous mode was DGAUSS menu, go back to STARTUP
+      TopLevelModeSet(TopLevelModeGetPrevious());
+      TopLevelModeSetPrevious(MODE_DGAUSS_MENU);
+      TopLevelModeSetChanged (true);
+      Serial.println("  Exit DGAUSS Menu.");
+    }
+    else {
+      TopLevelModeSetPrevious(TopLevelModeGet());
+      TopLevelModeSet(10);
+      TopLevelModeSetChanged (true);
+      Serial.println("  Jump to DGAUSS Menu.");
+    }
   }
 
   void handleHelp(char* tokens)
@@ -181,21 +192,34 @@ void  CommandLineUpdate()
     Serial.println("  ---------------------");
     Serial.println("  |     HELP MENU     |");
     Serial.println("  ---------------------");
-    Serial.println("  arrangement            -> Query EEPROM for core arrangement value.");
-    Serial.println("  arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires reboot.");
-    Serial.println("  arrangement opposite   -> Set EEPROM for core arrangement opposite \\ /.");
-    Serial.println("  coretest               -> Test one core.");
-    Serial.println("  debug [#]              -> Query or optionally set Debug Level.");
-    Serial.println("  gauss                  -> Go directly to GAUSS menu.");
-    Serial.println("  help                   -> This help menu.");
-    Serial.println("  info                   -> Query hardware and firmware info.");
-    Serial.println("  mode [#]               -> Query or optionally set Top Level Mode.");
-    Serial.println("  reboot                 -> Software initiated hard reboot.");
-    Serial.println("  restart                -> Software initiated soft restart.");
-    Serial.println("  splash                 -> Splash screen text.");
-    Serial.println("  stream                 -> Togggles the streaming mode.");
-    Serial.println("  stream start           -> Starts the streaming mode.");
-    Serial.println("  stream stop            -> Stops the streaming mode.");
+    Serial.println("  SOFT BUTTONS: M - + S");
+    Serial.println("    M BUTTON to enter/exit DGAUSS Menu. Or back out of sub-menu.");
+    Serial.println("      D = Demos ...cycle through demo modes with +/- BUTTONS.");
+    Serial.println("      G = Games");
+    Serial.println("      A = App");
+    Serial.println("      U = Utils");
+    Serial.println("      S = Settings");
+    Serial.println("      S = Special");
+    Serial.println("    + BUTTON scroll to next item in sub-menu list.");
+    Serial.println("    - BUTTON scroll to previous item in sub-menu list.");
+    Serial.println("    S BUTTON to select from sub-menu list.");
+    Serial.println("");
+    Serial.println("  SERIAL COMMANDS:");
+    Serial.println("    arrangement            -> Query EEPROM for core arrangement value.");
+    Serial.println("    arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires reboot.");
+    Serial.println("    arrangement opposite   -> Set EEPROM for core arrangement opposite \\ /.");
+    Serial.println("    coretest               -> Test one core.");
+    Serial.println("    debug [#]              -> Query or optionally set Debug Level.");
+    Serial.println("    dgauss                 -> Enter/exit DGAUSS menu.");
+    Serial.println("    help                   -> This help menu.");
+    Serial.println("    info                   -> Query hardware and firmware info.");
+    Serial.println("    mode [#]               -> Query or optionally set Top Level Mode.");
+    Serial.println("    reboot                 -> Software initiated hard reboot.");
+    Serial.println("    restart                -> Software initiated soft restart.");
+    Serial.println("    splash                 -> Splash screen text.");
+    Serial.println("    stream                 -> Togggles the streaming mode.");
+    Serial.println("    stream start           -> Starts the streaming mode.");
+    Serial.println("    stream stop            -> Stops the streaming mode.");
     Serial.println();
   }
 
@@ -281,13 +305,13 @@ void  CommandLineUpdate()
     char* token = strtok(NULL, " ");
 
     if (token != NULL) {
-      SetTopLevelModePrevious(GetTopLevelMode());
-      SetTopLevelMode(atoi(token));
-      SetTopLevelModeChanged (true);
+      TopLevelModeSetPrevious(TopLevelModeGet());
+      TopLevelModeSet(atoi(token));
+      TopLevelModeSetChanged (true);
     } 
     else {
-      Serial.print("  Mode is: ");
-      Serial.println(GetTopLevelMode());
+      Serial.print("  Current TopLevelMode is: ");
+      Serial.println(TopLevelModeGet());
     }
   }
 
@@ -302,9 +326,9 @@ void  CommandLineUpdate()
   {
     Serial.println("  Software initiated soft restart now.");
     delay(1000);
-    SetTopLevelModePrevious(GetTopLevelMode());
-    SetTopLevelMode(0);
-    SetTopLevelModeChanged (true); 
+    TopLevelModeSetPrevious(TopLevelModeGet());
+    TopLevelModeSet(0);
+    TopLevelModeSetChanged (true); 
   }
 
 

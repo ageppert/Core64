@@ -118,7 +118,7 @@
   // Each core is cleared to one, tested to still be one, CoreArrayMemory bit is updated.
   // CoreArrayMemory reflects whether a bit is being affected by a magnetic flux, 1, or not, 0.
 
-  void Core_Mem_Monitor() {     
+  void Core_Mem_Scan_For_Magnet() {     
     uint8_t bit;
     for (uint8_t y=0; y<8; y++)
     {

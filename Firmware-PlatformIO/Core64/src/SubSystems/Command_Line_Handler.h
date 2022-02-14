@@ -26,7 +26,7 @@ SETUP:
     void handleArrangement(char* tokens);
     void handleCoreTest(char* tokens);
     void handleDebug(char* tokens);
-    void handleGauss(char* tokens);
+    void handleDgauss(char* tokens);
     void handleHelp(char* tokens);
     void handleInfo(char* tokens);
     void handleMode(char* tokens);

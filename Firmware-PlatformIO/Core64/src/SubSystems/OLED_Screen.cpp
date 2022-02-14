@@ -170,7 +170,7 @@
       OLED_Display_Stability_Work_Around();
   }
 
-  void OLEDSetTopLevelMode(uint8_t state) {
+  void OLEDTopLevelModeSet(uint8_t state) {
     TopLevelModeLocal = state;
   }
 

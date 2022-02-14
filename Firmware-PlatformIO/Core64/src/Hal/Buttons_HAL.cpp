@@ -20,8 +20,8 @@
 // #define DEBUG_HALL_SWITCHES
 
 #ifdef HALL_SENSOR_ENABLE
-  #define HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL      2     // Level of mT which registers as a button press
-  #define HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL     -2     // Level of mT which registers as a button press
+  #define HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL      1     // Level of mT which registers as a button press
+  #define HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL     -1     // Level of mT which registers as a button press
   si7210_status_t rslt = SI7210_E_DEV_NOT_FOUND;  // Unexpected return from the sensor library, making sure it returns something other than 99
 
   #if defined BOARD_CORE64_TEENSY_32

@@ -15,6 +15,16 @@ USAGE: Init, Clear, Write to one of the buffers in monochrome or color mode, upd
 
 #include <stdint.h>
 
+/* Colorwheel in HSB color space for addressable LEDs:
+      0 Red     R
+     42 Yellow  RG
+     85 Green    G
+    127 Cyan     GB
+    170 Blue      B
+    220 Purple  R B 
+    255 RED     R
+*/
+
 // Updated 2019-01-11 for HAL over Driver architecture
 // The API for the LED Array HAL
 void LED_Array_Init();				// Called once from Setup. Set up the LED array with the driver using chipset, data pin, color order, correction, brightness from FastLED_Config.h, and clear the array.
