@@ -76,7 +76,7 @@ public:
     /**
      * Add a new command.
      *
-     * @param Comand instance to add.
+     * @param Command instance to add.
      * @return True on success, false otherwise.
      */
     bool add(Command& command);
@@ -93,7 +93,7 @@ public:
     /**
      * Remove a command instance
      *
-     * @param Comand instance to remove.
+     * @param Command instance to remove.
      * @return True on success, false otherwise.
      */
     bool remove(Command& command);

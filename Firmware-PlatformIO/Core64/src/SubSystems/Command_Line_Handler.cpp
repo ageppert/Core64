@@ -194,12 +194,12 @@ void  CommandLineUpdate()
     Serial.println("  ---------------------");
     Serial.println("  SOFT BUTTONS: M - + S");
     Serial.println("    M BUTTON to enter/exit DGAUSS Menu. Or back out of sub-menu.");
-    Serial.println("      D = Demos ...cycle through demo modes with +/- BUTTONS.");
+    Serial.println("      d = Demos ...cycle through demo modes with +/- BUTTONS.");
     Serial.println("      G = Games");
     Serial.println("      A = App");
-    Serial.println("      U = Utils");
-    Serial.println("      S = Settings");
-    Serial.println("      S = Special");
+    Serial.println("      u = Utils");
+    Serial.println("      s = Special");
+    Serial.println("      s = Settings");
     Serial.println("    + BUTTON scroll to next item in sub-menu list.");
     Serial.println("    - BUTTON scroll to previous item in sub-menu list.");
     Serial.println("    S BUTTON to select from sub-menu list.");
@@ -252,7 +252,7 @@ void  CommandLineUpdate()
     Serial.print("     Serial Number: ");
     #if defined BOARD_CORE64_TEENSY_32
       char SerialNumberPadded[6];
-      sprintf(SerialNumberPadded, "%06d", SerialNumber);
+      sprintf(SerialNumberPadded, "%06lu", SerialNumber);
       Serial.print(SerialNumberPadded);
     #elif defined BOARD_CORE64C_RASPI_PICO
       //TODO: print the serial number padded with leading zeros with RP2040
@@ -310,8 +310,19 @@ void  CommandLineUpdate()
       TopLevelModeSetChanged (true);
     } 
     else {
+      for( uint16_t i = 0; i <= MODE_LAST; i++) {
+        Serial.print("  ");
+        if (i<10) {
+          Serial.print(" ");
+        }        
+        Serial.print(i);
+        Serial.print(" = ");
+        Serial.println(TOP_LEVEL_MODE_NAME_ARRAY[i]);
+      }
       Serial.print("  Current TopLevelMode is: ");
-      Serial.println(TopLevelModeGet());
+      Serial.print(TopLevelModeGet());
+      Serial.print(" ");
+      Serial.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
     }
   }
 

@@ -31,6 +31,49 @@
 
 #include "APPS/Drawing.h"
 
+// All of these items in this array list must be updated in the corresponding "enum TopLevelMode" of Mode_Manager.h to match 1:1.
+// This array is use for convenience, to allow printing the mode to the serial port or screen.
+const char* TOP_LEVEL_MODE_NAME_ARRAY[] =
+{
+    "MODE_START_POWER_ON",
+    "   MODE_START_INIT",
+    "   MODE_START_EEPROM",
+    "   MODE_START_SEQUENCE_COMPLETE",
+    "MODE_DGAUSS_MENU                           ",
+    "    MODE_DEMO_SUB_MENU                     ",
+    "        MODE_DEMO_SCROLLING_TEXT           ",
+    "        MODE_DEMO_LED_TEST_ONE_MATRIX_MONO ",
+    "        MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR",
+    "        MODE_DEMO_END_OF_LIST              ",
+    "    MODE_GAME_SUB_MENU                     ",
+    "    MODE_APP_SUB_MENU                      ",
+    "        MODE_APP_DRAW                      ",
+    "    MODE_UTIL_SUB_MENU                     ",
+    "        MODE_UTIL_FLUX_DETECTOR            ",
+    "    MODE_SPECIAL_SUB_MENU                  ",
+    "        MODE_LED_TEST_ALL_BINARY           ",
+    "        MODE_LED_TEST_ONE_STRING           ",
+    "        MODE_TEST_EEPROM                   ",
+    "        MODE_LED_TEST_ALL_COLOR            ",
+    "        MODE_CORE_TOGGLE_BIT               ",
+    "        MODE_CORE_TEST_ONE                 ",
+    "        MODE_CORE_TEST_MANY                ",
+    "        MODE_HALL_TEST                     ",
+    "        MODE_SPECIAL_LOOPBACK_TEST         ",
+    "        MODE_SPECIAL_HARD_REBOOT                   ",
+    "    MODE_SETTINGS_SUB_MENU                 ",
+    "MODE_MANUFACTURING_MENU                    ",
+    "MODE_LAST                                  " 
+};
+
+// https://stackoverflow.com/questions/34669164/ensuring-array-is-filled-to-size-at-compile-time
+_Static_assert(sizeof(TOP_LEVEL_MODE_NAME_ARRAY)/sizeof(*TOP_LEVEL_MODE_NAME_ARRAY) == (MODE_LAST+1), "Top_Level_Mode_Name_Array item missing or extra, does not match TopLevelMode Enum!");
+
+// OR the poorman's static assertion which creates a compiler error with array size of -1.
+// typedef char CHECK_COLOR_NAMES[sizeof(MODE_NAMES) / sizeof(MODE_NAMES[0]) == MODE_LAST ? 1 : -1];
+
+// TODO: Also set a flag that the firmware can read (at power on) and display a warning in serial/screen.
+
 static uint16_t TopLevelModeDefault = MODE_DEMO_SCROLLING_TEXT;
 static uint16_t TopLevelMode = MODE_START_POWER_ON;
 static uint16_t TopLevelModePrevious;
@@ -52,9 +95,14 @@ uint8_t EepromByteValue = 0;
 uint8_t Eeprom_Byte_Mem_Address = 0;
 extern int StreamTopLevelModeEnable;
 
+static uint32_t MenuTimeoutTimerms  = 0;
+const uint32_t MenuTimeoutLimitms   = 30000; // 30 second timeout in menus.
+static uint32_t MenuTimeoutDeltams  = 0;
+static bool MenuTimeoutFirstTimeRun =0;
+
 void TopLevelModeSetToDefault() { TopLevelMode = TopLevelModeDefault; }
 
-void TopLevelModeSet (uint16_t value) {   TopLevelMode = value; TopLevelModeSetChanged(true); }
+void TopLevelModeSet (uint16_t value) {   TopLevelMode = value; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
 uint16_t TopLevelModeGet ()           {   return (TopLevelMode); }
 void TopLevelModeSetInc ()            {   TopLevelMode++; TopLevelModeSetChanged(true); }
 void TopLevelModeSetDec ()            {   TopLevelMode--; TopLevelModeSetChanged(true); }               
@@ -66,18 +114,21 @@ void TopLevelModeChangeSerialPortDisplay () {
   Serial.println();
   Serial.print("  TopLevelMode changed from ");
   Serial.print(TopLevelModeGetPrevious());
+  Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGetPrevious()]);
   Serial.print(" to ");
   Serial.print(TopLevelModeGet());
+  Serial.print(" ");
+  Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
   Serial.println(".");
-  Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
+  // Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
 }
 
 void TopLevelModeSetChanged (bool value) {          // Flag that a mode change has occurred.  User application has one time to use this before it is reset.
-  TopLevelModeChanged = value;
-  if (value == true) {
+  if ( (TopLevelModeChanged == false) && (value == true) ) {
     TopLevelModeChangeSerialPortDisplay();            // Display the change in the serial port.
-    TopLevelThreeSoftButtonGlobalEnableSet (true);    // Ensures this flag stays enabled after a mode change, so modes that need it disabled will force it disabled. 
+    TopLevelThreeSoftButtonGlobalEnableSet (true);    // Ensures this flag set to enabled after a mode change, so modes that need it disabled will need to force it to be disabled. 
   }
+  TopLevelModeChanged = value;
 }
 
 bool TopLevelModeGetChanged ()           {   return (TopLevelModeChanged); }
@@ -88,14 +139,18 @@ bool TopLevelThreeSoftButtonGlobalEnableGet ()           {   return (TopLevelThr
 void TopLevelModeManagerCheckButtons () {
   // GLOBAL MODE SWITCHING - Check for soft button touch activation.
   // If button is pressed, it must be released and pressed again for subsequent action.
-  // M is MENU. Press to enter, and exit the DGAUSS Top Level Menu.
+  // M is MENU. Press to enter, and exit the DGAUSS Top Level Menu. The M is always active, in contrast to the +,-,S buttons which can be disabled.
   // OPTIONAL BUTTON USE
   // These three may be disabled within a mode for special use in that mode. Otherwise, they can function globally as:
   // + goes to the next mode in a sub-menu sequence.
   // - goes to the next mode in a sub-menu sequence.
   // S jumps to Settings Sub-Menu. 
 
-  if (StreamTopLevelModeEnable) { Serial.println(TopLevelModeGet()); }
+  if (StreamTopLevelModeEnable) {
+    Serial.print(TopLevelModeGet());
+    Serial.print(" ");
+    Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+  }
 
   #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
@@ -177,24 +232,72 @@ void TopLevelModeManagerCheckButtons () {
   }
 }
 
+void MenuTimeOutCheckReset () {
+  MenuTimeoutDeltams = 0;
+  MenuTimeoutFirstTimeRun = true;
+}
+
+void MenuTimeOutCheckAndExitToModeDefault () {
+  static uint32_t NowTimems;
+  static uint32_t StartTimems;
+  NowTimems = millis();
+  if(MenuTimeoutFirstTimeRun) { StartTimems = NowTimems; MenuTimeoutFirstTimeRun = false;}
+  MenuTimeoutDeltams = NowTimems-StartTimems;
+  if (MenuTimeoutDeltams >= MenuTimeoutLimitms) {
+    MenuTimeOutCheckReset();
+    Serial.println();
+    Serial.println("  Menu timeout. Returning to TopLevelModeDefault.");
+    TopLevelModeSetPrevious(TopLevelModeGet());
+    TopLevelModeSet (TopLevelModeDefault);
+  }
+}
+
 void TopLevelModeManagerRun () {
 // *************************************************************************************************************************************************** //
-// ***************************************************** CLEAR "MODE CHANGED" FLAG AND CHECK FOR SOFT BUTTON PRESSES ********************************* //
+// *****************************************************                               CHECK FOR SOFT BUTTON PRESSES ********************************* //
 // *************************************************************************************************************************************************** //
-  if (TopLevelModeGetChanged()) { TopLevelModeSetChanged (false); }
+  // if (TopLevelModeGetChanged()) { TopLevelModeSetChanged (false); }
   TopLevelModeManagerCheckButtons();
   switch(TopLevelMode) {
 
 // *************************************************************************************************************************************************** //
-// ***************************************************** START *************************************************************************************** //
+    case MODE_START_POWER_ON:                   // *************************************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_START_POWER_ON:
+      TopLevelModeSetChanged(false);
       delay(1500);                  // Wait a little bit for the serial port to connect if this is connected to a computer terminal
+      Serial.println();
+      Serial.println("  Power-on start up sequence has begun...");
       handleSplash("");             // Splash screen
       handleInfo("");               // Print some info about the system (this also checks hardware version, born-on, and serial number)
       handleHelp("");               // Print the help menu
-      Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
-      TopLevelModeSet(TopLevelModeDefault);         // Go to the default mode
+      TopLevelModeSetPrevious (TopLevelModeGet());
+      TopLevelModeSetInc();
+      break;
+
+// *************************************************************************************************************************************************** //
+    case MODE_START_INIT:                       // *************************************************************************************************** //
+// *************************************************************************************************************************************************** //
+      Serial.println("  Init sequence has begun...");
+      TopLevelModeSetPrevious (TopLevelModeGet());
+      TopLevelModeSetInc();
+      break;
+
+// *************************************************************************************************************************************************** //
+    case MODE_START_EEPROM:                     // *************************************************************************************************** //
+// *************************************************************************************************************************************************** //
+      Serial.println("  EEEPROM read has begun...");
+      TopLevelModeSetPrevious (TopLevelModeGet());
+      TopLevelModeSetInc();
+      break;
+
+// *************************************************************************************************************************************************** //
+// ***************************************************** PROMPT AND JUMP TO DEFAULT MODE **************************************************************** //
+// *************************************************************************************************************************************************** //
+    case MODE_START_SEQUENCE_COMPLETE:
+      Serial.println("  Start-up sequence has been completed.");
+      Serial.print(PROMPT);
+      TopLevelModeSetPrevious (TopLevelModeGet());
+      TopLevelModeSet(TopLevelModeDefault);
       break;
 
 // *************************************************************************************************************************************************** //
@@ -202,18 +305,22 @@ void TopLevelModeManagerRun () {
 // *************************************************************************************************************************************************** //
     case MODE_DGAUSS_MENU:
       if (TopLevelModeGetChanged()){
+        MenuTimeOutCheckReset();
         Serial.println();
         Serial.println("  Entered DGAUSS MENU on Core Memory Array / LED Matrix");
-        Serial.println("    D = Games");
+        Serial.println("    *** SUB_MENUS acccessible on magnetic core touch screen only.");
+        Serial.println("    d = Demos");
         Serial.println("    G = Games");
-        Serial.println("    A = App");
-        Serial.println("    U = Utils");
-        Serial.println("    S = Settings");
-        Serial.println("    S = Special");
+        Serial.println("    A = Apps");
+        Serial.println("    u = Utils");
+        Serial.println("    s = Special");
+        Serial.println("    s = Settings");
+        Serial.println("    To access modes directly from serial command line, type 'mode' and press RETURN.");
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(4);
         LED_Array_Matrix_Color_Display();
         Serial.print(PROMPT);
       }
+      MenuTimeOutCheckAndExitToModeDefault();
       Core_Mem_Scan_For_Magnet();
       // Was the D touched with magnetic stylus?
       for (uint8_t y=0; y<5; y++) {
@@ -221,7 +328,7 @@ void TopLevelModeManagerRun () {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
             Serial.println();
             Serial.println("  Demo sub-menu selected.");   
-            TopLevelModeSetPrevious (TopLevelModeGet);
+            TopLevelModeSetPrevious (TopLevelModeGet());
             TopLevelModeSet (MODE_DEMO_SUB_MENU);
           }
         }
@@ -259,26 +366,26 @@ void TopLevelModeManagerRun () {
           }
         }
       }
-      // Was S(settings) touched with magnetic stylus?
+      // Was S(pecial) touched with magnetic stylus?
       for (uint8_t y=5; y<8; y++) {
         for (uint8_t x=3; x<5; x++) {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
             Serial.println();
-            Serial.println("  Settings sub-menu selected.");   
+            Serial.println("  Special sub-menu selected.");   
             TopLevelModeSetPrevious (TopLevelModeGet());
-            TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
+            TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
+            TopLevelModeSetChanged(true);
           }
         }
       }
-      // Was S(pecial) touched with magnetic stylus?
+      // Was S(settings) touched with magnetic stylus?
       for (uint8_t y=5; y<8; y++) {
         for (uint8_t x=6; x<8; x++) {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
             Serial.println();
-            Serial.println("  Special sub-menu selected.");   
-            TopLevelModeSetPrevious (TopLevelModeGet);
-            TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
-            TopLevelModeSetChanged(true);
+            Serial.println("  Settings sub-menu selected.");   
+            TopLevelModeSetPrevious (TopLevelModeGet());
+            TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
           }
         }
       }
@@ -400,25 +507,15 @@ void TopLevelModeManagerRun () {
       #elif defined BOARD_CORE64C_RASPI_PICO
         
       #endif
-// *************************************************************************************************************************************************** //
-// ***************************************************** SETTINGS ************************************************************************************ //
-// *************************************************************************************************************************************************** //
-    case MODE_SETTINGS_SUB_MENU:
-            Serial.println();
-            Serial.println("  Entered MODE_SETTINGS_SUB_MENU.");   
-            Serial.println("  Nothing to see yet. Back to Demo mode.");   
-            TopLevelModeSetPrevious (TopLevelModeGet());
-            TopLevelModeSet (MODE_DEMO_SCROLLING_TEXT);
-      break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** SPECIAL ************************************************************************************* //
 // *************************************************************************************************************************************************** //
     case MODE_SPECIAL_SUB_MENU:
             Serial.println();
-            Serial.println("  Automatically moving to MODE_LED_TEST_ALL_BINARY.");   
+            Serial.println("  Automatically moving to first item in MODE_SPECIAL_SUB_MENU.");   
             TopLevelModeSetPrevious (TopLevelModeGet());
-            TopLevelModeSet (MODE_LED_TEST_ALL_BINARY);
+            TopLevelModeSetInc();
       break;
 
     #if defined BOARD_CORE64_TEENSY_32
@@ -522,6 +619,7 @@ void TopLevelModeManagerRun () {
     #endif
 
     case MODE_HALL_TEST:
+      TopLevelThreeSoftButtonGlobalEnableSet (false);
       LED_Array_Monochrome_Set_Color(25,255,255);
       LED_Array_Memory_Clear();
 
@@ -561,10 +659,10 @@ void TopLevelModeManagerRun () {
       Serial.println("      255 = Unhandled exception");
       Serial.println("  Hard rebooting to return all IO to default states. 8 seconds to go...");      
       delay(5000);
-      TopLevelModeSet(MODE_HARD_REBOOT);
+      TopLevelModeSet(MODE_SPECIAL_HARD_REBOOT);
       break;
 
-    case MODE_HARD_REBOOT:
+    case MODE_SPECIAL_HARD_REBOOT:
       LED_Array_Memory_Clear();
       LED_Array_Matrix_Mono_Display();
       LED_Array_Monochrome_Set_Color(125,255,255);
@@ -574,6 +672,17 @@ void TopLevelModeManagerRun () {
       Serial.println("  Hard rebooting in 3 seconds.");      
       delay(3000);
       handleReboot(" ");
+      break;
+
+// *************************************************************************************************************************************************** //
+// ***************************************************** SETTINGS ************************************************************************************ //
+// *************************************************************************************************************************************************** //
+    case MODE_SETTINGS_SUB_MENU:
+            Serial.println();
+            Serial.println("  Entered MODE_SETTINGS_SUB_MENU.");   
+            Serial.println("  Nothing to see yet. Back to Demo mode.");   
+            TopLevelModeSetPrevious (TopLevelModeGet());
+            TopLevelModeSet (MODE_DEMO_SCROLLING_TEXT);
       break;
 
 // *************************************************************************************************************************************************** //
@@ -609,4 +718,10 @@ void TopLevelModeManagerRun () {
       TopLevelMode = MODE_START_POWER_ON;   
       break;
   } // Closure of switch(TopLevelMode)
+
+// *************************************************************************************************************************************************** //
+// ***************************************************** CLEAR "MODE CHANGED" FLAG ******************************************************************* //
+// *************************************************************************************************************************************************** //
+  if (TopLevelModeGetChanged()) { TopLevelModeSetChanged (false); }
 } // Closure of TopLevelModeManagerRun ()
+
