@@ -22,6 +22,9 @@ SETUP:
         #define PROMPT "unknown: "
     #endif
 
+    void StreamTopLevelModeEnableSet (bool value);
+    bool StreamTopLevelModeEnableGet ();
+
     void CommandLineSetup ();
     void handleArrangement(char* tokens);
     void handleCoreTest(char* tokens);

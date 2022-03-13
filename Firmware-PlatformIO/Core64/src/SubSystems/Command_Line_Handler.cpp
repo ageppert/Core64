@@ -45,6 +45,9 @@ CommandLine commandLine(Serial, PROMPT);        // CommandLine instance.
 // Raspi Pico Software Reset Definition
   // TO DO
 
+void StreamTopLevelModeEnableSet     (bool value)  {   StreamTopLevelModeEnable = value; }
+bool StreamTopLevelModeEnableGet ()                {   return (StreamTopLevelModeEnable); }
+
 void coreTesting() {
   static uint8_t BitToTest = 63;
   /*
@@ -173,14 +176,14 @@ void  CommandLineUpdate()
   void handleDgauss(char* tokens)
   {
     if (TopLevelModeGet()==MODE_DGAUSS_MENU) {
-      if (TopLevelModeGetPrevious() == 10) { TopLevelModeSetPrevious(MODE_START_POWER_ON); } // If previous mode was DGAUSS menu, go back to STARTUP
-      TopLevelModeSet(TopLevelModeGetPrevious());
-      TopLevelModeSetPrevious(MODE_DGAUSS_MENU);
+      if (TopLevelModePreviousGet() == 10) { TopLevelModePreviousSet(MODE_START_POWER_ON); } // If previous mode was DGAUSS menu, go back to STARTUP
+      TopLevelModeSet(TopLevelModePreviousGet());
+      TopLevelModePreviousSet(MODE_DGAUSS_MENU);
       TopLevelModeSetChanged (true);
       Serial.println("  Exit DGAUSS Menu.");
     }
     else {
-      TopLevelModeSetPrevious(TopLevelModeGet());
+      TopLevelModePreviousSet(TopLevelModeGet());
       TopLevelModeSet(10);
       TopLevelModeSetChanged (true);
       Serial.println("  Jump to DGAUSS Menu.");
@@ -305,7 +308,7 @@ void  CommandLineUpdate()
     char* token = strtok(NULL, " ");
 
     if (token != NULL) {
-      TopLevelModeSetPrevious(TopLevelModeGet());
+      TopLevelModePreviousSet(TopLevelModeGet());
       TopLevelModeSet(atoi(token));
       TopLevelModeSetChanged (true);
     } 
@@ -337,7 +340,7 @@ void  CommandLineUpdate()
   {
     Serial.println("  Software initiated soft restart now.");
     delay(1000);
-    TopLevelModeSetPrevious(TopLevelModeGet());
+    TopLevelModePreviousSet(TopLevelModeGet());
     TopLevelModeSet(0);
     TopLevelModeSetChanged (true); 
   }
@@ -353,7 +356,7 @@ void  CommandLineUpdate()
     Serial.println("   \\____\\___/|_|  \\___|\\___/   |_|  ");
     Serial.println();
     Serial.println("  Core64 Interactive Core Memory - Project website: www.Core64.io");
-    Serial.println("  2019-2021 Concept and Design by Andy Geppert of www.MachineIdeas.com");
+    Serial.println("  2019-2022 Concept and Design by Andy Geppert at www.MachineIdeas.com");
     Serial.println("  This source code: https://www.github.com/ageppert/Core64");
     Serial.println("  See Core64.ino for IDE and library requirements.");
     Serial.println("  See HardwareIOMap.h for hardware configuration.");

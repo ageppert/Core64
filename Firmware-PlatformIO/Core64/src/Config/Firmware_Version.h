@@ -48,11 +48,12 @@
 	|  0.7.4  | 2022-02-12 | Organize TopLevelMode list, placeholder GAUSS menu.
 	|  0.7.5  | 2022-02-12 | Implement DGAUSS MENU, draw mode UI improved, organized sub-menu category modes.
 	|  0.7.6  | 2022-03-05 | Add array of string descriptions for all modes.
+	|  0.7.7  | 2022-03-13 | Move modes into discrete files in sub-folders by sub-menu. Update start-up symbol sequence.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Description: Add array of string descriptions for all modes."
+	#define FIRMWARE_DESCRIPTION "Description: Placeholders for all sub-menus with symbols and end of each sub-list wrap around to beginning of sub-list."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 6 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 7 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

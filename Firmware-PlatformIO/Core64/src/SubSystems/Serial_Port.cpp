@@ -4,8 +4,6 @@
 #include "SubSystems/Serial_Port.h"
 #include "Config/HardwareIOMap.h"
 
-#define SERIAL_PORT_SPEED   15200
-
 uint8_t DebugLevel = 0;
 
 // TO DO: Consider using a <FastSerial.h> library?

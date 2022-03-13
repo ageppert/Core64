@@ -8,6 +8,6 @@ SETUP:
 
     #include <stdint.h>
 
-    void AppSubMenu();
+    void AppsSubMenu();
 
 #endif // APP_SUB_MENU_H

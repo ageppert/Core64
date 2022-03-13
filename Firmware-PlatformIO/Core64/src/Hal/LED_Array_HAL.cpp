@@ -25,6 +25,11 @@
 
 #define MONOCHROMECOLORCHANGER 1
 
+static uint8_t StartUpSymbolIndex = 0;
+ const uint8_t SymbolSequenceArraySize = 3;
+ const uint8_t SymbolSequenceArray[SymbolSequenceArraySize] = {7,8,9};
+ const uint32_t StartUpSymbolSequenceUpdatePeriodms = 750;  
+
 // LED Array Memory Buffers for user representations of the LED Array.
 // Interaction with the abstract memory buffers which define the LED Array for the user to view:
 // BINARY [64 bit data word, monochrome]
@@ -606,9 +611,34 @@ void LED_Array_Auto_Brightness() {
      }
    }
 
+
+  // Set-up first symbol to cycle from in start-up mode.
+  void LED_Array_Start_Up_Symbol_Loop_Begin() {
+      StartUpSymbolIndex = 0;
+      LED_Array_Memory_Clear();
+      WriteColorFontSymbolToLedScreenMemoryMatrixColor(SymbolSequenceArray[StartUpSymbolIndex]);
+      LED_Array_Matrix_Color_Display();
+  }
+
+  // Cycles through symbols dedicated to start-up mode.
+  void LED_Array_Start_Up_Symbol_Loop_Continue() {
+      static unsigned long NowTime = 0;
+      static unsigned long UpdateTimer = 0;
+      NowTime = millis();
+      if ((NowTime - UpdateTimer) >= StartUpSymbolSequenceUpdatePeriodms)
+      {
+        UpdateTimer = NowTime;
+        LED_Array_Memory_Clear();
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(SymbolSequenceArray[StartUpSymbolIndex]);
+        LED_Array_Matrix_Color_Display();
+        StartUpSymbolIndex++;
+        if(StartUpSymbolIndex >= SymbolSequenceArraySize){StartUpSymbolIndex=0;}
+      }
+  }
+
   // Cycles through available multi-color font symbols
   void LED_Array_Test_Pixel_Matrix_Color() {
-      static uint8_t FontSymbolNumber = 0;
+      static uint8_t FontSymbolNumber = 7;
       static unsigned long UpdatePeriodms = 1000;  
       static unsigned long NowTime = 0;
       static unsigned long UpdateTimer = 0;
@@ -620,7 +650,7 @@ void LED_Array_Auto_Brightness() {
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(FontSymbolNumber);
         LED_Array_Matrix_Color_Display();
         FontSymbolNumber++;
-        if(FontSymbolNumber==4){FontSymbolNumber=0;}
+        if(FontSymbolNumber>=12){FontSymbolNumber=7;}
       }
   }
 

@@ -12,6 +12,7 @@
 #include "SubSystems/OLED_Screen.h"
 #include "Config/HardwareIOMap.h"
 #include "Config/Firmware_Version.h"
+#include "Mode_Manager.h"
 
   #include <Wire.h>   // Default is SCL0 and SDA0 on pins 19/18 of Teensy LC
   // #define not needed, as Wire.h library takes care of this pin configuration.
@@ -64,6 +65,7 @@
   }
 
   void OLEDScreenSplash() {
+    OLEDTopLevelModeSet(TopLevelModeGet());
   // Short
     /*
     display.clearDisplay();
@@ -103,53 +105,57 @@
   }
 
   void OLEDScreenSetup() {
-  #if defined OLED_64X128
-    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 
-      Serial.println(F("SSD1306 allocation failed"));
-    }
-    else
-    {
-      Serial.println(F("SSD1306 allocation did not fail"));
-    }
-    display.setTextColor(WHITE); // Draw white text
-  #elif defined OLED_128X128
-    if(!display.begin(0x3C, 1)) { // Address 0x3C for 128x128 
-      Serial.println(F("SSD1327 allocation failed"));
-    }
-    else
-    {
-      Serial.println(F("SSD1327 allocation did not fail"));
-    }
-    display.setTextColor(SSD1327_WHITE); // Draw white text
-  #else
-    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 (default)
-      Serial.println(F("SSD1306 allocation failed"));
-    }
-    else
-    {
-      Serial.println(F("SSD1306 allocation did not fail"));
-    }
-    display.setTextColor(WHITE); // Draw white text
-  #endif
+    #if defined BOARD_CORE64_TEENSY_32
+      #if defined OLED_64X128
+        if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 
+          Serial.println(F("SSD1306 allocation failed"));
+        }
+        else
+        {
+          Serial.println(F("SSD1306 allocation did not fail"));
+        }
+        display.setTextColor(WHITE); // Draw white text
+      #elif defined OLED_128X128
+        if(!display.begin(0x3C, 1)) { // Address 0x3C for 128x128 
+          Serial.println(F("SSD1327 allocation failed"));
+        }
+        else
+        {
+          Serial.println(F("SSD1327 allocation did not fail"));
+        }
+        display.setTextColor(SSD1327_WHITE); // Draw white text
+      #else
+        if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 (default)
+          Serial.println(F("SSD1306 allocation failed"));
+        }
+        else
+        {
+          Serial.println(F("SSD1306 allocation did not fail"));
+        }
+        display.setTextColor(WHITE); // Draw white text
+      #endif
 
-    display.clearDisplay();
-    display.display();
-    display.setTextSize(1);      // Normal 1:1 pixel scale
-    display.setCursor(0, 0);     // Start at top-left corner
-    display.cp437(true);         // Use full 256 char 'Code Page 437' font
-    display.setFont(&FreeMono9pt7b);
-  /*  
-    display.clearDisplay();
-    display.setTextSize(2);      // Normal 1:1 pixel scale
-    display.setTextColor(WHITE); // Draw white text
-    display.setCursor(0, 0);     // Start at top-left corner
-    display.cp437(true);         // Use full 256 char 'Code Page 437' font
-    display.println(F(" Core64.io"));
-    display.println(F("   Andy   "));
-    display.println(F("  Geppert "));
-    display.display();
-  */
-    OLEDScreenSplash();
+      display.clearDisplay();
+      display.display();
+      display.setTextSize(1);      // Normal 1:1 pixel scale
+      display.setCursor(0, 0);     // Start at top-left corner
+      display.cp437(true);         // Use full 256 char 'Code Page 437' font
+      display.setFont(&FreeMono9pt7b);
+    /*  
+      display.clearDisplay();
+      display.setTextSize(2);      // Normal 1:1 pixel scale
+      display.setTextColor(WHITE); // Draw white text
+      display.setCursor(0, 0);     // Start at top-left corner
+      display.cp437(true);         // Use full 256 char 'Code Page 437' font
+      display.println(F(" Core64.io"));
+      display.println(F("   Andy   "));
+      display.println(F("  Geppert "));
+      display.display();
+    */
+      OLEDScreenSplash();
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      // TODO: Handle the difference in the hardware inside the function above and remove this #if sequence
+    #endif 
   }
 
   void OLEDScreenUpdate() {

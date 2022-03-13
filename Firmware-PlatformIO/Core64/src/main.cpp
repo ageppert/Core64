@@ -8,7 +8,7 @@
    \____\___/|_|  \___|\___/   |_|  
                                   
   Core64 Interactive Core Memory - Project website: www.Core64.io
-  2019-2021 Concept and Design by Andy Geppert of www.MachineIdeas.com
+  2019-2022 Concept and Design by Andy Geppert of www.MachineIdeas.com
   Hardware version and details in HardwareIOMap.h
   This source code: https://www.github.com/ageppert/Core64
   
@@ -66,48 +66,24 @@
 #include "SubSystems/Command_Line_Handler.h"
 #include "Mode_Manager.h"
 
-extern uint8_t DebugLevel;  // See Serial_Debug.cpp to set default
+extern uint8_t  DebugLevel;  // See Serial_Debug.cpp to set default
+static uint16_t MainLoopDurationModeID = 0;
 static uint32_t MainLoopStartTime = 0 ;
 static uint32_t MainLoopEndTime = 0 ;
 static uint32_t MainLoopDurationLast = 0 ;
 static uint32_t MainLoopDurationShortest = 123456 ;
+static uint16_t MainLoopDurationShortestModeID = 0;
 static uint32_t MainLoopDurationLongest = 0 ;
+static uint16_t MainLoopDurationLongestModeID = 0;
 const  uint32_t MainLoopDebugTimeUpdatePeriod = 1000; 
 static uint32_t MainLoopDebugTimeUpdateLast = 0; 
 
 void setup() {
-  SerialPortSetup();
-  TopLevelModeSetToDefault();
-  HeartBeatSetup();
-  #if defined BOARD_CORE64_TEENSY_32
-    LED_Array_Init();
-    LED_Array_Test_Pixel_Matrix_Color();
-    OLEDScreenSetup();
-    I2CManagerSetup();
-    //  delay(3000);
-    I2CManagerBusScan();
-    // TO DO: Most of this setup should occur after the hardware version is determined, so setup is configured appropriately
-    Buttons_Setup();
-    CoreSetup();
-    SDCardSetup();
-    AmbientLightSetup();
-    Neon_Pixel_Array_Init();
-  #elif defined BOARD_CORE64C_RASPI_PICO
-    I2CManagerSetup();
-    //  delay(3000);
-    I2CManagerBusScan();
-    OLEDScreenSetup();
-    Buttons_Setup();
-  #endif
-    ReadHardwareVersion();
-    CommandLineSetup();
-    AnalogSetup();
-    AnalogUpdate();
-  Serial.println("Serial Monitor should be connected by now.");
-  if(DebugLevel==1) { Serial.println("END OF SETUP"); }
+  TopLevelModeManagerRun(); // First time run contains all the stuff normally done in Arduino setup()
 }
 
 void loop() {
+
   MainLoopStartTime = millis(); 
   /*                      *********************
                           *** Housekeepting ***
@@ -117,36 +93,49 @@ void loop() {
   HeartBeat(); 
   AnalogUpdate();
   CommandLineUpdate();
+  // OLEDScreenUpdate();
   #if defined BOARD_CORE64_TEENSY_32
     AmbientLightUpdate();
     // SDCardVoltageLog(1000);
   #elif defined BOARD_CORE64C_RASPI_PICO
     // not yet implemented
   #endif
+  if(DebugLevel==1) { Serial.println("DEBUG: END OF HOUSEKEEPING"); }
 
-  if(DebugLevel==1) { Serial.println("DEBUG: START OF TOP LEVEL MODE FUNCTIONS"); }
-
-    // Serial.print("  Switched Voltage: ");
-    // Serial.println(GetBatteryVoltageV(),2);
   /*                      ************************
                           *** User Interaction ***
                           ************************
   */
+  if(DebugLevel==1) { Serial.println("DEBUG: START OF USER INTERACTION"); }
+  MainLoopDurationModeID = TopLevelModeGet();
   TopLevelModeManagerRun();
+  if(DebugLevel==1) { Serial.println("DEBUG: END OF USER INTERACTION"); }
+
   if(DebugLevel==1) { Serial.println("DEBUG: END OF TOP LEVEL MODE FUNCTIONS"); }
+
+  /*                      ****************************
+                          *** Superloop Time Check ***
+                          ****************************
+  */
   MainLoopEndTime = millis();
   MainLoopDurationLast = MainLoopEndTime - MainLoopStartTime;
-  if (MainLoopDurationShortest > MainLoopDurationLast ) { MainLoopDurationShortest = MainLoopDurationLast; }
-  if (MainLoopDurationLongest < MainLoopDurationLast ) { MainLoopDurationLongest = MainLoopDurationLast; }
+  if (MainLoopDurationShortest > MainLoopDurationLast ) { MainLoopDurationShortest = MainLoopDurationLast; MainLoopDurationShortestModeID = MainLoopDurationModeID;}
+  if (MainLoopDurationLongest < MainLoopDurationLast ) { MainLoopDurationLongest = MainLoopDurationLast; MainLoopDurationLongestModeID = MainLoopDurationModeID;}
   if(DebugLevel==3) { 
     if ( (MainLoopEndTime - MainLoopDebugTimeUpdateLast) >= MainLoopDebugTimeUpdatePeriod) {
       MainLoopDebugTimeUpdateLast = MainLoopEndTime; 
-      Serial.print("DEBUG: MAIN LOOP DURATION (Min, Max): "); 
+      Serial.print("DEBUG: MAIN LOOP DURATION (Min ms [mode#], Max ms [mode#]): "); 
       Serial.print(MainLoopDurationLast); 
       Serial.print(" (");
       Serial.print(MainLoopDurationShortest);
-      Serial.print(",");
+      Serial.print(" [#");
+      Serial.print(MainLoopDurationShortestModeID);
+      Serial.print("]");
+      Serial.print(", ");
       Serial.print(MainLoopDurationLongest);
+      Serial.print(" [#");
+      Serial.print(MainLoopDurationLongestModeID);
+      Serial.print("]");
       Serial.println(")");
     }
   }
