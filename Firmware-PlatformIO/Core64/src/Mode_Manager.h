@@ -81,6 +81,9 @@ SETUP:
     void TopLevelThreeSoftButtonGlobalEnableSet (bool value);
     bool TopLevelThreeSoftButtonGlobalEnableGet ();
 
+    void TopLevelSetSoftButtonGlobalEnableSet (bool value);
+    bool TopLevelSetSoftButtonGlobalEnableSet ();
+
     void    TopLevelModeManagerRun   ();
 
     void MenuTimeOutCheckReset ();

@@ -41,7 +41,7 @@ void DemosSubMenu() {
     Serial.println("    - = Previous Demo");
     Serial.println("    S = Settings Menu");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(true);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(1);
     LED_Array_Matrix_Color_Display();
     }

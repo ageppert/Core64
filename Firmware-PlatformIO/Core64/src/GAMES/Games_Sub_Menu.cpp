@@ -41,7 +41,7 @@ void GamesSubMenu() {
     Serial.println("    - = Previous Game");
     Serial.println("    S = Select Game");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(2);
     LED_Array_Matrix_Color_Display();
     }

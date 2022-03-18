@@ -24,7 +24,7 @@
       The libraries should end up being in your "Libraries" folder in your default Arduino Sketchbook location.
       Adafruit_SSD1306                              2.2.0   by Adafruit for Monochrome OLED 128x64 and 128x32
       Adafruit_GFX_Library                          1.10.6  by Adafruit
-      Adafruit_BusIO                                1.3.1   by Adafruit, testeing 1.9.3 with RP2040 support
+      Adafruit_BusIO                                1.3.1   by Adafruit, testing 1.9.3 with RP2040 support
     TEENSYDUINO LOADER 1.53 INSTALLED THESE
       Wire                                          1.0     in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/Wire/
       FastLED                                       3.3.3   in Arduino1.8.9.app/Contents/Java/hardware/teensy/avr/libraries/FastLED by Daniel Garcia

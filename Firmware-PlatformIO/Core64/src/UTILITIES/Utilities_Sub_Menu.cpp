@@ -41,7 +41,7 @@ void UtilitiesSubMenu() {
     Serial.println("    - = Previous Utility");
     Serial.println("    S = Select Utility");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(4);
     LED_Array_Matrix_Color_Display();
     }

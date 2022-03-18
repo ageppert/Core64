@@ -49,11 +49,12 @@
 	|  0.7.5  | 2022-02-12 | Implement DGAUSS MENU, draw mode UI improved, organized sub-menu category modes.
 	|  0.7.6  | 2022-03-05 | Add array of string descriptions for all modes.
 	|  0.7.7  | 2022-03-13 | Move modes into discrete files in sub-folders by sub-menu. Update start-up symbol sequence.
+	|  0.7.8  | 2022-03-18 | Add Game of Snake!
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Description: Placeholders for all sub-menus with symbols and end of each sub-list wrap around to beginning of sub-list."
+	#define FIRMWARE_DESCRIPTION "Description: Game of Snake!"
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 7 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 8 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

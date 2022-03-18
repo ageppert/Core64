@@ -41,7 +41,7 @@ void SettingsSubMenu() {
     Serial.println("    - = Previous Setting");
     Serial.println("    S = Select Setting To Change");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(6);
     LED_Array_Matrix_Color_Display();
     }

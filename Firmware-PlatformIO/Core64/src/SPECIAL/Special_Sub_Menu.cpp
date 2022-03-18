@@ -41,7 +41,7 @@ void SpecialSubMenu() {
     Serial.println("    - = Previous Special Function");
     Serial.println("    S = Select Special Function");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(5);
     LED_Array_Matrix_Color_Display();
     }

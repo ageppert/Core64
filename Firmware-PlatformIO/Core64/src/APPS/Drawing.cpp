@@ -91,10 +91,8 @@ void Draw() {
       if (DrawDelayTimerFinished == true) {
         // Which cores changed state?
         // Add selected color to that pixel in the LED Array.
-        for (uint8_t y=0; y<8; y++)
-        {
-          for (uint8_t x=0; x<8; x++)
-          {
+        for (uint8_t y=0; y<8; y++) {
+          for (uint8_t x=0; x<8; x++)  {
             if (CoreArrayMemory [y][x]) { 
               LED_Array_Matrix_Mono_Write(y, x, 1);
               #ifdef NEON_PIXEL_ARRAY

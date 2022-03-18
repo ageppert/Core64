@@ -170,6 +170,7 @@ void  CommandLineUpdate()
       Serial.println("    1 = housekeeping start/end");
       Serial.println("    2 = hall sensors and switches");
       Serial.println("    3 = system timers");
+      Serial.println("    4 = sub-system app/game state machine number");
     }
   }
 

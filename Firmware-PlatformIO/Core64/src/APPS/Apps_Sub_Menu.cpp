@@ -41,7 +41,7 @@ void AppsSubMenu() {
     Serial.println("    - = Previous App");
     Serial.println("    S = Select App");
     Serial.print(PROMPT);
-    TopLevelThreeSoftButtonGlobalEnableSet(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(3);
     LED_Array_Matrix_Color_Display();
     }

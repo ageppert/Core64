@@ -92,6 +92,8 @@ static uint16_t TopLevelModeDefault = MODE_DEMO_SCROLLING_TEXT;
 static uint16_t TopLevelModePrevious;
 static bool     TopLevelModeChanged = false;
 static bool     TopLevelThreeSoftButtonGlobalEnable = true;
+static bool     TopLevelSetSoftButtonGlobalEnable = true;
+
 static uint32_t PowerOnTimems = 0;
 static uint32_t PowerOnSequenceMinimumDurationms = 3000;
 
@@ -157,8 +159,14 @@ bool TopLevelModeChangedGet () {
     }
 }
 
-void TopLevelThreeSoftButtonGlobalEnableSet (bool value) {   TopLevelThreeSoftButtonGlobalEnable = value; }
+void TopLevelThreeSoftButtonGlobalEnableSet (bool value) {
+  TopLevelThreeSoftButtonGlobalEnable = value;
+  TopLevelSetSoftButtonGlobalEnable = value;
+}
 bool TopLevelThreeSoftButtonGlobalEnableGet ()           {   return (TopLevelThreeSoftButtonGlobalEnable); }
+
+void TopLevelSetSoftButtonGlobalEnableSet (bool value) {   TopLevelSetSoftButtonGlobalEnable = value; }
+bool TopLevelSetSoftButtonGlobalEnableGet ()           {   return (TopLevelSetSoftButtonGlobalEnable); }
 
 void TopLevelModeManagerCheckButtons () {
   // GLOBAL MODE SWITCHING - Check for soft button touch activation.
@@ -236,7 +244,9 @@ void TopLevelModeManagerCheckButtons () {
         Button3Released = true;
       }
     }
+  }
 
+  if (TopLevelSetSoftButtonGlobalEnableGet()) {
     // Checking the "S" soft button.
     if ( (Button4Released == true) && (Button4HoldTime >= 100) ) {
       ButtonState(4,1); // Force a "release" after press by clearing the button hold down timer
@@ -250,7 +260,6 @@ void TopLevelModeManagerCheckButtons () {
         Button4Released = true;
       }
     }
-
   }
 }
 
@@ -713,7 +722,7 @@ void TopLevelModeManagerRun () {
         Serial.println("  Entered MODE_MANUFACTURING_MENU.");   
         Serial.println("  Nothing to see yet.");
         Serial.print(PROMPT);
-        TopLevelThreeSoftButtonGlobalEnableSet(1);
+        TopLevelThreeSoftButtonGlobalEnableSet(true);
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(11);   // TODO: Change to a mfg symbol.
         LED_Array_Matrix_Color_Display();
         }
