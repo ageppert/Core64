@@ -105,32 +105,33 @@
   }
 
   void OLEDScreenSetup() {
+    Serial.print("  OLED Screen Setup started.");
     #if defined BOARD_CORE64_TEENSY_32
       #if defined OLED_64X128
         if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 
-          Serial.println(F("SSD1306 allocation failed"));
+          Serial.println(F("    SSD1306 allocation failed."));
         }
         else
         {
-          Serial.println(F("SSD1306 allocation did not fail"));
+          Serial.println(F("    SSD1306 allocation did not fail."));
         }
         display.setTextColor(WHITE); // Draw white text
       #elif defined OLED_128X128
         if(!display.begin(0x3C, 1)) { // Address 0x3C for 128x128 
-          Serial.println(F("SSD1327 allocation failed"));
+          Serial.println(F("    SSD1327 allocation failed."));
         }
         else
         {
-          Serial.println(F("SSD1327 allocation did not fail"));
+          Serial.println(F("    SSD1327 allocation did not fail."));
         }
         display.setTextColor(SSD1327_WHITE); // Draw white text
       #else
         if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 (default)
-          Serial.println(F("SSD1306 allocation failed"));
+          Serial.println(F("    SSD1306 allocation failed."));
         }
         else
         {
-          Serial.println(F("SSD1306 allocation did not fail"));
+          Serial.println(F("    SSD1306 allocation did not fail."));
         }
         display.setTextColor(WHITE); // Draw white text
       #endif
@@ -156,6 +157,7 @@
     #elif defined BOARD_CORE64C_RASPI_PICO
       // TODO: Handle the difference in the hardware inside the function above and remove this #if sequence
     #endif 
+    Serial.print("  OLED Screen Setup completed.");
   }
 
   void OLEDScreenUpdate() {

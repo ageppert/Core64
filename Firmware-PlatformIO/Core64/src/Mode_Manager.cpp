@@ -39,49 +39,50 @@
 #include "SPECIAL/Special_Sub_Menu.h"
 #include "SETTINGS/Settings_Sub_Menu.h"
 
+#define DebugDelayBetweenStartUpStates 250
 
 // All of these items in this array list must be updated in the corresponding "enum TopLevelMode" of Mode_Manager.h to match 1:1.
 // This array is use for convenience, to allow printing the mode to the serial port or screen.
   const char* TOP_LEVEL_MODE_NAME_ARRAY[] =
   {
-      "MODE_START_POWER_ON",
-      "   MODE_START_ALIVE",
-      "   MODE_START_EEPROM",
-      "   MODE_START_POWER_CHECK",
-      "   MODE_START_SEQUENCE_COMPLETE",
-      "   MODE_START_CONFIG_SPECIFIC",
-      "MODE_DGAUSS_MENU                           ",
-      "    MODE_DEMO_SUB_MENU                     ",
-      "        MODE_DEMO_SCROLLING_TEXT           ",
-      "        MODE_DEMO_LED_TEST_ONE_MATRIX_MONO ",
-      "        MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR",
-      "        MODE_DEMO_END_OF_LIST              ",
-      "    MODE_GAME_SUB_MENU                     ",
-      "        MODE_GAME_SNAKE                    ",
-      "        MODE_GAME_END_OF_LIST              ",
-      "    MODE_APP_SUB_MENU                      ",
-      "        MODE_APP_DRAW                      ",
-      "        MODE_APP_END_OF_LIST               ",
-      "    MODE_UTIL_SUB_MENU                     ",
-      "        MODE_UTIL_FLUX_DETECTOR            ",
-      "        MODE_UTIL_END_OF_LIST              ",
-      "    MODE_SPECIAL_SUB_MENU                  ",
-      "        MODE_LED_TEST_ALL_BINARY           ",
-      "        MODE_LED_TEST_ONE_STRING           ",
-      "        MODE_TEST_EEPROM                   ",
-      "        MODE_LED_TEST_ALL_COLOR            ",
-      "        MODE_CORE_TOGGLE_BIT               ",
-      "        MODE_CORE_TEST_ONE                 ",
-      "        MODE_CORE_TEST_MANY                ",
-      "        MODE_HALL_TEST                     ",
-      "        MODE_SPECIAL_LOOPBACK_TEST         ",
-      "        MODE_SPECIAL_HARD_REBOOT           ",
-      "        MODE_SPECIAL_END_OF_LIST           ",
-      "    MODE_SETTINGS_SUB_MENU                 ",
-      "        MODE_SETTINGS_END_OF_LIST          ",
-      "MODE_MANUFACTURING_MENU                    ",
-      "    MODE_MANUFACTURING_END_OF_LIST         ",
-      "MODE_LAST                                  " 
+      " MODE_START_POWER_ON",
+      "  MODE_START_ALIVE",
+      "  MODE_START_EEPROM",
+      "  MODE_START_POWER_CHECK",
+      "  MODE_START_SEQUENCE_COMPLETE",
+      "  MODE_START_CONFIG_SPECIFIC",
+      " MODE_DGAUSS_MENU                     ",
+      "  MODE_DEMO_SUB_MENU                  ",
+      "   MODE_DEMO_SCROLLING_TEXT           ",
+      "   MODE_DEMO_LED_TEST_ONE_MATRIX_MONO ",
+      "   MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR",
+      "   MODE_DEMO_END_OF_LIST              ",
+      "  MODE_GAME_SUB_MENU                  ",
+      "   MODE_GAME_SNAKE                    ",
+      "   MODE_GAME_END_OF_LIST              ",
+      "  MODE_APP_SUB_MENU                   ",
+      "   MODE_APP_DRAW                      ",
+      "   MODE_APP_END_OF_LIST               ",
+      "  MODE_UTIL_SUB_MENU                  ",
+      "   MODE_UTIL_FLUX_DETECTOR            ",
+      "   MODE_UTIL_END_OF_LIST              ",
+      "  MODE_SPECIAL_SUB_MENU               ",
+      "   MODE_LED_TEST_ALL_BINARY           ",
+      "   MODE_LED_TEST_ONE_STRING           ",
+      "   MODE_TEST_EEPROM                   ",
+      "   MODE_LED_TEST_ALL_COLOR            ",
+      "   MODE_CORE_TOGGLE_BIT               ",
+      "   MODE_CORE_TEST_ONE                 ",
+      "   MODE_CORE_TEST_MANY                ",
+      "   MODE_HALL_TEST                     ",
+      "   MODE_SPECIAL_LOOPBACK_TEST         ",
+      "   MODE_SPECIAL_HARD_REBOOT           ",
+      "   MODE_SPECIAL_END_OF_LIST           ",
+      "  MODE_SETTINGS_SUB_MENU              ",
+      "   MODE_SETTINGS_END_OF_LIST          ",
+      " MODE_MANUFACTURING_MENU              ",
+      "  MODE_MANUFACTURING_END_OF_LIST      ",
+      " MODE_LAST                            " 
   };
   // Make sure the Enum and Array are the same size.
   // https://stackoverflow.com/questions/34669164/ensuring-array-is-filled-to-size-at-compile-time
@@ -95,7 +96,7 @@ static bool     TopLevelThreeSoftButtonGlobalEnable = true;
 static bool     TopLevelSetSoftButtonGlobalEnable = true;
 
 static uint32_t PowerOnTimems = 0;
-static uint32_t PowerOnSequenceMinimumDurationms = 3000;
+static uint32_t PowerOnSequenceMinimumDurationms = 3500;
 
 static bool     Button1Released = true;
 static bool     Button2Released = true;
@@ -114,19 +115,19 @@ extern int StreamTopLevelModeEnable;
 static uint32_t MenuTimeoutTimerms  = 0;
 const uint32_t MenuTimeoutLimitms   = 30000; // 30 second timeout in menus.
 static uint32_t MenuTimeoutDeltams  = 0;
-static bool MenuTimeoutFirstTimeRun =0;
+static bool MenuTimeoutFirstTimeRun = 0;
 
-void TopLevelModeSetToDefault() { TopLevelMode = TopLevelModeDefault; }
-
-void TopLevelModeDefaultSet     (uint16_t value)  {   TopLevelModeDefault = value; }
-uint16_t TopLevelModeDefaultGet ()                {   return (TopLevelModeDefault); }
-void TopLevelModeSet (uint16_t value) {   TopLevelMode = value; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
-uint16_t TopLevelModeGet ()           {   return (TopLevelMode); }
-void TopLevelModeSetInc ()            {   TopLevelMode++; TopLevelModeSetChanged(true); }
-void TopLevelModeSetDec ()            {   TopLevelMode--; TopLevelModeSetChanged(true); }               
-
-void TopLevelModePreviousSet (uint16_t value)   { TopLevelModePrevious = value; }
-uint16_t TopLevelModePreviousGet ()             { return (TopLevelModePrevious); }
+// Every function which sets a new top level mode shall trigger an update through the serial port.
+void TopLevelModeSetToDefault               ()  { TopLevelMode = TopLevelModeDefault; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
+void TopLevelModeSet          (uint16_t value)  { TopLevelMode = value; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
+void TopLevelModeSetInc                     ()  { TopLevelMode++; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
+void TopLevelModeSetDec                     ()  { TopLevelMode--; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }               
+// These functions do not change modes so they don't need the serial port update.
+void TopLevelModePreviousSet  (uint16_t value)  { TopLevelModePrevious = value; }
+void TopLevelModeDefaultSet   (uint16_t value)  { TopLevelModeDefault = value; }
+uint16_t TopLevelModePreviousGet            ()  { return (TopLevelModePrevious); }
+uint16_t TopLevelModeDefaultGet             ()  { return (TopLevelModeDefault); }
+uint16_t TopLevelModeGet                    ()  { return (TopLevelMode); }
 
 void TopLevelModeChangeSerialPortDisplay () {
   Serial.println();
@@ -138,7 +139,6 @@ void TopLevelModeChangeSerialPortDisplay () {
   Serial.print(" ");
   Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
   Serial.println(".");
-  // Serial.print(PROMPT);         // Print the first prompt to show the system is ready for input
 }
 
 void TopLevelModeSetChanged (bool value) {          // Flag that a mode change has occurred.  User application has one time to use this before it is reset.
@@ -277,7 +277,7 @@ void MenuTimeOutCheckAndExitToModeDefault () {
   if (MenuTimeoutDeltams >= MenuTimeoutLimitms) {
     MenuTimeOutCheckReset();
     Serial.println();
-    Serial.println("  Menu timeout. Returning to TopLevelModeDefault.");
+    Serial.println("  Menu or mode timeout. Returning to TopLevelModeDefault.");
     TopLevelModePreviousSet(TopLevelModeGet());
     TopLevelModeSet (TopLevelModeDefault);
   }
@@ -286,48 +286,63 @@ void MenuTimeOutCheckAndExitToModeDefault () {
 void TopLevelModeManagerRun () {
   switch(TopLevelMode) {
     // *************************************************************************************************************************************************** //
-    case MODE_START_POWER_ON:                       // Do the bare minimum required to get started and support moving to the next mode.
+    case MODE_START_POWER_ON:                    // Perform the bare minimum required to start and support serial status and debugging.
     // *************************************************************************************************************************************************** //
       PowerOnTimems = millis();
-      SerialPortSetup();    // Required to debug, show state, and Init failures.
-      CommandLineSetup();   // Helpful for debug and config changes.
-      // TODO: Move the following set-up functions into seperate mode per quick start guide.
-      // TODO: Why is OLEDScreenSetup(); required before I2CManagerSetup() ???
-      OLEDScreenSetup();
-      I2CManagerSetup();    // Required to check if buttons are available.
-      I2CManagerBusScan();  // Verify the buttons are on the bus.
-      Buttons_Setup();      // Required before exiting the first run of this mode.
+      SerialPortSetup();
       TopLevelModePreviousSet (TopLevelModeGet());
-      TopLevelModeSetInc();
-      break;
-
-    // *************************************************************************************************************************************************** //
-    case MODE_START_ALIVE:                       // Show some signs of life as soon as possible
-    // *************************************************************************************************************************************************** //
-      Serial.println("  Power-on start up sequence has begun...");
+      Serial.print("  TopLevelMode is: ");
+      Serial.print(TopLevelModeGet());
+      Serial.print(" ");
+      Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+      Serial.println(".");
+      Serial.println("  Power-on sequence has begun.");
+      CommandLineSetup();
       HeartBeatSetup();
-      LED_Array_Init();
-      LED_Array_Start_Up_Symbol_Loop_Begin();               // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
-      handleSplash("");             // Splash screen    
-      TopLevelModePreviousSet (TopLevelModeGet());
+      Serial.println("  Heartbeat started.");
+      delay(DebugDelayBetweenStartUpStates);
       TopLevelModeSetInc();
       break;
 
     // *************************************************************************************************************************************************** //
-    case MODE_START_EEPROM:                     // Check the EEPROM for configuration and settings
+    case MODE_START_ALIVE:                       // Show signs of life as soon as possible after power on, assuming default hardware.
     // *************************************************************************************************************************************************** //
-      LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
+      handleSplash("");                                       // Splash screen serial text
+      Serial.println("  Starting default expected hardware:");
+      I2CManagerSetup();                                      // Required to scan the I2C Bus.
+      I2CManagerBusScan();                                    // Determine hardware available on the I2C bus. Especially the hall sensor buttons.
+      Serial.println("    Starting Hall Sensor Buttons");
+      Buttons_Setup();
+      Serial.println("    Starting LED Matrix.");
+      LED_Array_Init();                                       // Assuming this hardware is available... it's a blind output only.
+      LED_Array_Start_Up_Symbol_Loop_Begin();                 // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
+      Serial.println("    Starting OLED Display.");
+      OLEDScreenSetup();
+      TopLevelModePreviousSet (TopLevelModeGet());
+      TopLevelModeSetInc();
+      delay(DebugDelayBetweenStartUpStates);
+      break;
+
+    // *************************************************************************************************************************************************** //
+    case MODE_START_EEPROM:                     // Check the EEPROM for Hardware Version and expected peripherals/configuration/settings.
+    // *************************************************************************************************************************************************** //
+      LED_Array_Start_Up_Symbol_Loop_Continue();
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
       Serial.println("  EEPROM read has begun...");
       ReadHardwareVersion();
       Serial.println("  ...completed EEPROM read.");
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
+      delay(DebugDelayBetweenStartUpStates);
       break;
 
     // *************************************************************************************************************************************************** //
     case MODE_START_POWER_CHECK:                     // Check voltages and display along with version/config info
     // *************************************************************************************************************************************************** //
-      LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
+      LED_Array_Start_Up_Symbol_Loop_Continue();
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
       Serial.println("  Power check has begun...");
       AnalogSetup();
       AnalogUpdate();
@@ -337,16 +352,18 @@ void TopLevelModeManagerRun () {
       handleInfo("");               // Print some info about the system (this also checks hardware version, born-on, and serial number)
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
+      delay(DebugDelayBetweenStartUpStates);
       break;
 
     // *************************************************************************************************************************************************** //
     case MODE_START_CONFIG_SPECIFIC:                     // Enable and adjust based on EEPROM configuration parameters
     // *************************************************************************************************************************************************** //
       LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
       Serial.println("  Configuration specific setup has begun...");
       // TODO brightness default set from EEPROM
       #if defined BOARD_CORE64_TEENSY_32
-        // TO DO: Most of this setup should occur after the hardware version is determined, so setup is configured appropriately
         CoreSetup();
         SDCardSetup();
         AmbientLightSetup();
@@ -357,20 +374,24 @@ void TopLevelModeManagerRun () {
       Serial.println("  ...Completed configuration specific setup.");
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
+      delay(DebugDelayBetweenStartUpStates);
       break;
 
     // *************************************************************************************************************************************************** //
     case MODE_START_SEQUENCE_COMPLETE:                  // Print the HELP menu, PROMPT, and jump into default demo mode
     // *************************************************************************************************************************************************** //
       LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
       if (TopLevelModeChangedGet()){
-        handleHelp("");               // Print the help menu
         Serial.println("  ...start-up sequence has been completed.");
+        handleHelp("");               // Print the help menu
         Serial.print(PROMPT);
       }
       if (millis() >= (PowerOnTimems + PowerOnSequenceMinimumDurationms)) {
         TopLevelModePreviousSet (TopLevelModeGet());
         TopLevelModeSet(TopLevelModeDefault);
+      delay(DebugDelayBetweenStartUpStates);
       }
       break;
 

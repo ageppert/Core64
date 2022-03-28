@@ -141,75 +141,77 @@ void Buttons_Setup() {
   // TODO: back out HWV minor == 2 and replace with hardware type == Core64c
   {
     #ifdef HALL_SENSOR_ENABLE
-      if((rslt = si7210_init(&HallSensor1)) != SI7210_OK)
-          {
-            Serial.print("Init Result Code Not OK: ");
+      if( HardwareConnectedCheckButtonHallSensors() ) {
+        if((rslt = si7210_init(&HallSensor1)) != SI7210_OK)
+            {
+              Serial.print("      Init Result Code Not OK: ");
+              Serial.println(rslt,DEC);
+              //return rslt;
+            }
+
+        HallSensor1.settings.range        = SI7210_20mT;
+        HallSensor1.settings.compensation = SI7210_COMPENSATION_TEMP_NEO;
+        HallSensor1.settings.output_pin   = SI7210_OUTPUT_PIN_HIGH;
+        
+        if((rslt = si7210_set_sensor_settings(&HallSensor1)) != SI7210_OK)
+            {
+              Serial.print("      Set Sensor Settings Result Code Not OK: ");
+              Serial.println(rslt,DEC);
+              //return rslt;
+            }
+        else { Serial.println("      Hall 1 Set Sensor Settings Result OK."); }
+
+        if((rslt = si7210_set_sensor_settings(&HallSensor2)) != SI7210_OK)
+            {
+              Serial.print("      Set Sensor Settings Result Code Not OK: ");
+              Serial.println(rslt,DEC);
+              //return rslt;
+            }
+        else { Serial.println("      Hall 2 Set Sensor Settings Result OK."); }
+
+        if((rslt = si7210_set_sensor_settings(&HallSensor3)) != SI7210_OK)
+            {
+              Serial.print("      Set Sensor Settings Result Code Not OK: ");
+              Serial.println(rslt,DEC);
+              //return rslt;
+            }
+        else { Serial.println("      Hall 3 Set Sensor Settings Result OK."); }
+
+        if((rslt = si7210_set_sensor_settings(&HallSensor4)) != SI7210_OK)
+            {
+              Serial.print("      Set Sensor Settings Result Code Not OK: ");
+              Serial.println(rslt,DEC);
+              //return rslt;
+            }
+        else { Serial.println("      Hall 4 Set Sensor Settings Result OK."); }
+
+        if(rslt == SI7210_OK)
+        {
+            Serial.print("      Set Sensor Settings Result Code OK: ");
             Serial.println(rslt,DEC);
-            //return rslt;
-          }
+            float field_strength;
+            float temperature;
 
-      HallSensor1.settings.range        = SI7210_20mT;
-      HallSensor1.settings.compensation = SI7210_COMPENSATION_TEMP_NEO;
-      HallSensor1.settings.output_pin   = SI7210_OUTPUT_PIN_HIGH;
-       
-      if((rslt = si7210_set_sensor_settings(&HallSensor1)) != SI7210_OK)
-          {
-            Serial.print("Set Sensor Settings Result Code Not OK: ");
-            Serial.println(rslt,DEC);
-            //return rslt;
-          }
-      else { Serial.println("Hall 1 Set Sensor Settings Result OK."); }
+            /* Obtain field strength reading from device */
+            si7210_get_field_strength(&HallSensor1, &field_strength);
 
-      if((rslt = si7210_set_sensor_settings(&HallSensor2)) != SI7210_OK)
-          {
-            Serial.print("Set Sensor Settings Result Code Not OK: ");
-            Serial.println(rslt,DEC);
-            //return rslt;
-          }
-      else { Serial.println("Hall 2 Set Sensor Settings Result OK."); }
+            /* Obtain a temperature reading from the device */
+            si7210_get_temperature(&HallSensor1, &temperature);
 
-      if((rslt = si7210_set_sensor_settings(&HallSensor3)) != SI7210_OK)
-          {
-            Serial.print("Set Sensor Settings Result Code Not OK: ");
-            Serial.println(rslt,DEC);
-            //return rslt;
-          }
-      else { Serial.println("Hall 3 Set Sensor Settings Result OK."); }
+            Serial.print("      Field / Temperature: ");
+            Serial.print(field_strength);
+            Serial.print(" / ");
+            Serial.println(temperature);
+        }
 
-      if((rslt = si7210_set_sensor_settings(&HallSensor4)) != SI7210_OK)
-          {
-            Serial.print("Set Sensor Settings Result Code Not OK: ");
-            Serial.println(rslt,DEC);
-            //return rslt;
-          }
-      else { Serial.println("Hall 4 Set Sensor Settings Result OK."); }
+        rslt = si7210_check(&HallSensor1);
+        Serial.print("      H1 SENSOR CHECK Result Code: ");
+        Serial.println(rslt,DEC);
 
-      if(rslt == SI7210_OK)
-      {
-          Serial.print("Set Sensor Settings Result Code OK: ");
-          Serial.println(rslt,DEC);
-          float field_strength;
-          float temperature;
-
-          /* Obtain field strength reading from device */
-          si7210_get_field_strength(&HallSensor1, &field_strength);
-
-          /* Obtain a temperature reading from the device */
-          si7210_get_temperature(&HallSensor1, &temperature);
-
-          Serial.print("Field / Temperature: ");
-          Serial.print(field_strength);
-          Serial.print(" / ");
-          Serial.println(temperature);
+        rslt = si7210_self_test(&HallSensor1);
+        Serial.print("      H1 SELF TEST Result Code: ");
+        Serial.println(rslt,DEC);
       }
-
-      rslt = si7210_check(&HallSensor1);
-      Serial.print("H1 SENSOR CHECK Result Code: ");
-      Serial.println(rslt,DEC);
-
-      rslt = si7210_self_test(&HallSensor1);
-      Serial.print("H1 SELF TEST Result Code: ");
-      Serial.println(rslt,DEC);
     #endif // HALL_SENSOR_ENABLE
 
     #ifdef HALL_SWITCH_ENABLE
@@ -252,7 +254,8 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
     thistime = millis();
     sensed = false;
     float field_strength;
-  
+
+    if( HardwareConnectedCheckButtonHallSensors() ) {
       switch (button_number) {
         case 1:
           if(clear_duration == 1) { duration_b1 = 0 ;}
@@ -317,7 +320,7 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           Serial.println("Invalid Button");
           break;
         }
-
+      }
   #if defined DEBUG_HALL_SENSORS  
     Serial.print("HALL SENSOR 1,2,3,4: ");
     Serial.print(duration_b1);

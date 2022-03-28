@@ -117,6 +117,7 @@ void CommandLineSetup ()
   commandLine.add("mode", &handleMode);
   commandLine.add("splash", &handleSplash);
   #endif
+  Serial.println("  Command Line Setup complete.");
 }
 
 void  CommandLineUpdate()
@@ -185,7 +186,7 @@ void  CommandLineUpdate()
     }
     else {
       TopLevelModePreviousSet(TopLevelModeGet());
-      TopLevelModeSet(10);
+      TopLevelModeSet(MODE_DGAUSS_MENU);
       TopLevelModeSetChanged (true);
       Serial.println("  Jump to DGAUSS Menu.");
     }
@@ -210,7 +211,7 @@ void  CommandLineUpdate()
     Serial.println("");
     Serial.println("  SERIAL COMMANDS:");
     Serial.println("    arrangement            -> Query EEPROM for core arrangement value.");
-    Serial.println("    arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires reboot.");
+    Serial.println("    arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires power cycle.");
     Serial.println("    arrangement opposite   -> Set EEPROM for core arrangement opposite \\ /.");
     Serial.println("    coretest               -> Test one core.");
     Serial.println("    debug [#]              -> Query or optionally set Debug Level.");
@@ -359,7 +360,7 @@ void  CommandLineUpdate()
     Serial.println("  Core64 Interactive Core Memory - Project website: www.Core64.io");
     Serial.println("  2019-2022 Concept and Design by Andy Geppert at www.MachineIdeas.com");
     Serial.println("  This source code: https://www.github.com/ageppert/Core64");
-    Serial.println("  See Core64.ino for IDE and library requirements.");
+    Serial.println("  See main.cpp for IDE and library requirements.");
     Serial.println("  See HardwareIOMap.h for hardware configuration.");
     Serial.println();
   }

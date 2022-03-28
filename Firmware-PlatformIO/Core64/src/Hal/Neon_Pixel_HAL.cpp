@@ -320,7 +320,7 @@
   */
 
     void Neon_Pixel_Array_Init() {
-      Serial.println("\nNeon_Pixel_Array_Init started.");
+      Serial.println("\n  Neon_Pixel_Array_Init started.");
       // Minimum configuration to display single pixels.
       neonPixelMatrix.setDisplayPixelSize(8,8); // Set the size of the viewable display area.
       neonPixelMatrix.setViewOrigin(0,8);
@@ -337,7 +337,7 @@
     bool Neon_Pixel_Array_Matrix_Mono_Read(uint8_t y, uint8_t x) { }
     void CopyCoreMemoryToMonochromeNeonPixelArrayMemory() { }
     void Neon_Pixel_Array_Init() {
-      Serial.println("\nNeon_Pixel_Array_Init not started because NEON_PIXEL_ARRAY is not #DEFINED.");
+      Serial.println("\n  Neon_Pixel_Array_Init not started because NEON_PIXEL_ARRAY is not #DEFINED.");
     }
 
   #endif // NEON_PIXEL_ARRAY

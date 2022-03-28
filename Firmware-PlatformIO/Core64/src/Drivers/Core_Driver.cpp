@@ -353,7 +353,7 @@
       #endif
 
       Serial.println();
-      Serial.println("Core Pattern Arrangement. 1=Normal. 2=Opposite.");
+      Serial.println("  Core Pattern Arrangement. 1=Normal. 2=Opposite.");
       Serial.print("     Firmware default: ");
       Serial.println(CorePatternArrangement);
       CorePatternArrangement = EEPROMExtReadCorePatternArrangement();

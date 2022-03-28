@@ -22,4 +22,5 @@ SETUP:
 	void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, uint8_t data );
 	byte EEPROMExtReadByte(int deviceaddress, unsigned int eeaddress );
 	byte EEPROMExtDefaultReadByte(uint8_t eeaddress); 
+	bool HardwareConnectedCheckButtonHallSensors();		// returns true or false indicated whether or not the hall sensor buttons are available.
 #endif

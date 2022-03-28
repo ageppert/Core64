@@ -247,7 +247,7 @@
   */
 
   void ScrollTextToCoreMemory() {
-    static unsigned long UpdatePeriodms = 80;  
+    static unsigned long UpdatePeriodms = 70;  
     static unsigned long NowTime = 0;
     static unsigned long UpdateTimer = 0;
 

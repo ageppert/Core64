@@ -79,17 +79,17 @@ const  uint32_t MainLoopDebugTimeUpdatePeriod = 1000;
 static uint32_t MainLoopDebugTimeUpdateLast = 0; 
 
 void setup() {
-  TopLevelModeManagerRun(); // First time run contains all the stuff normally done in Arduino setup()
+  //  Nothing to do. It's all handled in TopLevelModeManagerRun().
 }
 
 void loop() {
-
-  MainLoopStartTime = millis(); 
   /*                      *********************
                           *** Housekeepting ***
                           *********************
   */
+  MainLoopStartTime = millis(); 
   if(DebugLevel==1) { Serial.println("DEBUG: START OF HOUSEKEEPING"); }
+  TopLevelModeManagerRun(); // First time run contains all the stuff normally done in Arduino setup()
   HeartBeat(); 
   AnalogUpdate();
   CommandLineUpdate();
@@ -108,7 +108,7 @@ void loop() {
   */
   if(DebugLevel==1) { Serial.println("DEBUG: START OF USER INTERACTION"); }
   MainLoopDurationModeID = TopLevelModeGet();
-  TopLevelModeManagerRun();
+  // TopLevelModeManagerRun();
   if(DebugLevel==1) { Serial.println("DEBUG: END OF USER INTERACTION"); }
 
   if(DebugLevel==1) { Serial.println("DEBUG: END OF TOP LEVEL MODE FUNCTIONS"); }

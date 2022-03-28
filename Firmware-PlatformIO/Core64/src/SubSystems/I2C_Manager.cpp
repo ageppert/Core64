@@ -67,13 +67,19 @@
     Master list of I2C addresses at https://learn.adafruit.com/i2c-addresses/the-list
 */
 
+static bool HardwareAvailableButtonHallSensors = false;
+
+bool HardwareConnectedCheckButtonHallSensors() {
+  return HardwareAvailableButtonHallSensors;
+}
+
 void I2CManagerSetup() {
   #if defined BOARD_CORE64_TEENSY_32
-    // Nothing to do here with the Arduino Core for I2C.
+    Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
   #elif defined BOARD_CORE64C_RASPI_PICO
     I2C1.begin(); // testing this as a replacement to wire.xxxxx calls.
   #endif
-  Serial.println(F("\nI2C Manager: Setup Complete."));
+  Serial.println(F("\n  I2C Manager: Setup Complete."));
 }
 
 void printKnownChips(byte address)
@@ -123,10 +129,10 @@ void printKnownChips(byte address)
     case 0x2F: Serial.print(F("MCP44XX ePot")); break;
     
     // HALL SENSORS
-    case 0x30: Serial.print(F("SI7210-B-01, Hall Sensor 1")); break;
-    case 0x31: Serial.print(F("SI7210-B-02, Hall Sensor 2")); break;
-    case 0x32: Serial.print(F("SI7210-B-03, Hall Sensor 3")); break;
-    case 0x33: Serial.print(F("SI7210-B-04, Hall Sensor 4")); break;
+    case 0x30: Serial.print(F("SI7210-B-01, Hall Sensor 1")); HardwareAvailableButtonHallSensors = true; break;
+    case 0x31: Serial.print(F("SI7210-B-02, Hall Sensor 2")); HardwareAvailableButtonHallSensors = true; break;
+    case 0x32: Serial.print(F("SI7210-B-03, Hall Sensor 3")); HardwareAvailableButtonHallSensors = true; break;
+    case 0x33: Serial.print(F("SI7210-B-04, Hall Sensor 4")); HardwareAvailableButtonHallSensors = true; break;
     
     case 0x34: Serial.print(F("MAX11612,MAX11613")); break;
     case 0x35: Serial.print(F("MAX11616,MAX11617")); break;
