@@ -49,8 +49,8 @@
       "  MODE_START_ALIVE",
       "  MODE_START_EEPROM",
       "  MODE_START_POWER_CHECK",
-      "  MODE_START_SEQUENCE_COMPLETE",
       "  MODE_START_CONFIG_SPECIFIC",
+      "  MODE_START_SEQUENCE_COMPLETE",
       " MODE_DGAUSS_MENU                     ",
       "  MODE_DEMO_SUB_MENU                  ",
       "   MODE_DEMO_SCROLLING_TEXT           ",
@@ -183,14 +183,13 @@ void TopLevelModeManagerCheckButtons () {
     Serial.print(" ");
     Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
   }
-
   #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
     Button2HoldTime = ButtonState(2,0);
     Button3HoldTime = ButtonState(3,0);
     Button4HoldTime = ButtonState(4,0);
   #elif defined BOARD_CORE64C_RASPI_PICO
-    // Not yet implemented
+    // not yet implemented
   #endif
 
   // Checking the "M" soft button to enter or exit the DGAUSS menu.
@@ -360,16 +359,17 @@ void TopLevelModeManagerRun () {
     // *************************************************************************************************************************************************** //
       LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
       OLEDTopLevelModeSet(TopLevelModeGet());
-      OLEDScreenUpdate();
       Serial.println("  Configuration specific setup has begun...");
       // TODO brightness default set from EEPROM
       #if defined BOARD_CORE64_TEENSY_32
+        OLEDScreenUpdate();
         CoreSetup();
         SDCardSetup();
         AmbientLightSetup();
         Neon_Pixel_Array_Init();
       #elif defined BOARD_CORE64C_RASPI_PICO
         // TODO: Handle the difference in the hardware inside the functions above and remove this #if sequence
+        // OLEDScreenUpdate();
       #endif
       Serial.println("  ...Completed configuration specific setup.");
       TopLevelModePreviousSet (TopLevelModeGet());

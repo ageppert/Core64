@@ -54,7 +54,8 @@
     Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, CLK_DURING, CLK_AFTER);
   #endif
 
-  uint8_t TopLevelModeLocal = 0;
+  static uint8_t TopLevelModeLocal = 0;
+  static bool OledScreenSetupComplete = false;
 
   // Call this routine to update the OLED display.
   // Refreshing the OLED display is otherwise not stable, possibly due to some library compression stuff.
@@ -106,7 +107,7 @@
 
   void OLEDScreenSetup() {
     Serial.print("  OLED Screen Setup started.");
-    #if defined BOARD_CORE64_TEENSY_32
+//    #if defined BOARD_CORE64_TEENSY_32
       #if defined OLED_64X128
         if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 
           Serial.println(F("    SSD1306 allocation failed."));
@@ -114,6 +115,7 @@
         else
         {
           Serial.println(F("    SSD1306 allocation did not fail."));
+          OledScreenSetupComplete = true;
         }
         display.setTextColor(WHITE); // Draw white text
       #elif defined OLED_128X128
@@ -154,21 +156,27 @@
       display.display();
     */
       OLEDScreenSplash();
-    #elif defined BOARD_CORE64C_RASPI_PICO
+      Serial.print("  OLED Screen Setup completed.");
+//    #elif defined BOARD_CORE64C_RASPI_PICO
       // TODO: Handle the difference in the hardware inside the function above and remove this #if sequence
-    #endif 
-    Serial.print("  OLED Screen Setup completed.");
+//      Serial.print("  OLED Screen Setup skipped. Not yet implemented for Core64c.");
+//    #endif 
   }
 
   void OLEDScreenUpdate() {
     static unsigned long UpdatePeriodms = 100;  
     static unsigned long NowTime = 0;
     static unsigned long UpdateTimer = 0;
-    NowTime = millis();
-    if ((NowTime - UpdateTimer) >= UpdatePeriodms)
-    {
-      UpdateTimer = NowTime;
-      OLEDScreenSplash();                             // TO DO: This refresh causes the aqua colored Hackaday logo (and others) to blink. Is it signal interference?
+    if (OledScreenSetupComplete) {
+      NowTime = millis();
+      if ((NowTime - UpdateTimer) >= UpdatePeriodms)
+      {
+        UpdateTimer = NowTime;
+        OLEDScreenSplash();     // TO DO: This refresh causes the aqua colored Hackaday logo (and others) to blink. Is it signal interference?
+      }
+    }
+    else {
+      Serial.print("  OLED Screen has not been initialized yet. Cannot update.");
     }
   }
 

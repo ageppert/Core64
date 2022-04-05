@@ -32,25 +32,25 @@
 
 void ModeDemoScrollingText() {
     if (TopLevelModeChangedGet()) {
-    LED_Array_Monochrome_Set_Color(135,255,255);  // 135,255,255 = OLED aqua
+      LED_Array_Monochrome_Set_Color(135,255,255);  // 135,255,255 = OLED aqua
     }
     ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
     #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
-    // Nothing here
+      // Nothing here
     #else
-    Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
-    Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
+      Core_Mem_Array_Write();     // Transfer from RAM Core Memory Array to physical core memory
+      Core_Mem_Array_Read();      // Transfer from physical core memory to RAM Core Memory Array
     #endif
     CopyCoreMemoryToMonochromeLEDArrayMemory();
     LED_Array_Matrix_Mono_Display();
     OLEDTopLevelModeSet(TopLevelModeGet());
-    OLEDScreenUpdate();
+    // OLEDScreenUpdate();
     #if defined BOARD_CORE64_TEENSY_32
-    #ifdef NEON_PIXEL_ARRAY
+      #ifdef NEON_PIXEL_ARRAY
         Neon_Pixel_Array_Matrix_Mono_Display();
         CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
-    #endif
+      #endif
     #elif defined BOARD_CORE64C_RASPI_PICO
-    // Nothing here
+      // Nothing here
     #endif
 }

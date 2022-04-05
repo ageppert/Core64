@@ -364,6 +364,20 @@
   }
 
 #elif defined BOARD_CORE64C_RASPI_PICO
+  void Core_Mem_Scan_For_Magnet() {     
+    uint8_t bit;
+    for (uint8_t y=0; y<8; y++)
+    {
+      for (uint8_t x=0; x<8; x++)
+      {
+        bit = (y*8)+x;
+        // Core_Mem_Bit_Write(bit , 1);
+        // CoreArrayMemory [y][x] = Core_Mem_Bit_Read(bit);
+        delayMicroseconds(40); // This 40us (may be able to use less here) delay is required or LED array, first 3-4 pixels in the electronic string, get weird!
+      }
+    }
+  }
+
   void ScrollTextToCoreMemory() {
     static unsigned long UpdatePeriodms = 100;  
     static unsigned long NowTime = 0;
