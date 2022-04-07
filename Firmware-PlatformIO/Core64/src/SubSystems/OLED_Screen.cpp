@@ -37,9 +37,7 @@
       Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, CLK_DURING, CLK_AFTER);
     #elif defined BOARD_CORE64C_RASPI_PICO
       MbedI2C I2C1_OLED(p10,p11);
-      // #include "SubSystems/I2C_Manager.h"
       Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C1_OLED, OLED_RESET, CLK_DURING, CLK_AFTER);
-      // Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &myi2c);
     #endif
 
   #elif defined OLED_128X128
@@ -107,7 +105,15 @@
 
   void OLEDScreenSetup() {
     Serial.print("  OLED Screen Setup started.");
-//    #if defined BOARD_CORE64_TEENSY_32
+
+    #if defined BOARD_CORE64_TEENSY_32
+      // Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      // "Begin" is needed before the driver tries to talk to the hardware for Pico with MBED.
+      I2C1_OLED.begin();                     // testing this as a replacement to wire.xxxxx calls for Pico MBED
+      Serial.println("      I2C1_OLED.begin() was called.");
+    #endif
+
       #if defined OLED_64X128
         if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64 
           Serial.println(F("    SSD1306 allocation failed."));
@@ -157,10 +163,6 @@
     */
       OLEDScreenSplash();
       Serial.print("  OLED Screen Setup completed.");
-//    #elif defined BOARD_CORE64C_RASPI_PICO
-      // TODO: Handle the difference in the hardware inside the function above and remove this #if sequence
-//      Serial.print("  OLED Screen Setup skipped. Not yet implemented for Core64c.");
-//    #endif 
   }
 
   void OLEDScreenUpdate() {

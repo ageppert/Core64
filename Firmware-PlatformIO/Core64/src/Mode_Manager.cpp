@@ -183,14 +183,10 @@ void TopLevelModeManagerCheckButtons () {
     Serial.print(" ");
     Serial.print(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
   }
-  #if defined BOARD_CORE64_TEENSY_32
     Button1HoldTime = ButtonState(1,0);
     Button2HoldTime = ButtonState(2,0);
     Button3HoldTime = ButtonState(3,0);
     Button4HoldTime = ButtonState(4,0);
-  #elif defined BOARD_CORE64C_RASPI_PICO
-    // not yet implemented
-  #endif
 
   // Checking the "M" soft button to enter or exit the DGAUSS menu.
   if ( (Button1Released == true) && (Button1HoldTime >= 100) ) {
@@ -310,8 +306,6 @@ void TopLevelModeManagerRun () {
       Serial.println("  Starting default expected hardware:");
       I2CManagerSetup();                                      // Required to scan the I2C Bus.
       I2CManagerBusScan();                                    // Determine hardware available on the I2C bus. Especially the hall sensor buttons.
-      Serial.println("    Starting Hall Sensor Buttons");
-      Buttons_Setup();
       Serial.println("    Starting LED Matrix.");
       LED_Array_Init();                                       // Assuming this hardware is available... it's a blind output only.
       LED_Array_Start_Up_Symbol_Loop_Begin();                 // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
@@ -331,6 +325,8 @@ void TopLevelModeManagerRun () {
       Serial.println("  EEPROM read has begun...");
       ReadHardwareVersion();
       Serial.println("  ...completed EEPROM read.");
+      Serial.println("  Starting Hall Sensor Buttons");
+      Buttons_Setup(); // This breaks Pico MBED with error code.
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
       delay(DebugDelayBetweenStartUpStates);
@@ -416,74 +412,79 @@ void TopLevelModeManagerRun () {
         Serial.print(PROMPT);
       }
       MenuTimeOutCheckAndExitToModeDefault();
-      Core_Mem_Scan_For_Magnet();
-      // Was the D touched with magnetic stylus?
-      for (uint8_t y=0; y<5; y++) {
-        for (uint8_t x=0; x<2; x++) {
-          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
-            Serial.println();
-            Serial.println("  Demo sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_DEMO_SUB_MENU);
+  
+      #if defined BOARD_CORE64_TEENSY_32
+        Core_Mem_Scan_For_Magnet();
+        // Was the D touched with magnetic stylus?
+        for (uint8_t y=0; y<5; y++) {
+          for (uint8_t x=0; x<2; x++) {
+            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
+              Serial.println();
+              Serial.println("  Demo sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_DEMO_SUB_MENU);
+            }
+          }
+        }      
+        // Was G touched with magnetic stylus?
+        for (uint8_t y=0; y<4; y++) {
+          for (uint8_t x=2; x<5; x++) {
+            if (CoreArrayMemory [y][x]) { 
+              Serial.println();
+              Serial.println("  Game sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_GAME_SUB_MENU);
+            }
           }
         }
-      }      
-      // Was G touched with magnetic stylus?
-      for (uint8_t y=0; y<4; y++) {
-        for (uint8_t x=2; x<5; x++) {
-          if (CoreArrayMemory [y][x]) { 
-            Serial.println();
-            Serial.println("  Game sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_GAME_SUB_MENU);
+        // Was A touched with magnetic stylus?
+        for (uint8_t y=0; y<4; y++) {
+          for (uint8_t x=5; x<8; x++) {
+            if (CoreArrayMemory [y][x]) { 
+              Serial.println();
+              Serial.println("  Application sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_APP_SUB_MENU);
+            }
           }
         }
-      }
-      // Was A touched with magnetic stylus?
-      for (uint8_t y=0; y<4; y++) {
-        for (uint8_t x=5; x<8; x++) {
-          if (CoreArrayMemory [y][x]) { 
-            Serial.println();
-            Serial.println("  Application sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_APP_SUB_MENU);
+        // Was U touched with magnetic stylus?
+        for (uint8_t y=5; y<8; y++) {
+          for (uint8_t x=0; x<4; x++) {
+            if (CoreArrayMemory [y][x]) { 
+              Serial.println();
+              Serial.println("  Utilities sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_UTIL_SUB_MENU);
+            }
           }
         }
-      }
-      // Was U touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=0; x<4; x++) {
-          if (CoreArrayMemory [y][x]) { 
-            Serial.println();
-            Serial.println("  Utilities sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_UTIL_SUB_MENU);
+        // Was S(pecial) touched with magnetic stylus?
+        for (uint8_t y=5; y<8; y++) {
+          for (uint8_t x=3; x<5; x++) {
+            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
+              Serial.println();
+              Serial.println("  Special sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
+              TopLevelModeSetChanged(true);
+            }
           }
         }
-      }
-      // Was S(pecial) touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=3; x<5; x++) {
-          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
-            Serial.println();
-            Serial.println("  Special sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
-            TopLevelModeSetChanged(true);
+        // Was S(settings) touched with magnetic stylus?
+        for (uint8_t y=5; y<8; y++) {
+          for (uint8_t x=6; x<8; x++) {
+            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
+              Serial.println();
+              Serial.println("  Settings sub-menu selected.");   
+              TopLevelModePreviousSet (TopLevelModeGet());
+              TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
+            }
           }
         }
-      }
-      // Was S(settings) touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=6; x<8; x++) {
-          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
-            Serial.println();
-            Serial.println("  Settings sub-menu selected.");   
-            TopLevelModePreviousSet (TopLevelModeGet());
-            TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
-          }
-        }
-      }
+      #elif defined BOARD_CORE64C_RASPI_PICO
+        // TODO: Remove this #if sequence after core memory is working for Core64c
+      #endif
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;

@@ -292,7 +292,9 @@ void  CommandLineUpdate()
     Serial.print("  ");
     Serial.println(FIRMWARE_DESCRIPTION);
     Serial.println("  For more details see https://www.github.com/ageppert/Core64");
-
+    if( HardwareConnectedCheckButtonHallSensors() ) {
+      Serial.println("      HardwareConnectedCheckButtonHallSensors = true");
+    }
     Serial.println();
   }
 

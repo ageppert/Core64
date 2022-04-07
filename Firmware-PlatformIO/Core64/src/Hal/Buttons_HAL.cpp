@@ -19,6 +19,8 @@
 // #define DEBUG_HALL_SENSORS
 // #define DEBUG_HALL_SWITCHES
 
+static bool ButtonSetupCompleted = false;
+
 #ifdef HALL_SENSOR_ENABLE
   #define HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL      1     // Level of mT which registers as a button press
   #define HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL     -1     // Level of mT which registers as a button press
@@ -104,7 +106,7 @@
 
   void usr_delay_ms(uint32_t period_ms)
   {
-      static uint16_t DelayScalar = 500;  // Convert ms to us. 1000 is 1:1. 500 is 2x faster. 2000 is 2x slow.
+      static uint16_t DelayScalar = 1000;  // Convert ms to us. 1000 is 1:1. 500 is 2x faster. 2000 is 2x slow.
       delayMicroseconds(period_ms * DelayScalar);
       // delay(period_ms);
   }
@@ -142,6 +144,16 @@ void Buttons_Setup() {
   {
     #ifdef HALL_SENSOR_ENABLE
       if( HardwareConnectedCheckButtonHallSensors() ) {
+
+        Serial.println("      HardwareConnectedCheckButtonHallSensors = true");
+        #if defined BOARD_CORE64_TEENSY_32
+          // Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
+        #elif defined BOARD_CORE64C_RASPI_PICO
+          // "Begin" is needed before the driver tries to talk to the hardware for Pico with MBED.
+          I2C1_HALL_SENSOR.begin();                     // testing this as a replacement to wire.xxxxx calls for Pico MBED
+          Serial.println("      I2C1_HALL_SENSOR.begin() was called.");
+        #endif
+
         if((rslt = si7210_init(&HallSensor1)) != SI7210_OK)
             {
               Serial.print("      Init Result Code Not OK: ");
@@ -159,7 +171,7 @@ void Buttons_Setup() {
               Serial.println(rslt,DEC);
               //return rslt;
             }
-        else { Serial.println("      Hall 1 Set Sensor Settings Result OK."); }
+        else { Serial.println("      Hall 1 Set Sensor Settings Result OK."); ButtonSetupCompleted = true; }
 
         if((rslt = si7210_set_sensor_settings(&HallSensor2)) != SI7210_OK)
             {
@@ -255,7 +267,7 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
     sensed = false;
     float field_strength;
 
-    if( HardwareConnectedCheckButtonHallSensors() ) {
+    if( HardwareConnectedCheckButtonHallSensors() && ButtonSetupCompleted ) {
       switch (button_number) {
         case 1:
           if(clear_duration == 1) { duration_b1 = 0 ;}

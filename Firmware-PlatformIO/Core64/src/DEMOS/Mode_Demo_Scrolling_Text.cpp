@@ -44,7 +44,7 @@ void ModeDemoScrollingText() {
     CopyCoreMemoryToMonochromeLEDArrayMemory();
     LED_Array_Matrix_Mono_Display();
     OLEDTopLevelModeSet(TopLevelModeGet());
-    // OLEDScreenUpdate();
+    OLEDScreenUpdate();
     #if defined BOARD_CORE64_TEENSY_32
       #ifdef NEON_PIXEL_ARRAY
         Neon_Pixel_Array_Matrix_Mono_Display();

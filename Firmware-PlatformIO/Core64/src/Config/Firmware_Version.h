@@ -52,11 +52,12 @@
 	|  0.7.8  | 2022-03-18 | Add Game of Snake!
 	|  0.7.9  | 2022-03-28 | Refine start-up mode sequence, I2C, hall sensor button set-up.
 	|  0.7.10 | 2022-04-05 | WIP Update I2C interactions to enable Core64c to scroll text and update OLED display.
+	|  0.7.11 | 2022-04-06 | Update Pico code so I2C1 port works with OLED, Hall Sensors, EEPROM.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Firmware change description: WIP Update I2C interactions to enable Core64c to scroll text and update OLED display."
+	#define FIRMWARE_DESCRIPTION "Update Pico code so I2C1 port works with OLED, Hall Sensors, EEPROM."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 10 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 11 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
