@@ -353,9 +353,7 @@ void LED_Array_Auto_Brightness() {
           #if defined USE_FASTLED_LIBRARY
             leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
           #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-            // strip.setPixelColor( LEDPixelPosition, strip.Color(strip.gamma8(LEDArrayMonochromeColorHSV[0]),strip.gamma8(LEDArrayMonochromeColorHSV[1]),strip.gamma8(LEDArrayMonochromeColorHSV[2])) );
-            // strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-            strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV((LEDArrayMonochromeColorHSV[0]*256),255,LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
           #endif
         }
         else {
@@ -385,8 +383,7 @@ void LED_Array_Auto_Brightness() {
         #if defined USE_FASTLED_LIBRARY
           leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
         #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          // strip.setPixelColor( LEDPixelPosition, strip.Color(strip.gamma8(LEDArrayMonochromeColorHSV[0]),strip.gamma8(LEDArrayMonochromeColorHSV[1]),strip.gamma8(LEDArrayMonochromeColorHSV[2])) );
-          strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixColor [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
         #endif
         // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
         if(LedScreenMemoryMatrixColor [y][x]==0)
