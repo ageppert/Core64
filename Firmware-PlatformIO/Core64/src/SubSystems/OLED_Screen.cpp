@@ -211,7 +211,7 @@
       for(int8_t i = 60; i >= 0; i=i-4)
       {
         HexValue = (Full64BitValue >> i);           // Get the 4 LSb to display in hex, but also 4 MSb that are not wanted.
-        HexValue = (HexValue & B00001111);          // Mask out the 4 MSb and keep only 4 LSb
+        HexValue = (HexValue & 0b00001111);          // Mask out the 4 MSb and keep only 4 LSb
         if (!HexValue) {display.print(F("0"));}
         else {display.print(HexValue,HEX);}
         if (i==32) {display.println(); display.print(F(" "));}

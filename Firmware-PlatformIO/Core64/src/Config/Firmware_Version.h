@@ -54,11 +54,12 @@
 	|  0.7.10 | 2022-04-05 | WIP Update I2C interactions to enable Core64c to scroll text and update OLED display.
 	|  0.7.11 | 2022-04-06 | Update Pico code so I2C1 port works with OLED, Hall Sensors, EEPROM.
 	|  0.7.12 | 2022-04-11 | Update Pico code so all multicolor LED Matrix functions work.
+	|  0.7.13 | 2022-04-11 | Core64c, Pico, implement core driver!
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Update Pico code so all multicolor LED Matrix functions work."
+	#define FIRMWARE_DESCRIPTION "Core64c, Pico, implement core driver!"
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 12 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 13 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

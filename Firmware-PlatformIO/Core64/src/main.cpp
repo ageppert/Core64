@@ -93,13 +93,12 @@ void loop() {
   HeartBeat(); 
   AnalogUpdate();
   CommandLineUpdate();
+  // OLEDScreenUpdate();
   #if defined BOARD_CORE64_TEENSY_32
-    // OLEDScreenUpdate();
     AmbientLightUpdate();
     // SDCardVoltageLog(1000);
   #elif defined BOARD_CORE64C_RASPI_PICO
     // TODO: Finish implementation for Pico, get rid of these #if defined splits.
-    // OLEDScreenUpdate();
   #endif
   if(DebugLevel==1) { Serial.println("DEBUG: END OF HOUSEKEEPING"); }
 

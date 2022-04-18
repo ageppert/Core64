@@ -24,14 +24,6 @@
 #include "Hal/Debug_Pins_HAL.h"
 #include "Mode_Manager.h"
 
-#if defined BOARD_CORE64_TEENSY_32
-  #define PROMPT "Core64> "
-#elif defined BOARD_CORE64C_RASPI_PICO
-  #define PROMPT "Core64c: "
-#else
-  #define PROMPT "unknown: "
-#endif
-
 uint32_t SerialNumber;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 
 int StreamTopLevelModeEnable;
@@ -285,7 +277,7 @@ void  CommandLineUpdate()
     Serial.print(FirmwareVersionPatch);
 //    Serial.print("-");
     Serial.print(FirmwareVersion);
-    Serial.print(" (Compiled on: ");
+    Serial.print(" (Built on ");
     Serial.print(compile_date);
     Serial.println(")");
 

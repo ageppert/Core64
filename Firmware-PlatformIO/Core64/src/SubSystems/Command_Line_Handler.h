@@ -13,6 +13,7 @@ SETUP:
     #endif
 
     #include <stdint.h>
+    #include "Config/HardwareIOMap.h"   // Detects board type
 
     #if defined BOARD_CORE64_TEENSY_32
         #define PROMPT "Core64> "

@@ -26,6 +26,8 @@ void MatrixEnableTransistorActive();
 void MatrixDriveTransistorsInactive();
 extern void SetRowAndCol (uint8_t row, uint8_t col);
 extern void ClearRowAndCol (uint8_t row, uint8_t col);
+void SetBit (uint8_t bit);
+void ClearBit (uint8_t bit);
 void CoreSenseReset();
 bool SenseWirePulse();
 
@@ -36,16 +38,20 @@ extern void TracingPulses(uint8_t numberOfPulses);
 void DebugWithReedSwitchOutput();
 void DebugWithReedSwitchInput();
 
-void DebugIOESpare1_On();
-void DebugIOESpare1_Off();
-void DebugIOESpare2_On();
-void DebugIOESpare2_Off();
+#if defined BOARD_CORE64_TEENSY_32
+    void DebugIOESpare1_On();
+    void DebugIOESpare1_Off();
+    void DebugIOESpare2_On();
+    void DebugIOESpare2_Off();
 
-void DebugPin10_On();
-void DebugPin10_Off();
-void DebugPin14_On();
-void DebugPin14_Off();
-void DebugPin15_On();
-void DebugPin15_Off();
+    void DebugPin10_On();
+    void DebugPin10_Off();
+    void DebugPin14_On();
+    void DebugPin14_Off();
+    void DebugPin15_On();
+    void DebugPin15_Off();
+#elif defined BOARD_CORE64C_RASPI_PICO
+    void OutputToSerialShiftRegister(uint32_t value);
+#endif
 
 #endif // CORE_DRIVER_H

@@ -52,7 +52,7 @@
   */
   // Arduino-MBED Core needs different configuration with I2C and Pico: https://github.com/arduino/ArduinoCore-mbed/issues/194
   // This works:
-  MbedI2C I2C1(p10,p11); // Use GPO pin numbers. Not board pin numbers (14,15). Default frequency Pico is 100 MHz.
+  MbedI2C I2C1(Pin_I2C_Bus_Data,Pin_I2C_Bus_Clock);   // Use RP2040 GP numbers, not the board pin numbers (14,15). Default frequency Pico is 100 MHz.
   // Other stuff to try later:
   // In ArduinoCore-MBED v2.6.1 it looks like Wire1.begin() may work as expected, if called after #define PIN_WIRE_SDA1 (p15), #define PIN_WIRE_SCL1 (p16)
   // or
@@ -197,7 +197,7 @@ void printKnownChips(byte address)
 void I2CManagerBusScan() {
   byte error, address;
   int nDevices;
-  Debug_Pin_1(1);
+  // Debug_Pin_1(1);
   Serial.println(F("  I2C_Manager: Scanning addresses 1 to 127..."));
 
   nDevices = 0;
@@ -238,7 +238,7 @@ void I2CManagerBusScan() {
     Serial.println(F("  I2C_Manager: Scan complete.\n"));
     delay(100);
   }
-  Debug_Pin_1(0);
+  // Debug_Pin_1(0);
 }
 
 bool I2CDetectExternalEEPROM(uint8_t address) {
@@ -309,9 +309,9 @@ bool I2CDetectExternalEEPROM(uint8_t address) {
     return rdata;
   }
 
-  byte EEPROMExtDefaultReadByte(int deviceaddress, uint8_t eeaddress ) 
+  byte EEPROMExtDefaultReadByte(uint8_t eeaddress ) 
   {
-    // uint8_t deviceaddress = EEPROM_ADDRESS;
+    uint8_t deviceaddress = EEPROM_ADDRESS;
     byte rdata = 0xFF;
     I2C1.beginTransmission(deviceaddress);
     I2C1.write((int)(eeaddress));

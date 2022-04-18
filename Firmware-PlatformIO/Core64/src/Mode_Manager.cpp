@@ -284,6 +284,7 @@ void TopLevelModeManagerRun () {
     case MODE_START_POWER_ON:                    // Perform the bare minimum required to start and support serial status and debugging.
     // *************************************************************************************************************************************************** //
       PowerOnTimems = millis();
+      Debug_Pins_Setup();
       SerialPortSetup();
       TopLevelModePreviousSet (TopLevelModeGet());
       Serial.print("  TopLevelMode is: ");
@@ -357,15 +358,14 @@ void TopLevelModeManagerRun () {
       OLEDTopLevelModeSet(TopLevelModeGet());
       Serial.println("  Configuration specific setup has begun...");
       // TODO brightness default set from EEPROM
+      CoreSetup();
+      OLEDScreenUpdate();
       #if defined BOARD_CORE64_TEENSY_32
-        OLEDScreenUpdate();
-        CoreSetup();
         SDCardSetup();
         AmbientLightSetup();
         Neon_Pixel_Array_Init();
       #elif defined BOARD_CORE64C_RASPI_PICO
         // TODO: Handle the difference in the hardware inside the functions above and remove this #if sequence
-        // OLEDScreenUpdate();
       #endif
       Serial.println("  ...Completed configuration specific setup.");
       TopLevelModePreviousSet (TopLevelModeGet());
@@ -413,78 +413,75 @@ void TopLevelModeManagerRun () {
       }
       MenuTimeOutCheckAndExitToModeDefault();
   
-      #if defined BOARD_CORE64_TEENSY_32
-        Core_Mem_Scan_For_Magnet();
-        // Was the D touched with magnetic stylus?
-        for (uint8_t y=0; y<5; y++) {
-          for (uint8_t x=0; x<2; x++) {
-            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
-              Serial.println();
-              Serial.println("  Demo sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_DEMO_SUB_MENU);
-            }
-          }
-        }      
-        // Was G touched with magnetic stylus?
-        for (uint8_t y=0; y<4; y++) {
-          for (uint8_t x=2; x<5; x++) {
-            if (CoreArrayMemory [y][x]) { 
-              Serial.println();
-              Serial.println("  Game sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_GAME_SUB_MENU);
-            }
+      Core_Mem_Scan_For_Magnet();
+      // Was the D touched with magnetic stylus?
+      for (uint8_t y=0; y<5; y++) {
+        for (uint8_t x=0; x<2; x++) {
+          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
+            Serial.println();
+            Serial.println("  Demo sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_DEMO_SUB_MENU);
           }
         }
-        // Was A touched with magnetic stylus?
-        for (uint8_t y=0; y<4; y++) {
-          for (uint8_t x=5; x<8; x++) {
-            if (CoreArrayMemory [y][x]) { 
-              Serial.println();
-              Serial.println("  Application sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_APP_SUB_MENU);
-            }
+      }      
+      // Was G touched with magnetic stylus?
+      for (uint8_t y=0; y<4; y++) {
+        for (uint8_t x=2; x<5; x++) {
+          if (CoreArrayMemory [y][x]) { 
+            Serial.println();
+            Serial.println("  Game sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_GAME_SUB_MENU);
           }
         }
-        // Was U touched with magnetic stylus?
-        for (uint8_t y=5; y<8; y++) {
-          for (uint8_t x=0; x<4; x++) {
-            if (CoreArrayMemory [y][x]) { 
-              Serial.println();
-              Serial.println("  Utilities sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_UTIL_SUB_MENU);
-            }
+      }
+      // Was A touched with magnetic stylus?
+      for (uint8_t y=0; y<4; y++) {
+        for (uint8_t x=5; x<8; x++) {
+          if (CoreArrayMemory [y][x]) { 
+            Serial.println();
+            Serial.println("  Application sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_APP_SUB_MENU);
           }
         }
-        // Was S(pecial) touched with magnetic stylus?
-        for (uint8_t y=5; y<8; y++) {
-          for (uint8_t x=3; x<5; x++) {
-            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
-              Serial.println();
-              Serial.println("  Special sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
-              TopLevelModeSetChanged(true);
-            }
+      }
+      // Was U touched with magnetic stylus?
+      for (uint8_t y=5; y<8; y++) {
+        for (uint8_t x=0; x<4; x++) {
+          if (CoreArrayMemory [y][x]) { 
+            Serial.println();
+            Serial.println("  Utilities sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_UTIL_SUB_MENU);
           }
         }
-        // Was S(settings) touched with magnetic stylus?
-        for (uint8_t y=5; y<8; y++) {
-          for (uint8_t x=6; x<8; x++) {
-            if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
-              Serial.println();
-              Serial.println("  Settings sub-menu selected.");   
-              TopLevelModePreviousSet (TopLevelModeGet());
-              TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
-            }
+      }
+      // Was S(pecial) touched with magnetic stylus?
+      for (uint8_t y=5; y<8; y++) {
+        for (uint8_t x=3; x<5; x++) {
+          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
+            Serial.println();
+            Serial.println("  Special sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_SPECIAL_SUB_MENU);
+            TopLevelModeSetChanged(true);
           }
         }
-      #elif defined BOARD_CORE64C_RASPI_PICO
-        // TODO: Remove this #if sequence after core memory is working for Core64c
-      #endif
+      }
+      // Was S(settings) touched with magnetic stylus?
+      for (uint8_t y=5; y<8; y++) {
+        for (uint8_t x=6; x<8; x++) {
+          if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
+            Serial.println();
+            Serial.println("  Settings sub-menu selected.");   
+            TopLevelModePreviousSet (TopLevelModeGet());
+            TopLevelModeSet (MODE_SETTINGS_SUB_MENU);
+          }
+        }
+      }
+
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
@@ -532,10 +529,10 @@ void TopLevelModeManagerRun () {
 // *************************************************************************************************************************************************** //
     case MODE_UTIL_SUB_MENU:  UtilitiesSubMenu();  break;
 
-    #if defined BOARD_CORE64_TEENSY_32
-        case MODE_UTIL_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
-          LED_Array_Monochrome_Set_Color(50,255,255);
-          LED_Array_Memory_Clear();
+      case MODE_UTIL_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
+        LED_Array_Monochrome_Set_Color(50,255,255);
+        LED_Array_Memory_Clear();
+//        #if defined BOARD_CORE64_TEENSY_32
           for (coreToTest = 0; coreToTest < 64 ; coreToTest++) {   
             Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
             if (Core_Mem_Bit_Read(coreToTest)==true) {
@@ -556,21 +553,20 @@ void TopLevelModeManagerRun () {
           #ifdef NEON_PIXEL_ARRAY
             Neon_Pixel_Array_Matrix_String_Display();
           #endif
-          OLEDTopLevelModeSet(TopLevelModeGet());
-          OLEDScreenUpdate();
-          break;
-      #elif defined BOARD_CORE64C_RASPI_PICO
-        
-      #endif
+//        #elif defined BOARD_CORE64C_RASPI_PICO
+//          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
+//        #endif
+        OLEDTopLevelModeSet(TopLevelModeGet());
+        OLEDScreenUpdate();
+        break;
 
-    case MODE_UTIL_END_OF_LIST: TopLevelModeSet(MODE_UTIL_SUB_MENU);    break;
+      case MODE_UTIL_END_OF_LIST: TopLevelModeSet(MODE_UTIL_SUB_MENU);    break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** SPECIAL ************************************************************************************* //
 // *************************************************************************************************************************************************** //
     case MODE_SPECIAL_SUB_MENU:   SpecialSubMenu();      break;
 
-    #if defined BOARD_CORE64_TEENSY_32
       case MODE_LED_TEST_ALL_BINARY: // Counts from lower right and left/up in binary, using Binary LUT.
         LED_Array_Test_Count_Binary();
         OLEDTopLevelModeSet(TopLevelModeGet());
@@ -606,86 +602,119 @@ void TopLevelModeManagerRun () {
       case MODE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(50,255,255);
-        for (uint8_t bit = coreToTest; bit<(coreToTest+1); bit++)
-          {
-            // IOESpare1_On();
-            Core_Mem_Bit_Write_With_V_MON(bit,0);
-            LED_Array_String_Write(bit,0);
-            LED_Array_String_Display();
-            // IOESpare1_Off();
-            // delay(5);
+        #if defined BOARD_CORE64_TEENSY_32        
+          for (uint8_t bit = coreToTest; bit<(coreToTest+1); bit++)
+            {
+              // IOESpare1_On();
+              Core_Mem_Bit_Write_With_V_MON(bit,0);
+              LED_Array_String_Write(bit,0);
+              LED_Array_String_Display();
+              // IOESpare1_Off();
+              // delay(5);
 
-            // IOESpare1_On();
-            Core_Mem_Bit_Write_With_V_MON(bit,1);
-            LED_Array_String_Write(bit,1);
-            LED_Array_String_Display();
-            // IOESpare1_Off();
-            // delay(50);
-          }
-
+              // IOESpare1_On();
+              Core_Mem_Bit_Write_With_V_MON(bit,1);
+              LED_Array_String_Write(bit,1);
+              LED_Array_String_Display();
+              // IOESpare1_Off();
+              // delay(50);
+            }
+        #elif defined BOARD_CORE64C_RASPI_PICO
+          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
+              // TODO: Testing very basic Core64c matrix drive functions in the driver here now. Need to abstract and align with Core64.
+              // ClearRowZeroAndColZero ();
+              Core_Mem_Bit_Write(0,0);
+              LED_Array_String_Write(0,0);
+              LED_Array_String_Display();
+              delay(5);
+              // SetRowZeroAndColZero ();
+              Core_Mem_Bit_Write(0,1);
+              LED_Array_String_Write(0,1);
+              LED_Array_String_Display();
+        #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
+        delay(100);  // This delay makes it easier to trigger on the first debug pulse consistently.
         break;
 
       case MODE_CORE_TEST_ONE:
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(100,255,255);
         LED_Array_Memory_Clear();
-        //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
-        //  TracingPulses(1);
-        // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
-        Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
-        //  TracingPulses(2);
-        if (Core_Mem_Bit_Read(coreToTest)==true) {LED_Array_String_Write(coreToTest, 1);}
-        else { LED_Array_String_Write(coreToTest, 0); }
-        //  TracingPulses(1);
-        // delay(10);
+        #if defined BOARD_CORE64_TEENSY_32     
+          //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
+          //  TracingPulses(1);
+          // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
+          Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
+          //  TracingPulses(2);
+          if (Core_Mem_Bit_Read(coreToTest)==true) {LED_Array_String_Write(coreToTest, 1);}
+          else { LED_Array_String_Write(coreToTest, 0); }
+          //  TracingPulses(1);
+          // delay(10);
+        #elif defined BOARD_CORE64C_RASPI_PICO
+          // TracingPulses_Debug_Pin_1(1);
+          Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
+          // TracingPulses_Debug_Pin_1(2);
+          if (Core_Mem_Bit_Read(coreToTest)==true) {LED_Array_String_Write(coreToTest, 1);}
+          else { LED_Array_String_Write(coreToTest, 0); }
+          // TracingPulses_Debug_Pin_1(3);
+        #endif
         LED_Array_String_Display();
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
-        delay(10);
+        delay(100);  // This delay makes it easier to trigger on the first debug pulse consistently.
         break;
 
       case MODE_CORE_TEST_MANY:
         coreToTest=0;
-        for (uint8_t bit = coreToTest; bit<(64); bit++)
-          {
-          LED_Array_Monochrome_Set_Color(100,255,255);
-          LED_Array_Memory_Clear();
-          //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
-          //  TracingPulses(1);
-          // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
-          Core_Mem_Bit_Write(bit,1);                     // default to bit set
-          //  TracingPulses(2);
-          if (Core_Mem_Bit_Read(bit)==true) {LED_Array_String_Write(bit, 1);}
-          else { LED_Array_String_Write(bit, 0); }
-          //  TracingPulses(1);
-          // delay(10);
-          LED_Array_String_Display();
-          }
+        #if defined BOARD_CORE64_TEENSY_32     
+          for (uint8_t bit = coreToTest; bit<(64); bit++)
+            {
+            LED_Array_Monochrome_Set_Color(100,255,255);
+            LED_Array_Memory_Clear();
+            //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
+            //  TracingPulses(1);
+            // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
+            Core_Mem_Bit_Write(bit,1);                     // default to bit set
+            //  TracingPulses(2);
+            if (Core_Mem_Bit_Read(bit)==true) {LED_Array_String_Write(bit, 1);}
+            else { LED_Array_String_Write(bit, 0); }
+            //  TracingPulses(1);
+            // delay(10);
+            LED_Array_String_Display();
+            }
+        #elif defined BOARD_CORE64C_RASPI_PICO
+          for (uint8_t bit = coreToTest; bit<(64); bit++)
+            {
+            LED_Array_Monochrome_Set_Color(100,255,255);
+            LED_Array_Memory_Clear();
+            //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
+            //  TracingPulses(1);
+            // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
+            Core_Mem_Bit_Write(bit,1);                     // default to bit set
+            //  TracingPulses(2);
+            if (Core_Mem_Bit_Read(bit)==true) {LED_Array_String_Write(bit, 1);}
+            else { LED_Array_String_Write(bit, 0); }
+            //  TracingPulses(1);
+            // delay(10);
+            LED_Array_String_Display();
+            }
+        #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
-    #elif defined BOARD_CORE64C_RASPI_PICO
-      
-    #endif
 
     case MODE_HALL_TEST:
       TopLevelThreeSoftButtonGlobalEnableSet (false);
       LED_Array_Monochrome_Set_Color(25,255,255);
       LED_Array_Memory_Clear();
-
-      // IOESpare1_On();
       if(Button1HoldTime) { LED_Array_String_Write(56,1); Serial.println(Button1HoldTime); }
       if(Button2HoldTime) { LED_Array_String_Write(58,1); Serial.println(Button2HoldTime); }
       if(Button3HoldTime) { LED_Array_String_Write(60,1); Serial.println(Button3HoldTime); }
       if(Button4HoldTime) { LED_Array_String_Write(62,1); Serial.println(Button4HoldTime); }
-      // IOESpare1_Off();
-
       LED_Array_String_Display();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
-    
       break;
 
     case MODE_SPECIAL_LOOPBACK_TEST:

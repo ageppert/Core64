@@ -5,13 +5,46 @@
 	SETUP: Manually update the field assigned as VERSION	
 */
 
+
 #ifndef HARDWARE_IO_MAP_H
 	#define HARDWARE_IO_MAP_H
 
 	#include <stdint.h>
 	#include <stdbool.h>
 
+	/*  HARDWARE VERSION SCHEME (see https://semver.org/)
+			Given a version number MAJOR.MINOR.PATCH, increment the
+				MAJOR version when you make incompatible API changes,
+				MINOR version when you add functionality in a backwards compatible manner, and
+				PATCH version when you make backwards compatible bug fixes.
+			Hardware version is stored in Board ID EEPROM on the Logic Board.
+	*/
+	/********************************** CORE64 HARDWARE VERSION TABLE ******************************************
+	| VERSION |  DATE      | DESCRIPTION                                                                       |
+	------------------------------------------------------------------------------------------------------------
+	|  0.1.0  | 2019-08-09 | Single board prototype development
+	|  0.1.5  | 2020-02-22 | Single board, reworked board fixes, prototype development
+	|  0.2.0  | 2020-03-16 | Single board, design updated to match v0.1.5, theoretically (not produced)
+	|  0.3.0  | 2020-05-30 | Dual board, hardware version detection for 0.2.x (includes v0.1.x) and v0.3.x
+	|  0.3.1  | 2020-05-30 | Two voltage regulators, 5V0 and 3V3, powered from common switch point
+	|  0.4.0  | 2020-11-28 | Blue LB, Yellow CB with Plane 4 set, as-built bring-up
+	|  0.5.0  | 2021-03-20 | Triple-board, Black LB/CB/CM
+	|         |            | 
+	----------------------------------------------------------------------------------------------------------*/
+	/********************************** CORE64c HARDWARE VERSION TABLE *****************************************
+	| VERSION |  DATE      | DESCRIPTION                                                                       |
+	------------------------------------------------------------------------------------------------------------
+	|  0.1.0  | 2021-05-28 | First layout, abandonded, not prototyped
+	|  0.2.0  | 2021-06-04 | White Board, as prototyped
+	|  0.3.0  | 2022-04-13 | White Board, air wired fixes to shift register circuit (pin 9 to 14 daisy chained, pin 12 all common)
+	|         |            | 
+	----------------------------------------------------------------------------------------------------------*/
+	extern uint8_t HardwareVersionMajor; // See EEPROM_HAL
+	extern uint8_t HardwareVersionMinor; // See EEPROM_HAL
+	extern uint8_t HardwareVersionPatch; // See EEPROM_HAL
+
 	// Board Detection.
+	// TODO: add seperate enum variables to identify specific Teensy version (LC, 3.1...), Pico Version (OTS, DIY, Core64 model (Core64 or Core64c)
 	// 	Reference: https://arduino.stackexchange.com/questions/21137/arduino-how-to-get-the-board-type-in-code
 		  #if defined(TEENSYDUINO) 
 		      //  --------------- Teensy -----------------
@@ -55,42 +88,16 @@
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.		
 	    #elif defined BOARD_CORE64C_RASPI_PICO
 		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
-		  	#define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.
+		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
 			#endif
 			// #define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE   		// 
 			// #define SDCARD_ENABLE                  			// 
 			#define OLED_64X128
 			// #define OLED_128X128
 
-		/*  HARDWARE VERSION SCHEME (see https://semver.org/)
-				Given a version number MAJOR.MINOR.PATCH, increment the
-					MAJOR version when you make incompatible API changes,
-					MINOR version when you add functionality in a backwards compatible manner, and
-					PATCH version when you make backwards compatible bug fixes.
-				Hardware version is stored in Board ID EEPROM on the Logic Board.
-		*/
-	  /********************************** CORE64 HARDWARE VERSION TABLE ******************************************
-		| VERSION |  DATE      | DESCRIPTION                                                                       |
-		------------------------------------------------------------------------------------------------------------
-		|  0.1.0  | 2019-08-09 | Single board prototype development
-		|  0.1.5  | 2020-02-22 | Single board, reworked board fixes, prototype development
-		|  0.2.0  | 2020-03-16 | Single board, design updated to match v0.1.5, theoretically (not produced)
-		|  0.3.0  | 2020-05-30 | Dual board, hardware version detection for 0.2.x (includes v0.1.x) and v0.3.x
-		|  0.3.1  | 2020-05-30 | Two voltage regulators, 5V0 and 3V3, powered from common switch point
-		|  0.4.0  | 2020-11-28 | Blue LB, Yellow CB with Plane 4 set, as-built bring-up
-		|  0.5.0  | 2021-03-20 | Triple-board, Black LB/CB/CM
-		|         |            | 
-		----------------------------------------------------------------------------------------------------------*/
-	  /********************************** CORE64c HARDWARE VERSION TABLE *****************************************
-		| VERSION |  DATE      | DESCRIPTION                                                                       |
-		------------------------------------------------------------------------------------------------------------
-		|  0.1.0  | 2021-05-28 | First layout, abandonded, not prototyped
-		|  0.2.0  | 2021-06-04 | White Board, prototyped
-		|         |            | 
-		----------------------------------------------------------------------------------------------------------*/
-		extern uint8_t HardwareVersionMajor; // See EEPROM_HAL
-		extern uint8_t HardwareVersionMinor; // See EEPROM_HAL
-		extern uint8_t HardwareVersionPatch; // See EEPROM_HAL
+		// #define CORE_PLANE_SELECT_ACTIVE
+		// #define MULTIPLE_CORE_PLANES_ENABLED
+
 
 	#if defined BOARD_CORE64_TEENSY_32
 		// Core64 HARDWARE v0.5.0
@@ -184,21 +191,40 @@
 				// HEART BEAT - HELLO WORLD
 						#define Pin_Built_In_LED         	25  // * digital output
 				// I2C (HARDWARE ID EEPROM, HALL SENSORS, AMBIENT LIGHT SENSOR, OLED, SAO)
-						#define Pin_I2C_Bus_Data         	14  // RasPi Pico I2C1_SDA GP10 is Pico pin 14. #define not needed, see notes in I2C_Manager.cpp
-						#define Pin_I2C_Bus_Clock        	15  // Raspi Pico I2C1_SCL GP11 is Pico pin 15. #define not needed, see notes in I2C_Manager.cpp
+						#define Pin_I2C_Bus_Data           p10  // RasPi Pico I2C1_SDA GP10 is Pico pin 14. See notes in I2C_Manager.cpp
+						#define Pin_I2C_Bus_Clock          p11  // Raspi Pico I2C1_SCL GP11 is Pico pin 15. See notes in I2C_Manager.cpp
 				// LED ARRAY
-						#define Pin_RGB_LED_Array         22	// * Shared 
+						#define Pin_RGB_LED_Array         	22	// * Shared 
 			  // HALL SWITCHES, AUTOMATICALLY USED IF I2C HALL SENSORS ARE NOT DETECTED
 				    #ifdef HALL_SWITCH_ENABLE
-							#define PIN_HALL_SWITCH_1				 5
-							#define PIN_HALL_SWITCH_2				 6
-							#define PIN_HALL_SWITCH_3				 7
-							#define PIN_HALL_SWITCH_4				 8		
+							#define PIN_HALL_SWITCH_1		 5	// * Shared
+							#define PIN_HALL_SWITCH_2		 6	// * Shared
+							#define PIN_HALL_SWITCH_3		 7	// * Shared
+							#define PIN_HALL_SWITCH_4		 8	// * Shared		
 				    #endif
+				// MATRIX SENSE
+						#define Pin_Sense_Reset         	 0	// GPO Digital to Core Matrix Pulse Sense Signal RS Latch Reset input
+						#define Pin_Sense_Pulse         	21	// GPI Digital from Core Matrix Pulse Sense Signal RS Latch Pulse output
+				// MATRIX DRIVE
+						#define PIN_WRITE_ENABLE			20  // GPO Digital to Core Matrix Write Enable FET, discrete
+						#define PIN_CMD_SR_LATCH         	 9	// GPO Digital to Core Matrix Drive Shift Registers Latch Pin
+						#define PIN_CMD_SR_SERIAL         	12	// GPO Digital to Core Matrix Drive Shift Registers Serial Pin
+						#define PIN_CMD_SR_CLOCK         	13	// GPO Digital to Core Matrix Drive Shift Registers Clock Pin
 			  // DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
-						#define Pin_Battery_Voltage     	A0  // 1/2 the battery voltage (otherwise known as Digital pin 26)
+						#define Pin_Battery_Voltage     	A0  // 1/2 the battery voltage (AKA Digital pin 26)
+						#ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
+							#define Pin_SPARE_ADC1_Assigned_To_Analog_Input A1	// 3V3 voltage (AKA Digital pin 27)
+						#endif
+						#define Pin_SPARE_ADC2              A2  //
 			// SPARE IO
-			#define Pin_SAO_G1_SPARE_1_CP_ADDR_1 			1	//
+			#define Pin_SAO_G1_or_SPARE1_or_CP1 			 1	// * Shared
+			#define Pin_SAO_G2_or_SPARE2_or_CP2 			 2	// * Shared
+			#define           Pin_SPARE3_or_CP3 			 3	// * Shared
+			#define           Pin_SPARE4_or_CP4 			 4	// * Shared
+			#define    Pin_HS1_or_SPARE5_or_CP5 			 5	// * Shared
+			#define    Pin_HS2_or_SPARE6_or_CP6 			 6	// * Shared
+			#define    Pin_HS3_or_SPARE7_or_CP7 			 7	// * Shared
+			#define    Pin_HS4_or_SPARE8_or_CP8 			 8	// * Shared
 
 	#endif
 

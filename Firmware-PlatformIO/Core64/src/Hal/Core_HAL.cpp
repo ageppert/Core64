@@ -18,6 +18,7 @@
 #include "Hal/LED_Array_Hal.h"
 
 #include "SubSystems/Analog_Input_Test.h"
+#include "Hal/Debug_Pins_HAL.h"
 
   // TO DO: The CoreArrayMemory should not be written to and read from outside of the Core HAL.
   // The CoreArrayMemory is used as a buffer between external API calls and the real state of the core memory.
@@ -45,11 +46,15 @@
   //                                  {1,0,1,0,1,1,1,0},
   //                                  {0,0,0,0,0,0,0,0}  };
 
-#if defined BOARD_CORE64_TEENSY_32
-
   void CoreSetup() {
     Core_Driver_Setup();
     AllDriveIoSafe();
+  }
+
+  void AllDriveIoSafe() {
+    MatrixEnableTransistorInactive();
+    // MatrixDriveTransistorsInactive();
+    // TODO: Disable all core plane select lines, if multiple core planes are available.
   }
 
   void CoreClearAll() {
@@ -132,28 +137,30 @@
     }
   }
 
-  void Core_Mem_Bit_Write(uint8_t bit, bool value) {
-    // Turn off all of the matrix signals
-    cli();                                            // Testing for consistent timing.
-    CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
-    TracingPulses(1);
-    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
-    // Enable the matrix drive transistors
-    TracingPulses(2);
-    // Activate the selected matrix drive transistors according to bit position and the set/clear request
-    if (value == 1) { AllDriveIoSetBit(bit); } 
-    else { AllDriveIoClearBit(bit); }
-    TracingPulses(3);
-    MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
-    delayMicroseconds(20);                            // give the core time to change state
-    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-    // Turn off all of the matrix signals
-    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
-    TracingPulses(4);
-    CoreSenseReset();
-    sei();                                            // Testing for consistent timing.
-  }
+#if defined BOARD_CORE64_TEENSY_32
+
+    void Core_Mem_Bit_Write(uint8_t bit, bool value) {
+      // Turn off all of the matrix signals
+      cli();                                            // Testing for consistent timing.
+      CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+      TracingPulses(1);
+      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+      // Enable the matrix drive transistors
+      TracingPulses(2);
+      // Activate the selected matrix drive transistors according to bit position and the set/clear request
+      if (value == 1) { AllDriveIoSetBit(bit); } 
+      else { AllDriveIoClearBit(bit); }
+      TracingPulses(3);
+      MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
+      delayMicroseconds(20);                            // give the core time to change state
+      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+      // Turn off all of the matrix signals
+      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+      TracingPulses(4);
+      CoreSenseReset();
+      sei();                                            // Testing for consistent timing.
+    }
 
   void Core_Mem_Bit_Write_With_V_MON(uint8_t bit, bool value) {
     // Turn off all of the matrix signals
@@ -287,13 +294,6 @@
     }
   }
 
-  void AllDriveIoSafe() {
-    // MatrixEnableTransistorInactive();
-    MatrixDriveTransistorsInactive();
-    // MatrixEnableTransistorActive();     // Discharge any current left in the driver system
-    // MatrixEnableTransistorInactive();
-  }
-
   void AllDriveIoReadAndStore() {
 
   }
@@ -364,18 +364,71 @@
   }
 
 #elif defined BOARD_CORE64C_RASPI_PICO
-  void Core_Mem_Scan_For_Magnet() {     
-    uint8_t bit;
-    for (uint8_t y=0; y<8; y++)
-    {
-      for (uint8_t x=0; x<8; x++)
-      {
-        bit = (y*8)+x;
-        // Core_Mem_Bit_Write(bit , 1);
-        // CoreArrayMemory [y][x] = Core_Mem_Bit_Read(bit);
-        delayMicroseconds(40); // This 40us (may be able to use less here) delay is required or LED array, first 3-4 pixels in the electronic string, get weird!
-      }
+
+// TODO: Update this so it can handle any bit besides just 0.
+    void Core_Mem_Bit_Write(uint8_t bit, bool value) {
+      // Turn off all of the matrix signals
+      // cli();                                            // Testing for consistent timing.
+      CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+      TracingPulses_Debug_Pin_1(1);
+      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+      // Enable the matrix drive transistors
+      TracingPulses_Debug_Pin_1(2);
+      // Activate the selected matrix drive transistors according to bit position and the set/clear request
+      // if (value == 1) { AllDriveIoSetBit(bit); } 
+      // else { AllDriveIoClearBit(bit); }
+
+      if (value == 1) { SetBit (bit); }       // This does work for Core64c
+      else { ClearBit (bit); }                // This does work for Core64c
+
+      TracingPulses_Debug_Pin_1(3);
+      MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
+      delayMicroseconds(20);                            // give the core time to change state
+      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+      // Turn off all of the matrix signals
+      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+      TracingPulses_Debug_Pin_1(4);
+      CoreSenseReset();
+      // sei();                                            // Testing for consistent timing.
     }
+
+// TODO: Update this so it can handle any bit besides just 0.
+  bool Core_Mem_Bit_Read(uint8_t bit) {
+    static bool value = 0;
+    // cli();                                            // Testing for consistent timing. Disable interrupts while poling for sense pulse.
+    CoreStateChangeFlag(1);                           // Clear the sense flag
+    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    // Activate the selected matrix drive transistors according to bit position and SET it to 1.
+    // TracingPulses(1); 
+    // AllDriveIoSetBit(bit);
+    CoreSenseReset();
+    MatrixEnableTransistorActive();                   // Enable the matrix drive transistor
+    // AllDriveIoClearBit(bit);
+    ClearBit(bit); // Core64c testing
+    // TO DO *** When ENABLE is moved here, the flux detection mode on V0.2 has jittery LEDs. Not sure why, but it doesn't look good.
+    // loop around this to detect it - not sure on timing needs
+    // TracingPulses(2); 
+      CoreStateChangeFlag(0);                         // Polling for a change inside this function is faster than the for-loop.
+    // Turn off all of the matrix signals
+    MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    if (CoreStateChangeFlag(0) == true)               // If the core changed state, then it was a 0, and is now 1...
+    {
+      Core_Mem_Bit_Write(bit,0);                      // ...so return the core to 0
+      //Core_Mem_Bit_Write(bit,1);
+      value = 0;                                      // ...update value to represent the core state
+    // TracingPulses(4); 
+    }
+    else                                              // otherwise the core was already 1
+    {
+      value = 1;                                      // ...update value to represent the core state
+    // TracingPulses(3); 
+    }
+    CoreSenseReset();
+    // sei();                                            // Testing for consistent timing. Enable interrupts when done poling for sense pulse.
+    return (value);                                   // Return the value of the core
   }
 
   void ScrollTextToCoreMemory() {
@@ -417,6 +470,21 @@
           LED_Array_Monochrome_Increment_Color(1);
         }
     }
+  }
+
+  bool CoreStateChangeFlag(bool clearFlag) {                    // Send this function a 0 to poll it, 1 to clear the flag
+    static bool CoreStateChangeFlag = 0;
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
+      // TracingPulses(2);     
+    if (clearFlag == true) { CoreStateChangeFlag = 0; }           // Override detected state when user requests to clear the flag
+    return CoreStateChangeFlag;
   }
 
 #endif
