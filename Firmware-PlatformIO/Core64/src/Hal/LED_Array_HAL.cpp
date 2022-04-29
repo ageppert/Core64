@@ -322,6 +322,19 @@ void LED_Array_Auto_Brightness() {
     }
 
   //
+  // Copy Color Font Symbol into Color HSV LED Array memory
+  //
+    void WriteGameSnakeSymbol(uint8_t SymbolNumber){
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixColor[y][x] = GameSnakeSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
   // Write one bit into monochrome LED Array memory
   //
   void LED_Array_Matrix_Mono_Write(uint8_t y, uint8_t x, bool value) {
@@ -349,14 +362,16 @@ void LED_Array_Auto_Brightness() {
       for( uint8_t x = 0; x < kMatrixWidth; x++) 
       {
         LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
-        if ( LedScreenMemoryMatrixMono [y][x] ) {
+        // LED HUE COLOR
+        if ( ((LedScreenMemoryMatrixMono [y][x]) >= 1) || ((LedScreenMemoryMatrixMono [y][x]) <= 255) ) {
           #if defined USE_FASTLED_LIBRARY
             leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
           #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
             strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
           #endif
         }
-        else {
+        // LED OFF
+        if ((LedScreenMemoryMatrixMono [y][x]) == 0) {
           #if defined USE_FASTLED_LIBRARY
             leds[LEDPixelPosition] = 0;
           #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
@@ -382,8 +397,16 @@ void LED_Array_Auto_Brightness() {
         LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
         #if defined USE_FASTLED_LIBRARY
           leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+          // LED WHITE special case
+          if ((LedScreenMemoryMatrixColor [y][x]) == 255) {
+            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
+          }
         #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
           strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixColor [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          // LED WHITE special case
+          if ((LedScreenMemoryMatrixColor [y][x]) == 255) {
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixColor [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
+          }
         #endif
         // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
         if(LedScreenMemoryMatrixColor [y][x]==0)
@@ -636,7 +659,7 @@ void LED_Array_Auto_Brightness() {
   // Cycles through available multi-color font symbols
   void LED_Array_Test_Pixel_Matrix_Color() {
       static uint8_t FontSymbolNumber = 7;
-      static unsigned long UpdatePeriodms = 1000;  
+      static unsigned long UpdatePeriodms = 1500;  
       static unsigned long NowTime = 0;
       static unsigned long UpdateTimer = 0;
       NowTime = millis();
@@ -647,7 +670,7 @@ void LED_Array_Auto_Brightness() {
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(FontSymbolNumber);
         LED_Array_Matrix_Color_Display();
         FontSymbolNumber++;
-        if(FontSymbolNumber>=12){FontSymbolNumber=7;}
+        if(FontSymbolNumber>15){FontSymbolNumber=7;}
       }
   }
 

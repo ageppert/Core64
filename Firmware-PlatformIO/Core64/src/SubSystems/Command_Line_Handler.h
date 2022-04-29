@@ -38,6 +38,7 @@ SETUP:
     void handleRestart(char* tokens);
     void handleSplash(char* tokens);
     void handleStream(char* tokens);
+    void handleThanks(char* tokens);
     void CommandLineUpdate();
 
 #endif

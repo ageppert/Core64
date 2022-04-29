@@ -598,6 +598,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     // bit #                                32     24  20| 16       8       0
     //                                       |      |   ||  |       |       |
     uint32_t CMMDTransistorInactiveState = 0b00000000000010101010101010101010;
+    uint32_t CMMDTransistorActiveState =   0b00000000000001010101010101010101;    // Usefull for testing as long as Write_Enable is not active!
 
   // MCU output pin is set to these states to correspond to activation of the transistor needed to achieve active/inactive state.
   #define WRITE_ENABLE_ACTIVE   1 // logic level to turn on transistor
@@ -851,6 +852,10 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
 
   void MatrixDriveTransistorsInactive() {
     OutputToSerialShiftRegister(CMMDTransistorInactiveState);
+  }
+
+  void MatrixDriveTransistorsActive() {
+    OutputToSerialShiftRegister(CMMDTransistorActiveState);
   }
 
   // Use row and col to selection the proper place in the array

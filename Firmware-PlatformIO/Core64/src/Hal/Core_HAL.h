@@ -43,6 +43,8 @@ extern uint64_t CoreReadLongInt();
 extern void CoreWriteArray(); 		// TO DO Add a pointer to the array
 // extern uint64_t CoreReadArray(); 	// TO DO Add a pointer to the array
 void ScrollTextToCoreMemory();
+bool ScrollTextToCoreMemoryCompleteFlagCheck();     // Return TRUE if the text scrolling has completed.
+void ScrollTextToCoreMemoryCompleteFlagClear();     // Clear the flag indicating text has finished scrolling.
 
 void AllDriveIoSafe();
 void AllDriveIoReadAndStore();
@@ -52,6 +54,7 @@ extern void AllDriveIoClearBit(uint8_t bit);
 void AllDriveIoEnable();
 void AllDriveIoDisable();
 extern bool CoreStateChangeFlag(bool clearFlag);
+void Core_Mem_All_Drive_IO_Toggle();
 
 void IOESpare1_On();
 void IOESpare1_Off();

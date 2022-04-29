@@ -80,7 +80,7 @@
 			#define HALL_SENSOR_ENABLE							// 
 			// #define HALL_SWITCH_ENABLE
 			#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
-			//#define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
+			// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 			#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
 	    #if defined BOARD_CORE64_TEENSY_32 
 	      #define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)

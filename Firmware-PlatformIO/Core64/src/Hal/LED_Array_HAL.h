@@ -22,7 +22,8 @@ USAGE: Init, Clear, Write to one of the buffers in monochrome or color mode, upd
     127 Cyan     GB
     170 Blue      B
     220 Purple  R B 
-    255 RED     R
+    254 RED     R
+    255 WHITE - special exception added by Andy
 */
 
 // Updated 2019-01-11 for HAL over Driver architecture
@@ -63,7 +64,7 @@ void LED_Array_Matrix_Mono_to_Binary(); // convert the contesnt of 8x8 Matrix Mo
 void LED_Array_Auto_Brightness();	// If ambient light sensor is available, use to adjust LED Array brightness
 // TO DO: Clean up the naming convention of these sub-functions
 void WriteColorFontSymbolToLedScreenMemoryMatrixColor(uint8_t SymbolNumber);
-
+void WriteGameSnakeSymbol(uint8_t SymbolNumber);
 
 // Older stuff that needs cleanup
 void CopyCoreMemoryToMonochromeLEDArrayMemory();

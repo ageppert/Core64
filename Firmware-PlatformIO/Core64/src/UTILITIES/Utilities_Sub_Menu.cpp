@@ -45,7 +45,7 @@ void UtilitiesSubMenu() {
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(4);
     LED_Array_Matrix_Color_Display();
     }
-  MenuTimeOutCheckAndExitToModeDefault();
+  if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }
   TopLevelModeManagerCheckButtons();
   OLEDTopLevelModeSet(TopLevelModeGet());
   OLEDScreenUpdate();

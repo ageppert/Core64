@@ -41,11 +41,11 @@ void DemosSubMenu() {
     Serial.println("    - = Previous Demo");
     Serial.println("    S = Settings Menu");
     Serial.print(PROMPT);
-    TopLevelSetSoftButtonGlobalEnableSet(false);
-    WriteColorFontSymbolToLedScreenMemoryMatrixColor(1);
+    TopLevelSetSoftButtonGlobalEnableSet(false);          // 
+    WriteColorFontSymbolToLedScreenMemoryMatrixColor(1);  // The DEMO SUB MENU Icon.
     LED_Array_Matrix_Color_Display();
     }
-  MenuTimeOutCheckAndExitToModeDefault();
+  if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }   // Dwell 5 seconds in Demo Submenu, then move to first demo.
   TopLevelModeManagerCheckButtons();
   OLEDTopLevelModeSet(TopLevelModeGet());
   OLEDScreenUpdate();

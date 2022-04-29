@@ -20,6 +20,8 @@
 #include "SubSystems/Analog_Input_Test.h"
 #include "Hal/Debug_Pins_HAL.h"
 
+bool ScrollTextToCoreMemoryCompleteFlag = false;
+
   // TO DO: The CoreArrayMemory should not be written to and read from outside of the Core HAL.
   // The CoreArrayMemory is used as a buffer between external API calls and the real state of the core memory.
   // The CoreArrayMemory is only accurate after all real core memory bits have been read once.
@@ -253,47 +255,6 @@
   }
   */
 
-  void ScrollTextToCoreMemory() {
-    static unsigned long UpdatePeriodms = 70;  
-    static unsigned long NowTime = 0;
-    static unsigned long UpdateTimer = 0;
-
-    static uint8_t stringPosition = 0;
-    static uint8_t stringLength = 15; // [space] I [heart] C O R E [space] M E M O R Y !
-    static uint8_t characterColumn = 0;
-    static bool newBit = 0;
-    static uint8_t ScrollingTextHue = 135;
-    static bool ScrollingColorChangeEnable = 1;
-
-    NowTime = millis();
-    // Is it time to scroll again?
-    if ((NowTime - UpdateTimer) >= UpdatePeriodms)
-    {
-      UpdateTimer = NowTime;
-      // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
-        for (uint8_t x=1; x<=7; x++)
-        {
-          for (uint8_t y=0; y<=7; y++)
-          {
-            CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
-          }
-        }
-      // Bring in a new column on right edge.
-        if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
-      // Out of characters? Go back to the beginning and scroll again.
-        if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; }
-        for (uint8_t y=0; y<=7; y++) // iterate through the rows
-        {
-          newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
-          CoreArrayMemory [y][7] = newBit;
-        }
-        characterColumn++; // prepare for next column
-        if (ScrollingColorChangeEnable) {
-          LED_Array_Monochrome_Increment_Color(1);
-        }
-    }
-  }
-
   void AllDriveIoReadAndStore() {
 
   }
@@ -431,47 +392,6 @@
     return (value);                                   // Return the value of the core
   }
 
-  void ScrollTextToCoreMemory() {
-    static unsigned long UpdatePeriodms = 100;  
-    static unsigned long NowTime = 0;
-    static unsigned long UpdateTimer = 0;
-
-    static uint8_t stringPosition = 0;
-    static uint8_t stringLength = 15; // [space] I [heart] C O R E [space] M E M O R Y !
-    static uint8_t characterColumn = 0;
-    static bool newBit = 0; 
-    static uint8_t ScrollingTextHue = 135;
-    static bool ScrollingColorChangeEnable = 1;
-
-    NowTime = millis();
-    // Is it time to scroll again?
-    if ((NowTime - UpdateTimer) >= UpdatePeriodms)
-    {
-      UpdateTimer = NowTime;
-      // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
-        for (uint8_t x=1; x<=7; x++)
-        {
-          for (uint8_t y=0; y<=7; y++)
-          {
-            CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
-          }
-        }
-      // Bring in a new column on right edge.
-        if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
-      // Out of characters? Go back to the beginning and scroll again.
-        if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; }
-        for (uint8_t y=0; y<=7; y++) // iterate through the rows
-        {
-          newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
-          CoreArrayMemory [y][7] = newBit;
-        }
-        characterColumn++; // prepare for next column
-        if (ScrollingColorChangeEnable) {
-          LED_Array_Monochrome_Increment_Color(1);
-        }
-    }
-  }
-
   bool CoreStateChangeFlag(bool clearFlag) {                    // Send this function a 0 to poll it, 1 to clear the flag
     static bool CoreStateChangeFlag = 0;
       if (SenseWirePulse() == true) { CoreStateChangeFlag = 1; }
@@ -487,4 +407,60 @@
     return CoreStateChangeFlag;
   }
 
+  void Core_Mem_All_Drive_IO_Toggle() {
+    MatrixEnableTransistorInactive();   // Make sure power to the whole matrix is disabled.
+    MatrixDriveTransistorsActive();     // Switch all 20 matrix transistors to the active state.
+    delayMicroseconds(5);
+    MatrixDriveTransistorsInactive();   // And back to inactive state.
+  }
+
 #endif
+
+bool ScrollTextToCoreMemoryCompleteFlagCheck(){     // Return TRUE if the text scrolling has completed.
+  return ScrollTextToCoreMemoryCompleteFlag;
+}
+
+void ScrollTextToCoreMemoryCompleteFlagClear(){     // Clear the flag indicating text has finished scrolling.
+  ScrollTextToCoreMemoryCompleteFlag = false;
+}
+
+void ScrollTextToCoreMemory() {
+  static unsigned long UpdatePeriodms = 80;  
+  static unsigned long NowTime = 0;
+  static unsigned long UpdateTimer = 0;
+
+  static uint8_t stringPosition = 0;
+  static uint8_t stringLength = 15; // I [heart] C O R E [space] M E M O R Y ! [space]
+  static uint8_t characterColumn = 0;
+  static bool newBit = 0; 
+  static uint8_t ScrollingTextHue = 135;
+  static bool ScrollingColorChangeEnable = true;
+
+  NowTime = millis();
+  // Is it time to scroll again?
+  if ((NowTime - UpdateTimer) >= UpdatePeriodms)
+  {
+    UpdateTimer = NowTime;
+    // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
+      for (uint8_t x=1; x<=7; x++)
+      {
+        for (uint8_t y=0; y<=7; y++)
+        {
+          CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
+        }
+      }
+    // Bring in a new column on right edge.
+      if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
+    // Out of characters? Go back to the beginning and scroll again.
+      if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; ScrollTextToCoreMemoryCompleteFlag = true; }
+      for (uint8_t y=0; y<=7; y++) // iterate through the rows
+      {
+        newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
+        CoreArrayMemory [y][7] = newBit;
+      }
+      characterColumn++; // prepare for next column
+      if (ScrollingColorChangeEnable) {
+        LED_Array_Monochrome_Increment_Color(4);
+      }
+  }
+}

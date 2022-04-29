@@ -4,7 +4,7 @@
   #include "WProgram.h"
 #endif
 
-#include "Snake.h"
+#include "Game_Snake.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -69,7 +69,7 @@ int8_t SnakeGameMemory [8][8];
 uint8_t ColorBlank     =   0; // blank
 uint8_t ColorSnakeBody = 220; // purple
 uint8_t ColorSnakeHead = 127; // blue
-uint8_t ColorPoison    = 255; // red
+uint8_t ColorPoison    = 254; // red
 uint8_t ColorFood      =  85; // green
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ void CheckStartButton() {
   }
 }
 
-void Snake() {
+void GameSnake() {
   if (TopLevelModeChangedGet()) {                           // First time entry into this mode.
     Serial.println();
     Serial.println("   Snake Game Sub-Menu");
@@ -354,7 +354,8 @@ void Snake() {
     Serial.println("    S = Select / Start Game Again");
     Serial.print(PROMPT);
     TopLevelSetSoftButtonGlobalEnableSet(false);
-    WriteColorFontSymbolToLedScreenMemoryMatrixColor(12);
+    // WriteColorFontSymbolToLedScreenMemoryMatrixColor(12);
+    WriteGameSnakeSymbol(0);
     MenuTimeOutCheckReset();
     LED_Array_Matrix_Color_Display();
     GameState = 0;
@@ -379,7 +380,7 @@ void Snake() {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        MenuTimeOutCheckAndExitToModeDefault();
+        if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }
         break;
       case 1: // Setup a new game
         Winner = false;
@@ -394,7 +395,7 @@ void Snake() {
         if (SnakeGameLogic()) {          // Returns 1 if there was activity detected by stylus.
           MenuTimeOutCheckReset();      // Prevent mode timeout
         }
-        MenuTimeOutCheckAndExitToModeDefault(); // Is it time to timeout? Then timeout.
+        if (MenuTimeOutCheck(30000)) { TopLevelModeSetToDefault(); } // Is it time to timeout? Then timeout.
         ConvertSnakeGameMemoryToScreenMemory(); // Convert SnakeGameMemory to LED Matrix and refresh it.
         if (GameOver) { GameOverTimer = nowTime; GameState = 3; }
         if (Winner)  { GameOverTimer = nowTime; GameState = 4; }
@@ -414,7 +415,8 @@ void Snake() {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(14);
+        // WriteColorFontSymbolToLedScreenMemoryMatrixColor(14);
+        WriteGameSnakeSymbol(2);
         break;
       case 4: // Winner = Green Screen
         for (uint8_t x=0; x<=7; x++) {
@@ -426,7 +428,8 @@ void Snake() {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(13);
+        // WriteColorFontSymbolToLedScreenMemoryMatrixColor(13);
+        WriteGameSnakeSymbol(1);
         break;
       default:
         break;

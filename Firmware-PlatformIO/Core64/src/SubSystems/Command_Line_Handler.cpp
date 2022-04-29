@@ -99,6 +99,7 @@ void CommandLineSetup ()
   commandLine.add("restart", &handleRestart);
   commandLine.add("splash", &handleSplash);
   commandLine.add("stream", &handleStream);
+  commandLine.add("thanks", &handleThanks);
   #elif defined BOARD_CORE64C_RASPI_PICO
   // Pre-defined commands
 
@@ -382,4 +383,16 @@ void  CommandLineUpdate()
     {
         Serial.println("invalid token.");    
     }
+  }
+
+  void handleThanks(char* tokens)
+  {
+    Serial.println();
+    Serial.println("  Thank you for YOUR support! And thank you to the following people for inspiration and encouragement:");
+    Serial.println("    Ben North and Olver Nash's Magnetic Core Memory Reborn Report,");
+    Serial.println("    Jussi Kilpelainen's Arduino Core Memory Shield, Rolfe Bozier's 8x8 core demo,");
+    Serial.println("    Element14 Magnetism Contest, Hack-a-Day crew and fans, my beta test customers,");
+    Serial.println("    by supportive family and friends, Alex Glo @ Hackster, VCFed crew and fans, ");
+    Serial.println("    Dag @ The CHM, and Adafruit / Sparkfun tutorials.");
+    Serial.println();
   }

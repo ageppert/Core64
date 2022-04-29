@@ -24,6 +24,7 @@ void ReturnMatrixQ9NtoLowForLEDArray();
 void MatrixEnableTransistorInactive();
 void MatrixEnableTransistorActive();
 void MatrixDriveTransistorsInactive();
+void MatrixDriveTransistorsActive();
 extern void SetRowAndCol (uint8_t row, uint8_t col);
 extern void ClearRowAndCol (uint8_t row, uint8_t col);
 void SetBit (uint8_t bit);

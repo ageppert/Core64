@@ -30,9 +30,9 @@
 #include "SubSystems/Command_Line_Handler.h"
 
 #include "DEMOS/Demos_Sub_Menu.h"
-#include "DEMOS/Mode_Demo_Scrolling_Text.h"
+#include "DEMOS/Demo_Modes.h"
 #include "GAMES/Games_Sub_Menu.h"
-#include "GAMES/Snake.h"
+#include "GAMES/Game_Snake.h"
 #include "APPS/Apps_Sub_Menu.h"
 #include "APPS/Drawing.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
@@ -113,7 +113,6 @@ uint8_t Eeprom_Byte_Mem_Address = 0;
 extern int StreamTopLevelModeEnable;
 
 static uint32_t MenuTimeoutTimerms  = 0;
-const uint32_t MenuTimeoutLimitms   = 30000; // 30 second timeout in menus.
 static uint32_t MenuTimeoutDeltams  = 0;
 static bool MenuTimeoutFirstTimeRun = 0;
 
@@ -188,7 +187,7 @@ void TopLevelModeManagerCheckButtons () {
     Button3HoldTime = ButtonState(3,0);
     Button4HoldTime = ButtonState(4,0);
 
-  // Checking the "M" soft button to enter or exit the DGAUSS menu.
+  // Checking the "M" soft button to enter or exit the DGAUSS menu to the previous mode before entering.
   if ( (Button1Released == true) && (Button1HoldTime >= 100) ) {
     ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
     Button1Released = false;
@@ -201,9 +200,9 @@ void TopLevelModeManagerCheckButtons () {
         TopLevelModeSet(TopLevelModeDefault);                 // just go to default demo mode. 
       }
       else {
-        uint32_t temporary = TopLevelModePreviousGet();            // Otherwise, go the previous mode, after storing it temporarily.
+        uint32_t temporary = TopLevelModePreviousGet();       // Otherwise, go the previous mode, after storing it temporarily.
         TopLevelModePreviousSet(MODE_DGAUSS_MENU);            // Set the previous mode to DGAUSS menu.
-        TopLevelModeSet(temporary);                                // Now go to the previous mode.
+        TopLevelModeSet(temporary);                           // Now go to the previous mode.
       }
     }
   }
@@ -263,7 +262,7 @@ void MenuTimeOutCheckReset () {
   MenuTimeoutFirstTimeRun = true;
 }
 
-void MenuTimeOutCheckAndExitToModeDefault () {
+bool MenuTimeOutCheck (uint32_t MenuTimeoutLimitms) {
   static uint32_t NowTimems;
   static uint32_t StartTimems;
   NowTimems = millis();
@@ -272,9 +271,11 @@ void MenuTimeOutCheckAndExitToModeDefault () {
   if (MenuTimeoutDeltams >= MenuTimeoutLimitms) {
     MenuTimeOutCheckReset();
     Serial.println();
-    Serial.println("  Menu or mode timeout. Returning to TopLevelModeDefault.");
-    TopLevelModePreviousSet(TopLevelModeGet());
-    TopLevelModeSet (TopLevelModeDefault);
+    Serial.println("  Menu or mode timeout.");
+    return (true);
+  }
+  else {
+    return (false);
   }
 }
 
@@ -304,6 +305,7 @@ void TopLevelModeManagerRun () {
     case MODE_START_ALIVE:                       // Show signs of life as soon as possible after power on, assuming default hardware.
     // *************************************************************************************************************************************************** //
       handleSplash("");                                       // Splash screen serial text
+      handleThanks("");                                       // Thank yous!
       Serial.println("  Starting default expected hardware:");
       I2CManagerSetup();                                      // Required to scan the I2C Bus.
       I2CManagerBusScan();                                    // Determine hardware available on the I2C bus. Especially the hall sensor buttons.
@@ -411,7 +413,7 @@ void TopLevelModeManagerRun () {
         LED_Array_Matrix_Color_Display();
         Serial.print(PROMPT);
       }
-      MenuTimeOutCheckAndExitToModeDefault();
+      if (MenuTimeOutCheck(30000)) { TopLevelModeSetToDefault(); }
   
       Core_Mem_Scan_For_Magnet();
       // Was the D touched with magnetic stylus?
@@ -489,40 +491,25 @@ void TopLevelModeManagerRun () {
 // *************************************************************************************************************************************************** //
 // ***************************************************** DEMO **************************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_DEMO_SUB_MENU:          DemosSubMenu();             break;
-    case MODE_DEMO_SCROLLING_TEXT:    ModeDemoScrollingText();    break;
-
-    case MODE_DEMO_LED_TEST_ONE_MATRIX_MONO: // Turns on 1 pixel, sequentially, from left to right, top to bottom using 2D matrix addressing
-      LED_Array_Test_Pixel_Matrix_Mono();
-      OLEDTopLevelModeSet(TopLevelModeGet());
-      OLEDScreenUpdate();
-      break;
-
-    case MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR: // Multi-color symbols
-      LED_Array_Test_Pixel_Matrix_Color();
-      OLEDTopLevelModeSet(TopLevelModeGet());
-      OLEDScreenUpdate();
-      break;
-
-    case MODE_DEMO_END_OF_LIST:
-      TopLevelModeSet(TopLevelModeDefault);
-      OLEDTopLevelModeSet(TopLevelModeGet());
-      OLEDScreenUpdate();
-      break;
+    case MODE_DEMO_SUB_MENU:                    DemosSubMenu();                           break;
+    case MODE_DEMO_SCROLLING_TEXT:              DemoScrollingText();                      break;
+    case MODE_DEMO_LED_TEST_ONE_MATRIX_MONO:    DemoLedTestOneMatrixMono();               break;
+    case MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR:   DemoLedTestOneMatrixColor();              break;
+    case MODE_DEMO_END_OF_LIST:                 DemoEndofList();                          break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** GAME **************************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_GAME_SUB_MENU:        GamesSubMenu();                           break;
-    case MODE_GAME_SNAKE:           Snake();                                  break;
-    case MODE_GAME_END_OF_LIST:     TopLevelModeSet(MODE_GAME_SUB_MENU);      break;
+    case MODE_GAME_SUB_MENU:                    GamesSubMenu();                           break;
+    case MODE_GAME_SNAKE:                       GameSnake();                              break;
+    case MODE_GAME_END_OF_LIST:                 TopLevelModeSet(MODE_GAME_SUB_MENU);      break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** APP ***************************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_APP_SUB_MENU:         AppsSubMenu();  break;
-    case MODE_APP_DRAW:             Draw();         break;
-    case MODE_APP_END_OF_LIST:      TopLevelModeSet(MODE_APP_SUB_MENU);       break;
+    case MODE_APP_SUB_MENU:                     AppsSubMenu();                            break;
+    case MODE_APP_DRAW:                         Draw();                                   break;
+    case MODE_APP_END_OF_LIST:                  TopLevelModeSet(MODE_APP_SUB_MENU);       break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** UTIL **************************************************************************************** //
@@ -631,6 +618,8 @@ void TopLevelModeManagerRun () {
               Core_Mem_Bit_Write(0,1);
               LED_Array_String_Write(0,1);
               LED_Array_String_Display();
+              // To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
+              Core_Mem_All_Drive_IO_Toggle();
         #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
@@ -777,7 +766,7 @@ void TopLevelModeManagerRun () {
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(11);   // TODO: Change to a mfg symbol.
         LED_Array_Matrix_Color_Display();
         }
-      MenuTimeOutCheckAndExitToModeDefault();
+      if (MenuTimeOutCheck(3000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();

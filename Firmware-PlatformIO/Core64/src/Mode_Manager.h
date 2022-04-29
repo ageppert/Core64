@@ -87,6 +87,6 @@ SETUP:
     void    TopLevelModeManagerRun   ();
 
     void MenuTimeOutCheckReset ();
-    void MenuTimeOutCheckAndExitToModeDefault ();
+    bool MenuTimeOutCheck (uint32_t MenuTimeoutLimitms);
 
 #endif // MODE_MANAGER_H

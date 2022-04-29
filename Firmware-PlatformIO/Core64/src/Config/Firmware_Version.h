@@ -55,11 +55,12 @@
 	|  0.7.11 | 2022-04-06 | Update Pico code so I2C1 port works with OLED, Hall Sensors, EEPROM.
 	|  0.7.12 | 2022-04-11 | Update Pico code so all multicolor LED Matrix functions work.
 	|  0.7.13 | 2022-04-11 | Core64c, Pico, implement core driver!
+	|  0.7.14 | 2022-04-28 | Add thanks, automatic looping of demo modes, move snake game symbols to their own array, revise menu time-outs
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core64c, Pico, implement core driver!"
+	#define FIRMWARE_DESCRIPTION "Add thanks, automatic looping of demo modes, move snake game symbols to their own array, revise menu time-outs."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 13 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 14 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
