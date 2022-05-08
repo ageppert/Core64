@@ -325,17 +325,15 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
   }
 
 #elif defined BOARD_CORE64C_RASPI_PICO
-
-// TODO: Update this so it can handle any bit besides just 0.
     void Core_Mem_Bit_Write(uint8_t bit, bool value) {
       // Turn off all of the matrix signals
       // cli();                                            // Testing for consistent timing.
-      CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
-      TracingPulses_Debug_Pin_1(1);
+      // CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+      // TracingPulses_Debug_Pin_1(1);
       MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+      // MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
       // Enable the matrix drive transistors
-      TracingPulses_Debug_Pin_1(2);
+      // TracingPulses_Debug_Pin_1(2);
       // Activate the selected matrix drive transistors according to bit position and the set/clear request
       // if (value == 1) { AllDriveIoSetBit(bit); } 
       // else { AllDriveIoClearBit(bit); }
@@ -343,24 +341,23 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
       if (value == 1) { SetBit (bit); }       // This does work for Core64c
       else { ClearBit (bit); }                // This does work for Core64c
 
-      TracingPulses_Debug_Pin_1(3);
+      // TracingPulses_Debug_Pin_1(3);
       MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
       delayMicroseconds(20);                            // give the core time to change state
       MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
       // Turn off all of the matrix signals
       MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
-      TracingPulses_Debug_Pin_1(4);
-      CoreSenseReset();
+      // TracingPulses_Debug_Pin_1(4);
+      // CoreSenseReset();
       // sei();                                            // Testing for consistent timing.
     }
 
-// TODO: Update this so it can handle any bit besides just 0.
   bool Core_Mem_Bit_Read(uint8_t bit) {
     static bool value = 0;
     // cli();                                            // Testing for consistent timing. Disable interrupts while poling for sense pulse.
     CoreStateChangeFlag(1);                           // Clear the sense flag
     MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    // MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
     // Activate the selected matrix drive transistors according to bit position and SET it to 1.
     // TracingPulses(1); 
     // AllDriveIoSetBit(bit);
@@ -374,7 +371,7 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
       CoreStateChangeFlag(0);                         // Polling for a change inside this function is faster than the for-loop.
     // Turn off all of the matrix signals
     MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-    MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+    // MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
     if (CoreStateChangeFlag(0) == true)               // If the core changed state, then it was a 0, and is now 1...
     {
       Core_Mem_Bit_Write(bit,0);                      // ...so return the core to 0
@@ -385,9 +382,10 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
     else                                              // otherwise the core was already 1
     {
       value = 1;                                      // ...update value to represent the core state
+      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
     // TracingPulses(3); 
     }
-    CoreSenseReset();
+    // CoreSenseReset();
     // sei();                                            // Testing for consistent timing. Enable interrupts when done poling for sense pulse.
     return (value);                                   // Return the value of the core
   }

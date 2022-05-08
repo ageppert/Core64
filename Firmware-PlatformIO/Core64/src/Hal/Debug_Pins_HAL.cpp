@@ -20,6 +20,10 @@
    digitalWrite(Pin_SAO_G1_SPARE_1_CP_ADDR_0, High_nLow);
    }
 
+   void DebugAllGpioToggleTest() {
+      return;
+   }
+
 #elif defined BOARD_CORE64C_RASPI_PICO
    extern void Debug_Pins_Setup() {
       #ifdef Pin_SAO_G1_or_SPARE1_or_CP1
@@ -35,21 +39,42 @@
         pinMode(          Pin_SPARE4_or_CP4, OUTPUT);
       #endif
       #ifdef    Pin_HS1_or_SPARE5_or_CP5
-        pinMode(   Pin_HS2_or_SPARE6_or_CP6, OUTPUT);
+        pinMode(   Pin_HS1_or_SPARE5_or_CP5, OUTPUT);
       #endif
       #ifdef    Pin_HS2_or_SPARE6_or_CP6
-        pinMode(   Pin_HS3_or_SPARE7_or_CP7, OUTPUT);
+        pinMode(   Pin_HS2_or_SPARE6_or_CP6, OUTPUT);
       #endif
       #ifdef    Pin_HS3_or_SPARE7_or_CP7
-        pinMode(   Pin_HS4_or_SPARE8_or_CP8, OUTPUT);
+        pinMode(   Pin_HS3_or_SPARE7_or_CP7, OUTPUT);
       #endif
       #ifdef    Pin_HS4_or_SPARE8_or_CP8
         pinMode(   Pin_HS4_or_SPARE8_or_CP8, OUTPUT);
       #endif
+
+      #ifdef    Pin_SPI_CS1
+        pinMode(   Pin_SPI_CS1, OUTPUT);
+      #endif
+      #ifdef    Pin_SPI_RST
+        pinMode(   Pin_SPI_RST, OUTPUT);
+      #endif
+      #ifdef    Pin_SPI_CD 
+        pinMode(   Pin_SPI_CD , OUTPUT);
+      #endif
+      #ifdef    Pin_SPI_SDO
+        pinMode(   Pin_SPI_SDO, OUTPUT);
+      #endif
+      #ifdef    Pin_SPI_SDI
+        pinMode(   Pin_SPI_SDI, OUTPUT);
+      #endif
+      #ifdef    Pin_SPI_CLK
+        pinMode(   Pin_SPI_CLK, OUTPUT);
+      #endif
    }
 
    void Debug_Pin_1(bool High_nLow) {
-      digitalWrite(Pin_SAO_G1_or_SPARE1_or_CP1, High_nLow);
+      #ifdef Pin_SAO_G1_or_SPARE1_or_CP1
+         digitalWrite(Pin_SAO_G1_or_SPARE1_or_CP1, High_nLow);
+      #endif
    }
 
    void Debug_Pin_2(bool High_nLow) {
@@ -76,6 +101,59 @@
       #endif
    }
 
+   void Debug_Pin_6(bool High_nLow) {
+      #ifdef Pin_HS2_or_SPARE6_or_CP6
+         digitalWrite(Pin_HS2_or_SPARE6_or_CP6, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_7(bool High_nLow) {
+      #ifdef Pin_HS3_or_SPARE7_or_CP7
+         digitalWrite(Pin_HS3_or_SPARE7_or_CP7, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_8(bool High_nLow) {
+      #ifdef Pin_HS4_or_SPARE8_or_CP8
+         digitalWrite(Pin_HS4_or_SPARE8_or_CP8, High_nLow);
+      #endif
+   }
+   void Debug_Pin_SPI_CS1(bool High_nLow) {
+      #ifdef Pin_SPI_CS1
+         digitalWrite(Pin_SPI_CS1, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_SPI_RST(bool High_nLow) {
+      #ifdef Pin_SPI_RST
+         digitalWrite(Pin_SPI_RST, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_SPI_CD(bool High_nLow) {
+      #ifdef Pin_SPI_CD
+         digitalWrite(Pin_SPI_CD, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_SPI_SDO(bool High_nLow) {
+      #ifdef Pin_SPI_SDO
+         digitalWrite(Pin_SPI_SDO, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_SPI_SDI(bool High_nLow) {
+      #ifdef Pin_SPI_SDI
+         digitalWrite(Pin_SPI_SDI, High_nLow);
+      #endif
+   }
+
+   void Debug_Pin_SPI_CLK(bool High_nLow) {
+      #ifdef Pin_SPI_CLK
+         digitalWrite(Pin_SPI_CLK, High_nLow);
+      #endif
+   }
+
   void TracingPulses_Debug_Pin_1(uint8_t numberOfPulses) {
     for (uint8_t i = 1; i <= numberOfPulses; i++) {
       Debug_Pin_1(1);
@@ -86,4 +164,37 @@
     }
   }
 
+   void DebugAllGpioToggleTest() {
+      Debug_Pin_1(1);
+      Debug_Pin_2(1);
+      Debug_Pin_3(1);
+      Debug_Pin_4(1);
+      Debug_Pin_5(1);
+      Debug_Pin_6(1);
+      Debug_Pin_7(1);
+      Debug_Pin_8(1);
+
+      Debug_Pin_1(0);
+      Debug_Pin_2(0);
+      Debug_Pin_3(0);
+      Debug_Pin_4(0);
+      Debug_Pin_5(0);
+      Debug_Pin_6(0);
+      Debug_Pin_7(0);
+      Debug_Pin_8(0);
+
+      Debug_Pin_SPI_CS1(1);
+      Debug_Pin_SPI_RST(1); 
+      Debug_Pin_SPI_CD (1);
+      Debug_Pin_SPI_SDO(1); 
+      Debug_Pin_SPI_SDI(1); 
+      Debug_Pin_SPI_CLK(1);
+
+      Debug_Pin_SPI_CS1(0);
+      Debug_Pin_SPI_RST(0); 
+      Debug_Pin_SPI_CD (0);
+      Debug_Pin_SPI_SDO(0); 
+      Debug_Pin_SPI_SDI(0); 
+      Debug_Pin_SPI_CLK(0); 
+   }
 #endif

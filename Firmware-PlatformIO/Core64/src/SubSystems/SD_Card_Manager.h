@@ -18,6 +18,7 @@ SETUP:
 
 // Prints setup messages to serial port.
 void SDCardSetup();
+void SDInfo();
 
 // Creates or appends to existing voltage log file and adds a line, if it's time to update. User can change update period.
 void SDCardVoltageLog(uint32_t UpdatePeriodms);

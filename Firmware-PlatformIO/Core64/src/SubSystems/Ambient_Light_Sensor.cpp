@@ -14,7 +14,7 @@
 #ifdef AMBIENT_LIGHT_SENSOR_LTR329_ENABLE
   #include "SubSystems/Ambient_Light_Sensor.h"
   #include "SubSystems/I2C_Manager.h"
-  #include "LTR329/LTR329_Driver.h"
+  #include "Libraries/LTR329/LTR329_Driver.h"
   #define AL_ADDR 0x29
 
   LTR303 light;

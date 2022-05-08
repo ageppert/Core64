@@ -227,10 +227,12 @@ void Buttons_Setup() {
     #endif // HALL_SENSOR_ENABLE
 
     #ifdef HALL_SWITCH_ENABLE
+      Serial.println("      HardwareConnectedCheckButtonHallSensors = true");
       pinMode(PIN_HALL_SWITCH_1, INPUT_PULLUP);
       pinMode(PIN_HALL_SWITCH_2, INPUT_PULLUP);
       pinMode(PIN_HALL_SWITCH_3, INPUT_PULLUP);
       pinMode(PIN_HALL_SWITCH_4, INPUT_PULLUP);
+      ButtonSetupCompleted = true;
     #endif // HALL_SWITCH_ENABLE
   }
 }
@@ -261,6 +263,7 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
       pinMode(PIN_HALL_SWITCH_2, INPUT_PULLUP);
       pinMode(PIN_HALL_SWITCH_3, INPUT_PULLUP);
       pinMode(PIN_HALL_SWITCH_4, INPUT_PULLUP);
+      ButtonSetupCompleted = true;
     #endif // HALL_SWITCH_ENABLE
 
     thistime = millis();

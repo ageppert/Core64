@@ -21,6 +21,7 @@
 #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
   #include <Adafruit_NeoPixel.h>
   #include "Config/Adafruit_NeoPixel_Config.h"           // Core 64 Custom config file for Adafruit NeoPixel library
+  #include "math.h"
 #endif 
 
 #define MONOCHROMECOLORCHANGER 1
@@ -241,8 +242,8 @@ void LED_Array_Auto_Brightness() {
       #if defined USE_FASTLED_LIBRARY
         leds[ XY(x, y)]  = CHSV( pixelHue, 255, 255);
       #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-        strip.setPixelColor( (XY(x, y)), strip.gamma32(strip.ColorHSV(pixelHue,255,LEDArrayBrightness)) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-        // strip.setPixelColor( (XY(x, y)), strip.Color( pixelHue, 255, 255) );
+        strip.setPixelColor( (XY(x, y)), strip.ColorHSV( (int32_t)(pixelHue*256),255,LEDArrayBrightness)) ;  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+        //Serial.println(pixelHue);
       #endif 
       }
     }
@@ -253,6 +254,9 @@ void LED_Array_Auto_Brightness() {
       uint32_t ms = millis();
       int32_t yHueDelta32 = ((int32_t)cos16( ms * (27/1) ) * (350 / kMatrixWidth));
       int32_t xHueDelta32 = ((int32_t)cos16( ms * (39/1) ) * (310 / kMatrixHeight));
+      // Serial.print(xHueDelta32);
+      // Serial.print(", ");
+      // Serial.println(yHueDelta32);
       DrawOneFrame( ms / 65536, yHueDelta32 / 32768, xHueDelta32 / 32768);
       if( ms < 5000 ) {
         FastLED.setBrightness( scale8( BRIGHTNESS, (ms * 256) / 5000));
@@ -261,24 +265,21 @@ void LED_Array_Auto_Brightness() {
       }
       FastLED.show();
 
-    // TO DO: This is broken and does not work right. Need a more complete port from FASTLED to NEOPIXEL rainbow demo.
+    // TO DO: This is broken and does not work right. Need to make it smooth like the FASTLED Rainbow Demo
     #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
       uint32_t ms = millis();
-      ms = (ms>>8) ; // Andy change, slow it down
-      // int32_t yHueDelta32 = ((int32_t)cos16( ms * (27/1) ) * (350 / kMatrixWidth));
-      // int32_t xHueDelta32 = ((int32_t)cos16( ms * (39/1) ) * (310 / kMatrixHeight));
-      int32_t yHueDelta32 = ((int32_t)( ms * (27/1) ) * (350 / kMatrixWidth));
-      int32_t xHueDelta32 = ((int32_t)( ms * (39/1) ) * (310 / kMatrixHeight));
+      int32_t yHueDelta32 = 1565535*cos(ms/220);
+      int32_t xHueDelta32 = 1532768*cos(ms/290);
+      // Serial.print(xHueDelta32);
+      // Serial.print(", ");
+      // Serial.println(yHueDelta32);
       DrawOneFrame( ms / 65536, yHueDelta32 / 32768, xHueDelta32 / 32768);
       if( ms < 5000 ) {
-        // FastLED.setBrightness( scale8( BRIGHTNESS, (ms * 256) / 5000));
         strip.setBrightness( ( BRIGHTNESS * ms / 8) );
       } 
       else {
-        // FastLED.setBrightness(BRIGHTNESS);
         strip.setBrightness(BRIGHTNESS);
       }
-      // FastLED.show();
       strip.show();
     #endif 
   }

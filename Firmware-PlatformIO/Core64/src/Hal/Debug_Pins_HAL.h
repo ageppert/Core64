@@ -29,6 +29,16 @@ Usage:			Debug_Pins_Setup() to configure pin mode.
     extern void Debug_Pin_3(bool High_nLow);
     extern void Debug_Pin_4(bool High_nLow);
     extern void Debug_Pin_5(bool High_nLow);
+    extern void Debug_Pin_6(bool High_nLow);
+    extern void Debug_Pin_7(bool High_nLow);
+    extern void Debug_Pin_8(bool High_nLow);
+    extern void Debug_Pin_SPI_CS1(bool High_nLow);
+    extern void Debug_Pin_SPI_RST(bool High_nLow); 
+    extern void Debug_Pin_SPI_CD(bool High_nLow);
+    extern void Debug_Pin_SPI_SDO(bool High_nLow); 
+    extern void Debug_Pin_SPI_SDI(bool High_nLow); 
+    extern void Debug_Pin_SPI_CLK(bool High_nLow);  
     extern void TracingPulses_Debug_Pin_1(uint8_t numberOfPulses);
+    extern void DebugAllGpioToggleTest();
 
 #endif // DEBUG_PINS_HAL_H

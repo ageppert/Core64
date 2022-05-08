@@ -75,6 +75,7 @@
       "   MODE_CORE_TEST_ONE                 ",
       "   MODE_CORE_TEST_MANY                ",
       "   MODE_HALL_TEST                     ",
+      "   MODE_GPIO_TEST                     ",
       "   MODE_SPECIAL_LOOPBACK_TEST         ",
       "   MODE_SPECIAL_HARD_REBOOT           ",
       "   MODE_SPECIAL_END_OF_LIST           ",
@@ -362,10 +363,11 @@ void TopLevelModeManagerRun () {
       // TODO brightness default set from EEPROM
       CoreSetup();
       OLEDScreenUpdate();
+      SDInfo();
       #if defined BOARD_CORE64_TEENSY_32
-        SDCardSetup();
         AmbientLightSetup();
         Neon_Pixel_Array_Init();
+        SDCardSetup();
       #elif defined BOARD_CORE64C_RASPI_PICO
         // TODO: Handle the difference in the hardware inside the functions above and remove this #if sequence
       #endif
@@ -555,12 +557,14 @@ void TopLevelModeManagerRun () {
     case MODE_SPECIAL_SUB_MENU:   SpecialSubMenu();      break;
 
       case MODE_LED_TEST_ALL_BINARY: // Counts from lower right and left/up in binary, using Binary LUT.
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Test_Count_Binary();
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
 
       case MODE_LED_TEST_ONE_STRING: // Illuminates one pixel, sequentially from left to right, top to bottom using 1D string addressing.
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Test_Pixel_String();
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
@@ -568,6 +572,7 @@ void TopLevelModeManagerRun () {
 
       case MODE_TEST_EEPROM: // 
         // value = EEPROM_Hardware_Version_Read(a);  // Teensy internal emulated EEPROM
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         Serial.println();
         EepromByteValue = EEPROMExtDefaultReadByte(Eeprom_Byte_Mem_Address);
         Serial.print(Eeprom_Byte_Mem_Address);
@@ -577,16 +582,18 @@ void TopLevelModeManagerRun () {
         if (Eeprom_Byte_Mem_Address == 128) {
           Eeprom_Byte_Mem_Address = 0;
         }
-        // delay(100);
+        // delay(10);
         break;
         
       case MODE_LED_TEST_ALL_COLOR: // FastLED Demo of all color
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Test_Rainbow_Demo();
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
         
       case MODE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(50,255,255);
         #if defined BOARD_CORE64_TEENSY_32        
@@ -608,7 +615,9 @@ void TopLevelModeManagerRun () {
             }
         #elif defined BOARD_CORE64C_RASPI_PICO
           // TODO: Port Core HAL and Driver to handle Teensy and Pico.
-              // TODO: Testing very basic Core64c matrix drive functions in the driver here now. Need to abstract and align with Core64.
+              // TODO: Remove this test once shift registers are working. To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
+              Core_Mem_All_Drive_IO_Toggle();
+
               // ClearRowZeroAndColZero ();
               Core_Mem_Bit_Write(0,0);
               LED_Array_String_Write(0,0);
@@ -618,8 +627,6 @@ void TopLevelModeManagerRun () {
               Core_Mem_Bit_Write(0,1);
               LED_Array_String_Write(0,1);
               LED_Array_String_Display();
-              // To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
-              Core_Mem_All_Drive_IO_Toggle();
         #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
@@ -627,6 +634,7 @@ void TopLevelModeManagerRun () {
         break;
 
       case MODE_CORE_TEST_ONE:
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(100,255,255);
         LED_Array_Memory_Clear();
@@ -655,12 +663,13 @@ void TopLevelModeManagerRun () {
         break;
 
       case MODE_CORE_TEST_MANY:
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         #if defined BOARD_CORE64_TEENSY_32     
+          if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
           for (uint8_t bit = coreToTest; bit<(64); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
-            LED_Array_Memory_Clear();
             //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
             //  TracingPulses(1);
             // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
@@ -673,10 +682,10 @@ void TopLevelModeManagerRun () {
             LED_Array_String_Display();
             }
         #elif defined BOARD_CORE64C_RASPI_PICO
+          if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
           for (uint8_t bit = coreToTest; bit<(64); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
-            LED_Array_Memory_Clear();
             //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
             //  TracingPulses(1);
             // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
@@ -706,7 +715,18 @@ void TopLevelModeManagerRun () {
       OLEDScreenUpdate();
       break;
 
+    case MODE_GPIO_TEST:
+      TopLevelThreeSoftButtonGlobalEnableSet (true);
+      LED_Array_Monochrome_Set_Color(25,255,255);
+      LED_Array_Memory_Clear();
+      LED_Array_String_Display();
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
+      DebugAllGpioToggleTest();
+      break;
+
     case MODE_SPECIAL_LOOPBACK_TEST:
+      TopLevelThreeSoftButtonGlobalEnableSet (true);
       LED_Array_Monochrome_Set_Color(125,255,255);
       LED_Array_Memory_Clear();
       LED_Array_Matrix_Mono_Display();

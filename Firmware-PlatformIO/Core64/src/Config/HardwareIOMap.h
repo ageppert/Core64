@@ -59,7 +59,7 @@
 		      #endif
 		  #endif
 	// Display board name which is being compiled for:
-		  #pragma message ( "C Preprocessor identified board type:" )
+		  #pragma message ( "C++ Preprocessor identified board type:" )
 		  #ifdef BOARD
 		    #pragma message ( BOARD )
 		  #else
@@ -70,34 +70,32 @@
   // SELECT HARDWARE TO ACTIVATE
 	// TODO: Move all of these to variables which can be configured on-the-fly.
 		#define EEPROM_ST_M24C02_2KBIT
-		#ifdef EEPROM_ST_M24C02_2KBIT
-			#define EEPROM_ADDRESS    0b1010111       // 0b1010+A2_A1_A0): Core64 BOARD ID EEPROM is 0x57 (87 dec) 1010+111
-			#define MEM_SIZE_BYTES          256
-			#define PAGE_SIZE_BYTES          16
-			#define MAX_WRITE_TIME_MS         5
-		#endif
+			#ifdef EEPROM_ST_M24C02_2KBIT
+				#define EEPROM_ADDRESS    0b1010111       // 0b1010+A2_A1_A0): Core64 BOARD ID EEPROM is 0x57 (87 dec) 1010+111
+				#define MEM_SIZE_BYTES          256
+				#define PAGE_SIZE_BYTES          16
+				#define MAX_WRITE_TIME_MS         5
+			#endif
+		// #define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE
+		#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
+		#define OLED_64X128
+		// #define OLED_128X128
+		// #define CORE_PLANE_SELECT_ACTIVE
+		// #define MULTIPLE_CORE_PLANES_ENABLED
+		#define HALL_SENSOR_ENABLE
+		// #define HALL_SWITCH_ENABLE
+		#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
+		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
+		#define SDCARD_ENABLE
 
-			#define HALL_SENSOR_ENABLE							// 
-			// #define HALL_SWITCH_ENABLE
-			#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
-			// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
-			#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
 	    #if defined BOARD_CORE64_TEENSY_32 
-	      #define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
-			  // #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
+	    	#define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
+			// #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.		
 	    #elif defined BOARD_CORE64C_RASPI_PICO
 		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
-			#endif
-			// #define AMBIENT_LIGHT_SENSOR_LTR329_ENABLE   		// 
-			// #define SDCARD_ENABLE                  			// 
-			#define OLED_64X128
-			// #define OLED_128X128
-
-		// #define CORE_PLANE_SELECT_ACTIVE
-		// #define MULTIPLE_CORE_PLANES_ENABLED
-
+		#endif
 
 	#if defined BOARD_CORE64_TEENSY_32
 		// Core64 HARDWARE v0.5.0
@@ -188,13 +186,14 @@
 	#elif defined BOARD_CORE64C_RASPI_PICO
 		// Core64c HARDWARE v0.2.0
 			// PRIMARY AND DEFAULT FUNCTIONALITY
-				// HEART BEAT - HELLO WORLD
-						#define Pin_Built_In_LED         	25  // * digital output
+						#define Pin_Built_In_VBUS_Sense   	24  // BUILT-IN to Pico Board, high if VBUS is present, which means USB power is connected to Pico.
+				// HEART BEAT
+						#define Pin_Built_In_LED         	25  // BUILT-IN to Pico Board
 				// I2C (HARDWARE ID EEPROM, HALL SENSORS, AMBIENT LIGHT SENSOR, OLED, SAO)
 						#define Pin_I2C_Bus_Data           p10  // RasPi Pico I2C1_SDA GP10 is Pico pin 14. See notes in I2C_Manager.cpp
 						#define Pin_I2C_Bus_Clock          p11  // Raspi Pico I2C1_SCL GP11 is Pico pin 15. See notes in I2C_Manager.cpp
 				// LED ARRAY
-						#define Pin_RGB_LED_Array         	22	// * Shared 
+						#define Pin_RGB_LED_Array         	22	// 
 			  // HALL SWITCHES, AUTOMATICALLY USED IF I2C HALL SENSORS ARE NOT DETECTED
 				    #ifdef HALL_SWITCH_ENABLE
 							#define PIN_HALL_SWITCH_1		 5	// * Shared
@@ -211,11 +210,12 @@
 						#define PIN_CMD_SR_SERIAL         	12	// GPO Digital to Core Matrix Drive Shift Registers Serial Pin
 						#define PIN_CMD_SR_CLOCK         	13	// GPO Digital to Core Matrix Drive Shift Registers Clock Pin
 			  // DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
-						#define Pin_Battery_Voltage     	A0  // 1/2 the battery voltage (AKA Digital pin 26)
 						#ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
-							#define Pin_SPARE_ADC1_Assigned_To_Analog_Input A1	// 3V3 voltage (AKA Digital pin 27)
+							#define Pin_Battery_Voltage     				   A0  // Battery voltage 3:1 (AKA Digital pin 26)
+							#define Pin_SPARE_ADC1_Assigned_To_Analog_Input    A1  // 3V3 voltage 1:1 (AKA Digital pin 27)
+							#define Pin_SPARE_ADC2_Assigned_To_Analog_Input    A2  // unused spare (AKA Digital pin 28)
+							#define Pin_Built_In_ADC3_Assigned_To_Analog_Input A3  // BUILT-IN to Pico Board. VSYS/3 which is connect to 5V0 voltage (AKA Digital pin 29)
 						#endif
-						#define Pin_SPARE_ADC2              A2  //
 			// SPARE IO
 			#define Pin_SAO_G1_or_SPARE1_or_CP1 			 1	// * Shared
 			#define Pin_SAO_G2_or_SPARE2_or_CP2 			 2	// * Shared
@@ -225,6 +225,14 @@
 			#define    Pin_HS2_or_SPARE6_or_CP6 			 6	// * Shared
 			#define    Pin_HS3_or_SPARE7_or_CP7 			 7	// * Shared
 			#define    Pin_HS4_or_SPARE8_or_CP8 			 8	// * Shared
+			// OPTIONAL FEATURES, REQUIRES CAREFUL INTEGRATION AROUND PRIMARY PIN USAGE LISTED ABOVE
+				// SPI
+				#define Pin_SPI_CS1    		 				17  // 
+				#define Pin_SPI_RST    		 				15  // 
+				#define Pin_SPI_CD     		  				14	// 
+				#define Pin_SPI_SDO							19  // 
+				#define Pin_SPI_SDI							16  // 
+				#define Pin_SPI_CLK           				18	// 
 
 	#endif
 

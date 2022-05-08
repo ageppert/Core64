@@ -253,7 +253,6 @@ void  CommandLineUpdate()
       sprintf(SerialNumberPadded, "%06lu", SerialNumber);
       Serial.print(SerialNumberPadded);
     #elif defined BOARD_CORE64C_RASPI_PICO
-      //TODO: print the serial number padded with leading zeros with RP2040
       Serial.print(SerialNumber);
     #endif
     Serial.print("     Born on: 20");
@@ -262,8 +261,17 @@ void  CommandLineUpdate()
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
-
-    Serial.print("  Voltages: Input (USB or Bat.): ");
+    #if defined BOARD_CORE64_TEENSY_32
+      Serial.print("  Voltages: Input (USB or Bat.): ");
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      pinMode(Pin_Built_In_VBUS_Sense, INPUT);
+      if (digitalRead(Pin_Built_In_VBUS_Sense)) {
+        Serial.print("  Voltages: Input (USB detected): ");
+      }
+      else {
+        Serial.print("  Voltages: Input (Battery): ");
+      }
+    #endif
     Serial.print(GetBatteryVoltageV(),2);
     Serial.print(", 5V0 Rail: ");
     Serial.print(GetBus5V0VoltageV(),2);
@@ -278,7 +286,7 @@ void  CommandLineUpdate()
     Serial.print(FirmwareVersionPatch);
 //    Serial.print("-");
     Serial.print(FirmwareVersion);
-    Serial.print(" (Built on ");
+    Serial.print(" (Compiled on ");
     Serial.print(compile_date);
     Serial.println(")");
 
@@ -330,7 +338,7 @@ void  CommandLineUpdate()
   {
     Serial.println("  SOFTWARE INITIATED HARD REBOOT NOW!");
     delay(1000);
-    CPU_RESTART; // Teensy 3.2       
+    CPU_RESTART; // Teensy 3.2 and Raspberry Pi Pico    
   }
 
   void handleRestart(char* tokens)

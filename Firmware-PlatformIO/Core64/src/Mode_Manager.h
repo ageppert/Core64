@@ -43,6 +43,7 @@ SETUP:
             MODE_CORE_TEST_ONE                      ,                  // Testing core #coreToTest and displaying core state
             MODE_CORE_TEST_MANY                     ,                  // Testing multiple cores and displaying core state
             MODE_HALL_TEST                          ,                  // Testing hall switch and sensor response
+            MODE_GPIO_TEST                          ,                  // Testing all GPIO outputs
             //MODE_SPECIAL_STANDALONE_TEST          ,                  // TODO: For the manufacturing test fixture, test unused IO pins
             MODE_SPECIAL_LOOPBACK_TEST              ,                  // For the manufacturing test fixture, test unused IO pins
             MODE_SPECIAL_HARD_REBOOT                ,                  // Hard Reboot.
