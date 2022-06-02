@@ -135,7 +135,11 @@ static uint8_t LEDArrayMonochromeColorHSV  [3] = {DEFAULTLEDArrayMonochromeColor
 static uint8_t LEDArrayBrightness = BRIGHTNESS;
 
 void LED_Array_Auto_Brightness() {
-  if( (HardwareVersionMinor==4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
+  #if defined BOARD_CORE64_TEENSY_32
+  if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
+  #elif defined BOARD_CORE64C_RASPI_PICO
+  if ( (HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) )
+  #endif
     {
       if(AmbientLightAvaible()==0) {LEDArrayBrightness = BRIGHTNESS;}
       else {LEDArrayBrightness = GetAmbientLightLevel8BIT();}

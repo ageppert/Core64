@@ -139,8 +139,11 @@ static bool ButtonSetupCompleted = false;
 
 
 void Buttons_Setup() {
-  if ( (HardwareVersionMinor == 2) || (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
-  // TODO: back out HWV minor == 2 and replace with hardware type == Core64c
+  #if defined BOARD_CORE64_TEENSY_32
+  if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
+  #elif defined BOARD_CORE64C_RASPI_PICO
+  if ( (HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) )
+  #endif
   {
     #ifdef HALL_SENSOR_ENABLE
       if( HardwareConnectedCheckButtonHallSensors() ) {
