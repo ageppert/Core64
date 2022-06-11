@@ -59,11 +59,12 @@
 	|  0.7.15 | 2022-04-30 | Core64c, Pico, partial fix for rainbow demo, faster core read/write bit, all analog enabled/tested.
 	|  0.7.16 | 2022-05-03 | Core64c, Pico, SPI and SD Card tested, all spare GPIO test mode, hall switch test, use built-in Pico VSYS/3 to read 5V0 and GPIO24 for VBUS sense.
 	|  0.7.17 | 2022-05-26 | Core64c LB HWV0.3.0 recognize and bring-up.
+	|  0.7.18 | 2022-06-11 | Core64c LB GPIO Test Mode configures all spare GPIO as digital outputs for testing.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core64c LB HWV0.3.0 recognize and bring-up."
+	#define FIRMWARE_DESCRIPTION "Core64c LB GPIO Test Mode configures all spare GPIO as digital outputs for testing."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 16 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 18 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

@@ -165,6 +165,8 @@
   }
 
    void DebugAllGpioToggleTest() {
+      Debug_Pins_Setup(); // Make sure all of these pins to be toggled are configured as digital outputs.
+ 
       Debug_Pin_1(1);
       Debug_Pin_2(1);
       Debug_Pin_3(1);
