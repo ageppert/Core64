@@ -28,6 +28,6 @@ uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
 uint8_t EEPROMExtReadCorePatternArrangement();
 void EEPROMExtWriteCorePatternArrangement(uint8_t value);
-void ReadHardwareVersion ();								// Use once to detect and set the hardware version variables.
+bool ReadHardwareVersion ();								// Use once to detect and set the hardware version variables.
 
 #endif // EEPROM_HAL_H

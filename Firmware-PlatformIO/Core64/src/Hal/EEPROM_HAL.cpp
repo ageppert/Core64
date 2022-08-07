@@ -56,18 +56,20 @@ void EEPROMExtWriteCorePatternArrangement(uint8_t value) {
   EEPROMExtWriteByte(EEPROM_ADDRESS, 52, value);
 }
 
-void ReadHardwareVersion() {
+bool ReadHardwareVersion() {
 	if (I2CDetectExternalEEPROM(0x57))
 	{
 		HardwareVersionMajor = EEPROMExtReadHardwareVersionMajor();
 		HardwareVersionMinor = EEPROMExtReadHardwareVersionMinor();
 		HardwareVersionPatch = EEPROMExtReadHardwareVersionPatch();
+    return true;
 	}
 	else
 	{
 		// If the external EEPROM is not present, assume hardware version
 		HardwareVersionMajor  = 0;
 		HardwareVersionMinor  = 2;
-		HardwareVersionPatch  = 0;		
+		HardwareVersionPatch  = 0;
+    return false;
 	}
 }

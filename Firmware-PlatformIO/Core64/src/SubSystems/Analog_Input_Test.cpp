@@ -116,7 +116,7 @@
       }
     #elif defined BOARD_CORE64C_RASPI_PICO
       #ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
-        if ( (HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) ) 
+        if ( (HardwareVersionMajor == 0) && ((HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) || (HardwareVersionMinor == 4)) ) 
         {
           Bus_VBAT_ADC_raw = analogRead ( Pin_Battery_Voltage   );                      // VBAT_MON at 3:1 reading
           Bus_3V3_ADC_raw  = analogRead ( Pin_SPARE_ADC1_Assigned_To_Analog_Input );    //  3V3_MON at 1:1 reading

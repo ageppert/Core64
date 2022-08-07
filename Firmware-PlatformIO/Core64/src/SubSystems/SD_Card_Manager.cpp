@@ -18,7 +18,7 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
 
 #if defined BOARD_CORE64_TEENSY_32
 
-  #ifdef SDCARD_ENABLE
+  #ifdef SDCARD_ENABLE // is true
     #include "SD_Card_Manager.h"
     #include <SD.h>
     #include <SPI.h>
@@ -395,7 +395,7 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
       }
     }
 
-  #else // SDCARD_ENABLE
+  #else // SDCARD_ENABLE // is false
     void SDCardSetup()
     {
       if ((HardwareVersionMajor == 0) && (HardwareVersionMinor == 3))
@@ -406,6 +406,11 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
     }
     void SDCardVoltageLog(uint32_t UpdatePeriodms)
     {
+    }
+
+    void SDInfo(){
+      Serial.println("  SDInfo did not run because SDCARD is not enabled in HardwareIOMap.h");
+      return;
     }
   #endif // SDCARD_ENABLE
 
@@ -707,6 +712,13 @@ void SDInfo() {
       // printDirectory(root, 0);
     }
   }
+
+  #else
+    void SDInfo()
+    {
+      Serial.println("  SDInfo did not run because SDCARD is not enabled in HardwareIOMap.h");
+      return;
+    }
 
   #endif // SDCARD_ENABLE
 

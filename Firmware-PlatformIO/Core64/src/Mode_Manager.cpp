@@ -327,7 +327,8 @@ void TopLevelModeManagerRun () {
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       Serial.println("  EEPROM read has begun...");
-      ReadHardwareVersion();
+      if (ReadHardwareVersion()) {Serial.println("  EEPROM Present.");}
+      else {Serial.println("  EEPROM not found. Default firmware values used.");}
       Serial.println("  ...completed EEPROM read.");
       Serial.println("  Starting Hall Sensor Buttons");
       Buttons_Setup(); // This breaks Pico MBED with error code.
@@ -386,6 +387,7 @@ void TopLevelModeManagerRun () {
       if (TopLevelModeChangedGet()){
         Serial.println("  ...start-up sequence has been completed.");
         handleHelp("");               // Print the help menu
+        I2CManagerBusScan(); // Temporary to make testing core boards faster
         Serial.print(PROMPT);
       }
       if (millis() >= (PowerOnTimems + PowerOnSequenceMinimumDurationms)) {

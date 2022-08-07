@@ -138,7 +138,7 @@ void LED_Array_Auto_Brightness() {
   #if defined BOARD_CORE64_TEENSY_32
   if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
   #elif defined BOARD_CORE64C_RASPI_PICO
-  if ( (HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) )
+  if ( (HardwareVersionMajor == 0) && ((HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) || (HardwareVersionMinor == 4)) )
   #endif
     {
       if(AmbientLightAvaible()==0) {LEDArrayBrightness = BRIGHTNESS;}

@@ -87,7 +87,7 @@
 		// #define HALL_SWITCH_ENABLE
 		#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
-		#define SDCARD_ENABLE
+		// #define SDCARD_ENABLE
 
 	    #if defined BOARD_CORE64_TEENSY_32 
 	    	#define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)

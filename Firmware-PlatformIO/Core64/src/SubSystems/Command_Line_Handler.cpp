@@ -218,6 +218,7 @@ void  CommandLineUpdate()
     Serial.println("    stream                 -> Togggles the streaming mode.");
     Serial.println("    stream start           -> Starts the streaming mode.");
     Serial.println("    stream stop            -> Stops the streaming mode.");
+    Serial.println("    thanks                 -> Some thank yous to share.");
     Serial.println();
   }
 
@@ -400,7 +401,7 @@ void  CommandLineUpdate()
     Serial.println("    Ben North and Olver Nash's Magnetic Core Memory Reborn Report,");
     Serial.println("    Jussi Kilpelainen's Arduino Core Memory Shield, Rolfe Bozier's 8x8 core demo,");
     Serial.println("    Element14 Magnetism Contest, Hack-a-Day crew and fans, my beta test customers,");
-    Serial.println("    by supportive family and friends, Alex Glo @ Hackster, VCFed crew and fans, ");
+    Serial.println("    my supportive family and friends, Alex Glo @ Hackster, VCFed crew and fans, ");
     Serial.println("    Dag @ The CHM, and Adafruit / Sparkfun tutorials.");
     Serial.println();
   }
