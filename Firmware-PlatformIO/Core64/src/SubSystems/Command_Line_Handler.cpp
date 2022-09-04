@@ -27,6 +27,7 @@
 uint32_t SerialNumber;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 
 int StreamTopLevelModeEnable;
+bool CommandLineEnable;
 
 CommandLine commandLine(Serial, PROMPT);        // CommandLine instance.
 
@@ -37,8 +38,10 @@ CommandLine commandLine(Serial, PROMPT);        // CommandLine instance.
 // Raspi Pico Software Reset Definition
   // TO DO
 
-void StreamTopLevelModeEnableSet     (bool value)  {   StreamTopLevelModeEnable = value; }
-bool StreamTopLevelModeEnableGet ()                {   return (StreamTopLevelModeEnable); }
+void StreamTopLevelModeEnableSet    (bool value)    {   StreamTopLevelModeEnable = value; }
+bool StreamTopLevelModeEnableGet    ()              {   return (StreamTopLevelModeEnable); }
+void CommandLineEnableSet           (bool value)    {   CommandLineEnable = value;  }
+bool CommandLineEnableGet           ()              {   return (CommandLineEnable); }
 
 void coreTesting() {
   static uint8_t BitToTest = 63;
@@ -115,7 +118,7 @@ void CommandLineSetup ()
 
 void  CommandLineUpdate()
 {
-  commandLine.update();
+  if (CommandLineEnableGet()) { commandLine.update(); } 
 }
 
   void handleArrangement(char* tokens)

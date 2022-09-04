@@ -25,6 +25,8 @@ SETUP:
 
     void StreamTopLevelModeEnableSet (bool value);
     bool StreamTopLevelModeEnableGet ();
+    void CommandLineEnableSet (bool value);
+    bool CommandLineEnableGet ();
 
     void CommandLineSetup ();
     void handleArrangement(char* tokens);

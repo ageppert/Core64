@@ -56,8 +56,8 @@
   // Other stuff to try later:
   // In ArduinoCore-MBED v2.6.1 it looks like Wire1.begin() may work as expected, if called after #define PIN_WIRE_SDA1 (p15), #define PIN_WIRE_SCL1 (p16)
   // or
-  // bool setSDA(pin_size_t sda);
-  // bool setSCL(pin_size_t scl);
+  // bool setSDA(pin_size_t p15);
+  // bool setSCL(pin_size_t p16);
 #endif
 
 /* TO DO: 

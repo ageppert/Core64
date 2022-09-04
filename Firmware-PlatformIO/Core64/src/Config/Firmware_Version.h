@@ -61,11 +61,12 @@
 	|  0.7.17 | 2022-05-26 | Core64c LB HWV0.3.0 recognize and bring-up.
 	|  0.7.18 | 2022-06-11 | Core64c LB GPIO Test Mode configures all spare GPIO as digital outputs for testing.
 	|  0.7.19 | 2022-07-11 | Core64 LB disable SD Card by default so heartbeat runs, expand hardware version checks to major and minor numbers.
+	|  0.7.20 | 2022-09-04 | Add Core64c, update LED heartbeat and Analog Input VSYS for compatibility with optional Pico W. Add placeholder MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core64 LB disable SD Card by default so heartbeat runs, expand hardware version checks to major and minor numbers."
+	#define FIRMWARE_DESCRIPTION "Add Core64c, update LED heartbeat and Analog Input VSYS for compatibility with optional Pico W. Add placeholder MODE_MANUFACTURING_EEPROM_FACTORY_WRITE."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 19 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 20 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

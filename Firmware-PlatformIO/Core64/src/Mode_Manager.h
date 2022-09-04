@@ -54,7 +54,7 @@ SETUP:
             //MODE_SETTINGS_EEPROM_USER_NAME        ,                  // TODO:
             MODE_SETTINGS_END_OF_LIST               ,              // End of the settings list, go back to the beginning.
     MODE_MANUFACTURING_MENU                         ,                  // TODO: Implement sub-menu. Only accessible from the command line. Not accessible from DGAUSS menu.
-        //MODE_SPECIAL_EEPROM_FACTORY_PROGRAM       ,             // TODO:
+        MODE_MANUFACTURING_EEPROM_FACTORY_WRITE     ,                  // Write EEPROM with pre-formatted string during manufacturing process. 
         MODE_MANUFACTURING_END_OF_LIST              ,              // End of the manufacturing list, go back to the beginning.
     MODE_LAST                                                        // Last one, return to Startup 0. Note, this is different than "default" which is handled by switch/case statement.
     } ;

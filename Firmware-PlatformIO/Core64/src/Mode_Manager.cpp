@@ -82,6 +82,7 @@
       "  MODE_SETTINGS_SUB_MENU              ",
       "   MODE_SETTINGS_END_OF_LIST          ",
       " MODE_MANUFACTURING_MENU              ",
+      "  MODE_MANUFACTURING_EEPROM_FACTORY_WRITE",
       "  MODE_MANUFACTURING_END_OF_LIST      ",
       " MODE_LAST                            " 
   };
@@ -145,6 +146,7 @@ void TopLevelModeSetChanged (bool value) {          // Flag that a mode change h
   if ( (TopLevelModeChanged == false) && (value == true) ) {
     TopLevelModeChangeSerialPortDisplay();            // Display the change in the serial port.
     TopLevelThreeSoftButtonGlobalEnableSet (true);    // Ensures this flag set to enabled after a mode change, so modes that need it disabled will need to force it to be disabled. 
+    CommandLineEnableSet(true);                       // Ensures the CommandLine is activated on mode change.
   }
   TopLevelModeChanged = value;
 }
@@ -789,6 +791,45 @@ void TopLevelModeManagerRun () {
         LED_Array_Matrix_Color_Display();
         }
       if (MenuTimeOutCheck(3000)) { TopLevelModeSetToDefault(); }
+      TopLevelModeManagerCheckButtons();
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
+      break;
+
+    case MODE_MANUFACTURING_EEPROM_FACTORY_WRITE:
+      if (TopLevelModeChangedGet()) {
+        MenuTimeOutCheckReset();
+        Serial.println();
+        Serial.println("  Entered MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.");   
+        Serial.println("  Commandline Interface Disabled. CLI will be re-enabled after exiting this mode.");
+        Serial.println("  Will time out in 10 seconds, waiting for pre-formatted payload. Enter it now.");
+        CommandLineEnableSet(false);        // Disable Commandline Interface for now.
+        /*
+          string 4x128 bytes BoardIDEEPROMDataRawSerialIncoming
+          bool               BoardIDEEPROMDataRawSerialIncomingFull
+          array  128 Bytes   BoardIDEEPROMDataArrayParsedIncoming
+          bool               BoardIDEEPROMDataArrayParsedIncomingValid
+          array  128 Bytes   BoardIDEEPROMDataArrayCopyOfEEPROM   // <- this needs to be defined in EEPROM subsystem
+          bool               BoardIDEEPROMDataArrayCopyOfEEPROMValid
+        */
+        // Receive serial input and file it into a circular buffer 4x128 Bytes, waiting for termination with CR.
+        // Example: 1,2,3,4,5,...,255
+        
+        // Do not include CR in the buffer. The CR is a terminating sequence indicator.
+        
+        // Parse Buffer at commas into a 1 BYTE x 256 array BoardIDEEPROMIncomingData
+        
+        // Test 'checksum' XOR Bytes at Byte 31 and 63.
+
+        // Fail, reject and try again.
+
+        // Pass, write to EEPROM. The read back out to compare and verify.
+
+        TopLevelThreeSoftButtonGlobalEnableSet(true);
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(11);   // TODO: Change to a mfg symbol.
+        LED_Array_Matrix_Color_Display();
+        }
+      if (MenuTimeOutCheck(10000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();

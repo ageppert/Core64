@@ -120,6 +120,30 @@
         {
           Bus_VBAT_ADC_raw = analogRead ( Pin_Battery_Voltage   );                      // VBAT_MON at 3:1 reading
           Bus_3V3_ADC_raw  = analogRead ( Pin_SPARE_ADC1_Assigned_To_Analog_Input );    //  3V3_MON at 1:1 reading
+
+          // TO DO: Move this Pico vs W test to HardwareIOMap.c (needs to be created)
+          // TO DO: Integrate additional Pico W library into this project.
+
+          // Detect Pico or Pico W by reading VSYS.
+          // Pico  : GPIO25 is LED_BUILTIN.
+          // Pico W: GPIO25 SPI CS (Output) when high also enables GPIO29 ADC pin to read VSYS.
+          if (PicoWTested == false) {
+            pinMode(Pin_Built_In_LED, OUTPUT);
+            digitalWrite(Pin_Built_In_LED, 0);          // Pin 25 Low will show a very low voltage (<0.1V) on ADC29 VSYS if it's a Pico W.          
+            Bus_5V0_ADC_raw  = analogRead ( Pin_Built_In_ADC3_Assigned_To_Analog_Input ); //  5V0_MON (built-in to Pico VSYS) at 3:1 reading
+            // .8057 milliVolts/count so 0.1V * 1 count / 0.0008057 V = 124 counts
+            if (Bus_5V0_ADC_raw < 100) {
+              PicoWPresent = true;
+            }
+            PicoWTested = true;
+            Serial.print("PicoWTested = ");
+            Serial.println(PicoWTested);
+          }
+          if (PicoWPresent == true) {
+            pinMode(Pin_Built_In_LED, OUTPUT);
+            digitalWrite(Pin_Built_In_LED, 1);          // Pin 25 required HIGH to read ADC3 with Pico W
+            Serial.print("PicoWTPresent = ");
+            Serial.println(PicoWPresent);          }
           Bus_5V0_ADC_raw  = analogRead ( Pin_Built_In_ADC3_Assigned_To_Analog_Input ); //  5V0_MON (built-in to Pico VSYS) at 3:1 reading
         }
       #endif

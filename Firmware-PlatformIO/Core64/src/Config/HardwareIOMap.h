@@ -43,6 +43,8 @@
 	extern uint8_t HardwareVersionMajor; // See EEPROM_HAL
 	extern uint8_t HardwareVersionMinor; // See EEPROM_HAL
 	extern uint8_t HardwareVersionPatch; // See EEPROM_HAL
+	static bool PicoWTested;	// See Analog_Input_Test
+	static bool PicoWPresent;	// See Analog_Input_Test
 
 	// Board Detection.
 	// TODO: add seperate enum variables to identify specific Teensy version (LC, 3.1...), Pico Version (OTS, DIY, Core64 model (Core64 or Core64c)
@@ -189,7 +191,7 @@
 			// PRIMARY AND DEFAULT FUNCTIONALITY
 						#define Pin_Built_In_VBUS_Sense   	24  // BUILT-IN to Pico Board, high if VBUS is present, which means USB power is connected to Pico.
 				// HEART BEAT
-						#define Pin_Built_In_LED         	25  // BUILT-IN to Pico Board
+						#define Pin_Built_In_LED   LED_BUILTIN  // BUILT-IN to Pico Board (25 for native Pico, acts as Chip Select via Wifi chip in Pico W)
 				// I2C (HARDWARE ID EEPROM, HALL SENSORS, AMBIENT LIGHT SENSOR, OLED, SAO)
 						#define Pin_I2C_Bus_Data           p10  // RasPi Pico I2C1_SDA GP10 is Pico pin 14. See notes in I2C_Manager.cpp
 						#define Pin_I2C_Bus_Clock          p11  // Raspi Pico I2C1_SCL GP11 is Pico pin 15. See notes in I2C_Manager.cpp
