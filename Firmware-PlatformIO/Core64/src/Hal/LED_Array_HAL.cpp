@@ -327,7 +327,7 @@ void LED_Array_Auto_Brightness() {
     }
 
   //
-  // Copy Color Font Symbol into Color HSV LED Array memory
+  // Copy Color Symbol into Color HSV LED Array memory
   //
     void WriteGameSnakeSymbol(uint8_t SymbolNumber){
       for( uint8_t y = 0; y < kMatrixHeight; y++) 
@@ -340,10 +340,32 @@ void LED_Array_Auto_Brightness() {
     }
 
   //
+  // Copy Color Symbol into Color HSV LED Array memory
+  //
+    void WriteGamePongSymbol(uint8_t SymbolNumber){
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixColor[y][x] = GamePongSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
   // Write one bit into monochrome LED Array memory
   //
   void LED_Array_Matrix_Mono_Write(uint8_t y, uint8_t x, bool value) {
-    LedScreenMemoryMatrixMono[y][x] = value;
+    if ((x<kMatrixWidth)&&(y<kMatrixHeight)) {
+      LedScreenMemoryMatrixMono[y][x] = value;
+    }
+    else {
+      Serial.print("LED_Array_Matrix_Mono_Write overloaded. Y,X: ");
+      Serial.print(y);
+      Serial.print(",");
+      Serial.print(x);
+      Serial.println();
+    }
   }
 
   //
@@ -357,7 +379,16 @@ void LED_Array_Auto_Brightness() {
   // Write one COLOR bit into color LED Array memory
   //
   void LED_Array_Matrix_Color_Write(uint8_t y, uint8_t x, uint8_t hue) {
-    LedScreenMemoryMatrixColor[y][x] = hue;
+    if ((x<kMatrixWidth)&&(y<kMatrixHeight)) {
+      LedScreenMemoryMatrixColor[y][x] = hue;
+    }
+    else {
+      Serial.print("LED_Array_Matrix_Color_Write overloaded. Y,X: ");
+      Serial.print(y);
+      Serial.print(",");
+      Serial.print(x);
+      Serial.println();
+    }
   }
 
   void LED_Array_Matrix_Mono_Display() {

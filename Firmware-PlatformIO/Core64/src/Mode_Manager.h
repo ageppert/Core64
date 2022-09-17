@@ -25,7 +25,7 @@ SETUP:
             MODE_DEMO_END_OF_LIST                   ,             // End of the demo loop, go back to the beginning.
         MODE_GAME_SUB_MENU                          ,                  // TODO: Implement sub-menu
             MODE_GAME_SNAKE                         ,                  // TODO: 
-            //MODE_GAME_PONG                        ,                  // TODO: 
+            MODE_GAME_PONG                          ,                  // TODO: 
             MODE_GAME_END_OF_LIST                   ,             // End of the game list, go back to the beginning.
         MODE_APP_SUB_MENU                           ,                    // TODO: Implement sub-menu
             MODE_APP_DRAW                           ,                  // Drawing mode, of course!

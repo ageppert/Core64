@@ -28,6 +28,7 @@
 #include "Drivers/Core_Driver.h"
 #include "SubSystems/Test_Functions.h"
 #include "Hal/Debug_Pins_HAL.h"
+#include "Hal/Buttons_HAL.h"
 
 #include "SubSystems/Command_Line_Handler.h"
 
@@ -330,20 +331,6 @@ void ConvertSnakeGameMemoryToScreenMemory() {
   }
 }
 
-void CheckStartButton() {
-  // Checking the "S" soft button.
-    Button4HoldTime = ButtonState(4,0);
-    if ( (Button4Released == true) && (Button4HoldTime >= 100) ) {
-    ButtonState(4,1); // Force a "release" after press by clearing the button hold down timer
-    Button4Released = false;
-  }
-  else {
-    if (Button4HoldTime == 0) {
-      Button4Released = true;
-    }
-  }
-}
-
 void GameSnake() {
   if (TopLevelModeChangedGet()) {                           // First time entry into this mode.
     Serial.println();
@@ -353,8 +340,8 @@ void GameSnake() {
     Serial.println("    - = Previous Game");
     Serial.println("    S = Select / Start Game Again");
     Serial.print(PROMPT);
-    TopLevelSetSoftButtonGlobalEnableSet(false);
-    // WriteColorFontSymbolToLedScreenMemoryMatrixColor(12);
+    TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure MENU + and - soft buttons are enabled.
+    TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGameSnakeSymbol(0);
     MenuTimeOutCheckReset();
     LED_Array_Matrix_Color_Display();
@@ -375,12 +362,12 @@ void GameSnake() {
     switch(GameState)
     {
       case 0: // Game Splash Screen, wait for select button to start the game.
-        CheckStartButton();
-        if (Button4HoldTime >= 100) {
+        // CheckStartButton();
+        if (ButtonState(4,0) >= 100) {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }
+        if (MenuTimeOutCheck(5000)) { TopLevelModeSetInc(); }
         break;
       case 1: // Setup a new game
         Winner = false;
@@ -399,8 +386,8 @@ void GameSnake() {
         ConvertSnakeGameMemoryToScreenMemory(); // Convert SnakeGameMemory to LED Matrix and refresh it.
         if (GameOver) { GameOverTimer = nowTime; GameState = 3; }
         if (Winner)  { GameOverTimer = nowTime; GameState = 4; }
-        CheckStartButton();
-        if (Button4HoldTime >= 200) {
+        // CheckStartButton();
+        if (ButtonState(4,0) >= 200) {
           MenuTimeOutCheckReset();
           GameState = 1;
         }

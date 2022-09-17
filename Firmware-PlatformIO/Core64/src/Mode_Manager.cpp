@@ -33,6 +33,7 @@
 #include "DEMOS/Demo_Modes.h"
 #include "GAMES/Games_Sub_Menu.h"
 #include "GAMES/Game_Snake.h"
+#include "GAMES/Game_Pong.h"
 #include "APPS/Apps_Sub_Menu.h"
 #include "APPS/Drawing.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
@@ -59,6 +60,7 @@
       "   MODE_DEMO_END_OF_LIST              ",
       "  MODE_GAME_SUB_MENU                  ",
       "   MODE_GAME_SNAKE                    ",
+      "   MODE_GAME_PONG                     ",
       "   MODE_GAME_END_OF_LIST              ",
       "  MODE_APP_SUB_MENU                   ",
       "   MODE_APP_DRAW                      ",
@@ -508,6 +510,7 @@ void TopLevelModeManagerRun () {
 // *************************************************************************************************************************************************** //
     case MODE_GAME_SUB_MENU:                    GamesSubMenu();                           break;
     case MODE_GAME_SNAKE:                       GameSnake();                              break;
+    case MODE_GAME_PONG:                        GamePlayPong();                           break;
     case MODE_GAME_END_OF_LIST:                 TopLevelModeSet(MODE_GAME_SUB_MENU);      break;
 
 // *************************************************************************************************************************************************** //

@@ -138,12 +138,13 @@
             PicoWTested = true;
             Serial.print("PicoWTested = ");
             Serial.println(PicoWTested);
+            Serial.print("PicoWPresent = ");
+            Serial.println(PicoWPresent);          
           }
           if (PicoWPresent == true) {
             pinMode(Pin_Built_In_LED, OUTPUT);
             digitalWrite(Pin_Built_In_LED, 1);          // Pin 25 required HIGH to read ADC3 with Pico W
-            Serial.print("PicoWTPresent = ");
-            Serial.println(PicoWPresent);          }
+            }
           Bus_5V0_ADC_raw  = analogRead ( Pin_Built_In_ADC3_Assigned_To_Analog_Input ); //  5V0_MON (built-in to Pico VSYS) at 3:1 reading
         }
       #endif

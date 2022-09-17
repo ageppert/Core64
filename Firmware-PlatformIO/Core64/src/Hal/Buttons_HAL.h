@@ -20,7 +20,7 @@ Usage:			  Buttons_Setup() to configure pin mode and low/high to active/inactive
 
     #include <stdint.h>
 
-    extern void Buttons_Setup();
-    extern uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration);  // Send a 1 or more to clear timer, 0 to read timer)
+    void Buttons_Setup();
+    uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration);  // Send a 1 or more to clear timer, 0 to read timer)
 
 #endif // BUTTONS_HAL_H

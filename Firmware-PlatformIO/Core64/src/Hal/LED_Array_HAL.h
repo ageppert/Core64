@@ -65,6 +65,7 @@ void LED_Array_Auto_Brightness();	// If ambient light sensor is available, use t
 // TO DO: Clean up the naming convention of these sub-functions
 void WriteColorFontSymbolToLedScreenMemoryMatrixColor(uint8_t SymbolNumber);
 void WriteGameSnakeSymbol(uint8_t SymbolNumber);
+void WriteGamePongSymbol(uint8_t SymbolNumber);
 
 // Older stuff that needs cleanup
 void CopyCoreMemoryToMonochromeLEDArrayMemory();
