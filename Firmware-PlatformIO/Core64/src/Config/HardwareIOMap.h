@@ -38,6 +38,7 @@
 	|  0.2.0  | 2021-06-04 | White Board, as prototyped
 	|  0.2.1  | 2022-04-13 | White Board, air wired fixes to shift register circuit (pin 9 to 14 daisy chained, pin 12 all common)
 	|  0.3.0  | 2022-05-25 | White Board, as prototyped
+	|  0.4.0  | 2022-06-11 | White Board, multiple production batches
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
 	extern uint8_t HardwareVersionMajor; // See EEPROM_HAL

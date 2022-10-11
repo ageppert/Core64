@@ -300,7 +300,15 @@ void TopLevelModeManagerRun () {
       Serial.println(".");
       Serial.println("  Power-on sequence has begun.");
       CommandLineSetup();
-      HeartBeatSetup();
+      #if defined BOARD_CORE64_TEENSY_32
+        #ifdef NEON_PIXEL_ARRAY
+          // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
+        #else
+          HeartBeatSetup();
+        #endif
+      #elif defined BOARD_CORE64C_RASPI_PICO
+        HeartBeatSetup();
+      #endif
       Serial.println("  Heartbeat started.");
       delay(DebugDelayBetweenStartUpStates);
       TopLevelModeSetInc();
@@ -419,6 +427,14 @@ void TopLevelModeManagerRun () {
         Serial.println("    To access modes directly from serial command line, type 'mode' and press RETURN.");
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(0);
         LED_Array_Matrix_Color_Display();
+        #if defined BOARD_CORE64_TEENSY_32
+          #ifdef NEON_PIXEL_ARRAY
+            CopyColorFontSymbolToNeonPixelArrayMemory(0);
+            Neon_Pixel_Array_Matrix_Mono_Display();
+          #endif
+        #elif defined BOARD_CORE64C_RASPI_PICO
+          // Nothing here
+        #endif
         Serial.print(PROMPT);
       }
       if (MenuTimeOutCheck(30000)) { TopLevelModeSetToDefault(); }

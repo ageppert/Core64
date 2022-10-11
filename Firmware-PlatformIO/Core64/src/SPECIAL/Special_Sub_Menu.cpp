@@ -44,6 +44,14 @@ void SpecialSubMenu() {
     TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(5);
     LED_Array_Matrix_Color_Display();
+    #if defined BOARD_CORE64_TEENSY_32
+      #ifdef NEON_PIXEL_ARRAY
+        CopyColorFontSymbolToNeonPixelArrayMemory(5);
+        Neon_Pixel_Array_Matrix_Mono_Display();
+      #endif
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      // Nothing here
+    #endif
     }
   if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }
   TopLevelModeManagerCheckButtons();

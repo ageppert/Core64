@@ -30,9 +30,10 @@
     GAME_STATE_INTRO_SCREEN ,    // 0
     GAME_STATE_SET_UP ,          // 1
     GAME_STATE_PLAY ,            // 2
-    GAME_STATE_WIN ,             //
-    GAME_STATE_LOOSE ,           //
-    GAME_STATE_LAST              // Last one, return to Startup 0. Note, this is different than "default" which is handled by switch/case statement.
+    GAME_STATE_ROUND_WIN ,       // 3
+    GAME_STATE_FINISHED ,        // 4
+    GAME_STATE_END ,             // 5
+    GAME_STATE_LAST              // Last one, return to Startup 0. This is different than "default" which is handled by switch/case statement.
   };
   volatile uint8_t  GameState;
   volatile uint32_t nowTime;
@@ -40,9 +41,11 @@
   volatile uint32_t GameUpdatePeriod;
   volatile uint32_t GameOverTimer;
   volatile uint32_t GameOverTimerAutoReset;  
-  volatile bool     GameMovementDetected;
   volatile bool     GameOver;                   
+  volatile bool     GameMovementDetected;
   volatile uint8_t  Winner;                     // 0 = neither, 1 = player one (left), 2 = player two (right)
+  volatile uint8_t  GamePlayerOneScore;
+  volatile uint8_t  GamePlayerTwoScore;
 
 // VARIABLES, CUSTOM TO EACH GAME
   // All arrays are addresssed Y,X to match visual layout in IDE to as-see-on-screen.
@@ -68,26 +71,23 @@
   volatile uint8_t  Paddle1CenterXNext        ; // 1-3, yes... not just against the left edge!
   volatile uint8_t  Paddle2CenterYNext        ; // 2-7, limited to field of view
   volatile uint8_t  Paddle2CenterXNext        ; // 6-8, yes... not just against the right edge!
-  // Stylus Positi
+  // Stylus Position
   volatile int8_t   Stylus1Y                  ; // 1-8
   volatile int8_t   Stylus1X                  ; // 1-3
   volatile int8_t   Stylus2Y                  ; // 1-8
   volatile int8_t   Stylus2X                  ; // 6-8
   bool              StylusMovementDetected    ; // If false, skip the player paddle update.
-  /* Not sure this is needed? 
-  volatile unsigned long CorePhysicalStateChanged = 0;
-  */ 
   // Game Pixel Types
-  uint8_t GPT_OPEN      =   0 ;        //
-  uint8_t GPT_BALL      =   1 ;        //
-  uint8_t GPT_WALL      =   2 ;        //
-  uint8_t GPT_END_ZONE  =   3 ;        //
-  uint8_t GPT_P1L_TOP   =  11 ;        //
-  uint8_t GPT_P1L_MID   =  12 ;        //
-  uint8_t GPT_P1L_BOT   =  13 ;        //
-  uint8_t GPT_P2R_TOP   =  21 ;        //
-  uint8_t GPT_P2R_MID   =  22 ;        //
-  uint8_t GPT_P2R_BOT   =  23 ;        //
+  uint8_t GPT_OPEN      =   0 ;        // blank playable area
+  uint8_t GPT_BALL      =   1 ;        // the ball
+  uint8_t GPT_WALL      =   2 ;        // the wall (upper and lower)
+  uint8_t GPT_END_ZONE  =   3 ;        // behind the paddles
+  uint8_t GPT_P1L_TOP   =  11 ;        // paddle 1 top pixel
+  uint8_t GPT_P1L_MID   =  12 ;        // ...middle
+  uint8_t GPT_P1L_BOT   =  13 ;        // ...bottom
+  uint8_t GPT_P2R_TOP   =  21 ;        // paddle 2 top pixel
+  uint8_t GPT_P2R_MID   =  22 ;        // ...middle
+  uint8_t GPT_P2R_BOT   =  23 ;        // ...bottom
   // Game Pixel Colors
   uint8_t GPC_OPEN      =   0 ;        // no color
   uint8_t GPC_BALL      = 255 ;        // white
@@ -118,8 +118,34 @@
   */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// PONG GAME FUNCTIONS
+// GAME SUBFUNCTIONS (DEBUG, SETUP, UPDATES, GAME LOGIC)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GameDebugPrintPaddlePositions(uint8_t number) {
+  Serial.print("Debug Paddle Position #");
+  Serial.print(number);
+  Serial.print(". P1X=");
+  Serial.print(Paddle1CenterXNow);
+  Serial.print(" P1Y=");
+  Serial.print(Paddle1CenterYNow);
+  Serial.print(" P2X=");
+  Serial.print(Paddle2CenterXNow);
+  Serial.print(" P2Y=");
+  Serial.print(Paddle2CenterYNow);
+  Serial.println();
+}
+
+void GameDebugSerialPrintMap() {
+  Serial.println();
+  Serial.println("Game Field Pixel Type:");
+  for (uint8_t y=0; y<=9; y++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+    for (uint8_t x=0; x<=9; x++) {
+      Serial.print(GameField[y][x]);
+      Serial.print(" ,");
+    }
+    Serial.println();
+  }
+}
 
 void GameSetUpBounceWalls() {
   for (uint8_t x=1; x<=8; x++) {
@@ -150,8 +176,8 @@ bool StylusFind() {
     for (uint8_t y=0; y<=7; y++){
       if (CoreArrayMemory[y][x]){
         StylusFound = true;
-        Paddle1CenterXNext = x+1; // "+1" converts Core Array position to gamefield position
-        Paddle1CenterYNext = y+1; // "+1" converts Core Array position to gamefield position
+        Paddle1CenterXNext = x+GameViewOffsetX; // converts Core Array position to gamefield position
+        Paddle1CenterYNext = y+GameViewOffsetY; // converts Core Array position to gamefield position
         x = 8;
         y = 8; // Force exit from loop as soon as a stylus is sensed on this side.
       }
@@ -162,8 +188,8 @@ bool StylusFind() {
     for (uint8_t y=0; y<=7; y++){
       if (CoreArrayMemory[y][x]){
         StylusFound = true;
-        Paddle2CenterXNext = x+1; // "+1" converts Core Array position to gamefield position
-        Paddle2CenterYNext = y+1; // "+1" converts Core Array position to gamefield position
+        Paddle2CenterXNext = x+GameViewOffsetX; // converts Core Array position to gamefield position
+        Paddle2CenterYNext = y+GameViewOffsetY; // converts Core Array position to gamefield position
         x = 8;
         y = 8; // Force exit from loop as soon as a stylus is sensed on this side.
       }
@@ -173,13 +199,13 @@ bool StylusFind() {
 }
 
 void Paddle1Update() {
-  // Did the paddle move? If yes, update paddle. Else, do nothing and return.
+  // Did the paddle move? If yes, update paddle position.
   if ( (Paddle1CenterXNext != Paddle1CenterXNow) || (Paddle1CenterYNext != Paddle1CenterYNow) ) {
     // Erase old paddle position
     GameField [Paddle1CenterYNow-1][Paddle1CenterXNow] = GPC_OPEN;
     GameField [Paddle1CenterYNow  ][Paddle1CenterXNow] = GPC_OPEN;
     GameField [Paddle1CenterYNow+1][Paddle1CenterXNow] = GPC_OPEN;
-    // Constrain paddle center position to stay fully on screen, in 3 leftmost columns.
+    // Constrain paddle center position to stay fully on screen, in the 3 leftmost columns.
     if (Paddle1CenterXNext<1) {Paddle1CenterXNext=1;}
     if (Paddle1CenterXNext>3) {Paddle1CenterXNext=3;}
     if (Paddle1CenterYNext<2) {Paddle1CenterYNext=2;}
@@ -194,13 +220,13 @@ void Paddle1Update() {
 }
 
 void Paddle2Update(){
-  // Did the paddle move? If yes, update paddle. Else, do nothing and return.
+  // Did the paddle move? If yes, update paddle.
   if ( (Paddle2CenterXNext != Paddle2CenterXNow) || (Paddle2CenterYNext != Paddle2CenterYNow) ) {
     // Erase old paddle position
     GameField [Paddle2CenterYNow-1][Paddle2CenterXNow] = GPC_OPEN;
     GameField [Paddle2CenterYNow  ][Paddle2CenterXNow] = GPC_OPEN;
     GameField [Paddle2CenterYNow+1][Paddle2CenterXNow] = GPC_OPEN;
-    // Constrain paddle center position to stay fully on screen, in 3 rightmost columns.
+    // Constrain paddle center position to stay fully on screen, in the 3 rightmost columns.
     if (Paddle2CenterXNext<6) {Paddle2CenterXNext=6;}
     if (Paddle2CenterXNext>8) {Paddle2CenterXNext=8;}
     if (Paddle2CenterYNext<2) {Paddle2CenterYNext=2;}
@@ -215,31 +241,28 @@ void Paddle2Update(){
 }
 
 void BallUpdate() {
-  // Is it time to update the ball yet?
+  // Is it time to move the ball?
   if ((nowTime - BallUpdateLastRunTime) >= BallVelocity)
   {
-    // Ball direction always needs an X component. Can't be 0 or there no game play.
-    if (BallDirectionX == 0) {BallDirectionX = 1;}
+    // Check and constrain ball direction
+    if (BallDirectionX == 0) {BallDirectionX =  1;}  // Always needs an X component. Can't be 0 or game play stalls.
+    if (BallDirectionX  > 1) {BallDirectionX =  1;}  // Don't allow greater than +1.
+    if (BallDirectionX  < 1) {BallDirectionX = -1;}  // Don't allow lower than -1.
     
-    // Calculate new position of ball
+    // Calculate next [new] position of the ball
     BallPositionYNext = BallPositionYNow + BallDirectionY;
     BallPositionXNext = BallPositionXNow + BallDirectionX;
 
     // Test: Is ball entering the end zone for a point?
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_END_ZONE) {
-      // Test: Collision with left end zone?
-      if (BallPositionXNext == 0) { Winner = 2; }
-      // Test: Collision with right end zone?
-      if (BallPositionXNext == 9) { Winner = 1; }
+      if (BallPositionXNext == 0) { Winner = 2; }       // Collision with left end zone?
+      if (BallPositionXNext == 9) { Winner = 1; }       // Collision with right end zone?
     } 
 
     // Test: Is ball colliding with wall and needs to bounce?
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_WALL) {
-      // Test: Collision with top wall?
-      if (BallPositionYNext == 0) { BallDirectionY = 1; }
-      // Test: Collision with bottom wall?
-      if (BallPositionYNext == 9) { BallDirectionY = -1; }
-      // Over
+      if (BallPositionYNext == 0) { BallDirectionY =  1; }      // Collision with top wall?
+      if (BallPositionYNext == 9) { BallDirectionY = -1; }      // Collision with bottom wall?
       BallPositionYNext = BallPositionYNow + BallDirectionY;
     }
 
@@ -282,6 +305,25 @@ void BallUpdate() {
       BallPositionXNext = BallPositionXNow + BallDirectionX;
     }
     
+    // TODO: Handle ball bouncing off wall and directly into corner of the paddle.
+    /*
+        X      0    1    2    3    4    5    6    7    8    9
+      Y     --------------- PLAY FIELD BOUNDARY ---------------
+      0     |  3 |  2 |  2 |  2 |  2 |  2 |  2 |  2 |  2 |  3 |
+            |    *********** VIEWABLE BOUNDARY ***********    |
+      1     |  3 *  0 |  0 | 11 |  1 |  0 |  0 |  0 |  0 *  3 |
+      2     |  3 *  0 |  0 | 12 |  0 |  0 |  0 |  0 |  0 *  3 |
+      3     |  3 *  0 |  0 | 13 |  0 |  0 |  0 |  0 |  0 *  3 |
+      4     |  3 *  0 |  0 |  0 |  0 |  0 |  0 |  0 |  0 *  3 |
+      5     |  3 *  0 |  0 |  0 |  0 |  0 |  0 |  0 | 21 *  3 |
+      6     |  3 *  0 |  0 |  0 |  0 |  0 |  0 |  0 | 22 *  3 |
+      7     |  3 *  0 |  0 |  0 |  0 |  0 |  0 |  0 | 23 *  3 |
+      8     |  3 *  0 |  0 |  0 |  0 |  0 |  0 |  0 |  0 *  3 |
+            |    *****************************************    |
+      9     |  3 |  2 |  2 |  2 |  2 |  2 |  2 |  2 |  2 |  3 |
+            ---------------------------------------------------
+    */
+
     // Test Again: Is ball colliding with wall and needs to bounce?
     /*
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_WALL) {
@@ -310,17 +352,27 @@ void BallUpdate() {
 }
 
 void GameStartMap() {
-  GameViewOffsetX = 1; // 1 = normal view of playing field
-  GameViewOffsetY = 1; // 1 = normal view of playing field
-  // Random start Y position for paddles, against left/right walls
-  Paddle1CenterYNow = (uint8_t) random (2,8); // 2;
+  GameViewOffsetX   = 1;  // 1 = normal view of playing field
+  GameViewOffsetY   = 1;  // 1 = normal view of playing field
+  // Paddles and ball inline to give players time to react after the game starts.
+  Paddle1CenterYNow = 4;
   Paddle1CenterXNow = 1;
-  Paddle2CenterYNow = (uint8_t) random (2,8); // 7;
+  Paddle2CenterYNow = 4;
   Paddle2CenterXNow = 8;
-  BallPositionYNow  = (uint8_t) random (2,7); // 2;
-  BallPositionXNow  = (uint8_t) random (4,5); // 4;
-  BallDirectionY    = (uint8_t) random (-1,1); // 1;
-  BallDirectionX    = (uint8_t) random (-1,1); // 1;
+  Paddle1CenterYNext = Paddle1CenterYNow;
+  Paddle1CenterXNext = Paddle1CenterXNow;
+  Paddle2CenterYNext = Paddle2CenterYNow;
+  Paddle2CenterXNext = Paddle2CenterXNow;
+  // Assume side 1 serving
+  BallPositionYNow  = 4;
+  BallPositionXNow  = 2;
+  BallDirectionY    = 0;
+  BallDirectionX    = 1;
+  // Unless winner was side 2
+  if (Winner == 2) {
+    BallPositionXNow  =  7;
+    BallDirectionX    = -1;
+  }
   BallVelocity      = 300; // ms between movements, lower number is faster movement, down to the game refresh rate.              
   GameSetUpBounceWalls();
   GameSetUpEndZones();
@@ -331,25 +383,13 @@ void GameStartMap() {
   BallUpdate();
 }
 
-bool GameLogic() { // Returns 1 if activity of stylus movement is detected. Else 0 for no activity.
-  GameMovementDetected = false;
-  Core_Mem_Scan_For_Magnet();                   // Update the the CoreArrayMemory to see where magnets are.
-  if (StylusFind()) {                           // Determine stylus positions for player 1 and 2
-    GameMovementDetected = true;
-    Paddle1Update();                            // Render paddle 1 update 
-    Paddle2Update();                            // Render paddle 2 update
-    }  
-  BallUpdate();                                 // Render ball update
-  return GameMovementDetected;
-}
-
-void ConvertGameFieldToScreenMemory() {
+void ConvertGameFieldToLEDMatrixScreenMemory() {
   uint8_t ScreenX = 0;
   uint8_t ScreenY = 0;
   uint8_t Color   = 0;
   if(DebugLevel==4) {
     Serial.println();
-    Serial.println("ConvertGameFieldToScreenMemory() and the Game Field Colors are:");
+    Serial.println("ConvertGameFieldToLEDMatrixScreenMemory() and the Game Field Colors are:");
   }
   if (GameViewOffsetX > 2) { GameViewOffsetX = 2;}
   if (GameViewOffsetY > 2) { GameViewOffsetY = 2;}
@@ -366,6 +406,13 @@ void ConvertGameFieldToScreenMemory() {
       if (GameField[y][x] == GPT_P2R_MID ) { Color = GPC_P2R_MID ; }
       if (GameField[y][x] == GPT_P2R_BOT ) { Color = GPC_P2R_BOT ; }
       LED_Array_Matrix_Color_Write(ScreenY, ScreenX, Color);
+      #if defined BOARD_CORE64_TEENSY_32
+        #ifdef NEON_PIXEL_ARRAY
+          Neon_Pixel_Array_Matrix_Mono_Write(ScreenY, ScreenX, Color); // Any non-zero color will be an illuminated Neon Pixel.
+        #endif
+      #elif defined BOARD_CORE64C_RASPI_PICO
+        // Nothing here
+      #endif
       if(DebugLevel==4) {
         Serial.print(Color);
         Serial.print(" ,");
@@ -380,18 +427,28 @@ void ConvertGameFieldToScreenMemory() {
   }
 }
 
-void GameSerialPrintMap() {
-  Serial.println();
-  Serial.println("Game Field Pixel Type:");
-  for (uint8_t y=0; y<=9; y++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
-    for (uint8_t x=0; x<=9; x++) {
-      Serial.print(GameField[y][x]);
-      Serial.print(" ,");
-    }
-    Serial.println();
-  }
+void GameScreenRefresh() {
+  LED_Array_Matrix_Color_Display();
+  #if defined BOARD_CORE64_TEENSY_32
+    #ifdef NEON_PIXEL_ARRAY
+      Neon_Pixel_Array_Matrix_Mono_Display();
+    #endif
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    // Nothing here
+  #endif
 }
 
+bool GameLogic() { // Returns 1 if activity of stylus movement is detected. Else 0 for no activity.
+  GameMovementDetected = false;
+  Core_Mem_Scan_For_Magnet();                   // Update the the CoreArrayMemory to see where magnets are.
+  if (StylusFind()) {                           // Determine stylus positions for player 1 and 2
+    GameMovementDetected = true;
+    Paddle1Update();                            // Render paddle 1 update 
+    Paddle2Update();                            // Render paddle 2 update
+    }  
+  BallUpdate();                                 // Render ball update
+  return GameMovementDetected;
+}
 
 void GamePlayPong() {
   if (TopLevelModeChangedGet()) {                           // First time entry into this mode.
@@ -405,8 +462,8 @@ void GamePlayPong() {
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure MENU + and - soft buttons are enabled.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGamePongSymbol(0);
-    MenuTimeOutCheckReset();
     LED_Array_Matrix_Color_Display();
+    MenuTimeOutCheckReset();
     GameState = GAME_STATE_INTRO_SCREEN;
     GameUpdatePeriod = 33;
     GameOverTimerAutoReset = 3000;
@@ -422,63 +479,60 @@ void GamePlayPong() {
   if ((nowTime - GameUpdateLastRunTime) >= GameUpdatePeriod)
   {
     if (DebugLevel == 4) { Serial.print("Pong Game State = "); Serial.println(GameState); }
+    // Service a game state.
     switch(GameState)
     {
-      case GAME_STATE_INTRO_SCREEN: // 0 Game Intro/Splash Screen
+      case GAME_STATE_INTRO_SCREEN:
+        GamePlayerOneScore = 0;
+        GamePlayerTwoScore = 0;
         // Check for touch of "S" to start the game
         if (ButtonState(4,0) >= 100) { MenuTimeOutCheckReset(); GameState = GAME_STATE_SET_UP; }
         // Timeout to next game option in the sequence
-        if (MenuTimeOutCheck(5000))  { TopLevelModeSetInc(); }
+        if (MenuTimeOutCheck(10000))  { TopLevelModeSetInc(); }
         break;
 
-      case GAME_STATE_SET_UP: // 1 Setup a new game
+      case GAME_STATE_SET_UP:
+        GameStartMap();
+        ConvertGameFieldToLEDMatrixScreenMemory();
         GameOver = false;
         Winner = 0;
-        GameStartMap();
-        ConvertGameFieldToScreenMemory();
         GameState = GAME_STATE_PLAY;
+        // GameDebugSerialPrintMap();
         break;
 
-      case GAME_STATE_PLAY: // 2 Play       
+      case GAME_STATE_PLAY:       
         if (GameLogic()) { MenuTimeOutCheckReset(); }
         if (MenuTimeOutCheck(60000)) { TopLevelModeSetToDefault(); } // Is it time to timeout? Then timeout.
         if (Winner) { GameOverTimer = nowTime; GameState = 3; }
-        ConvertGameFieldToScreenMemory();
+        ConvertGameFieldToLEDMatrixScreenMemory();
         // Check for touch of "S" to start the game over.
         if (ButtonState(4,0) >= 200) { MenuTimeOutCheckReset(); GameState = GAME_STATE_SET_UP; }
+        // GameDebugSerialPrintMap();
         break;
 
-      case 3: // Winner
-        if (Winner == 1) { WriteGamePongSymbol(1); }
-        if (Winner == 2) { WriteGamePongSymbol(2); }
+      case GAME_STATE_ROUND_WIN:
+        if (Winner == 1) { WriteGamePongSymbol(1); GamePlayerOneScore++;}
+        if (Winner == 2) { WriteGamePongSymbol(2); GamePlayerOneScore++;}
+        // TODO: Display both players scores after each round. If one player reaches 9, go to GAME_STATE_LOOSE
         if ((nowTime - GameOverTimer) > GameOverTimerAutoReset) {
           MenuTimeOutCheckReset();
           GameState = GAME_STATE_SET_UP;
         }
         break;
 
-    /*
-      case 4: // Winner = Green Screen
-        for (uint8_t x=0; x<=7; x++) {
-          for (uint8_t y=0; y<=7; y++) {
-            SnakeGameMemory[y][x] = -2;
-          }
-        }
-        if ((nowTime - GameOverTimer) > GameOverTimerAutoReset) {
-          MenuTimeOutCheckReset();
-          GameState = 1;
-        }
-        // WriteColorFontSymbolToLedScreenMemoryMatrixColor(13);
-        WriteGameSnakeSymbol(1);
-        break;
-    */
+      case GAME_STATE_FINISHED: // 
+        // TODO: Declare a winner. 
+
+      case GAME_STATE_END: // 
+        // TODO: Wait for "S" or timeout 20 seconds to begin another match.
 
       default:
         break;
     }
-    GameSerialPrintMap(); // For debugging
-    LED_Array_Matrix_Color_Display();
+
+    // Service non-state dependent game stuff
+    GameScreenRefresh();
     GameUpdateLastRunTime = nowTime;
   }
 
-} // Pong
+} // GamePlayPong

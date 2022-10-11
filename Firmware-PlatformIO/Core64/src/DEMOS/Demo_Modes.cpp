@@ -74,8 +74,8 @@ void DemoScrollingText() {
   OLEDScreenUpdate();
   #if defined BOARD_CORE64_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
-      Neon_Pixel_Array_Matrix_Mono_Display();
       CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
+      Neon_Pixel_Array_Matrix_Mono_Display();
     #endif
   #elif defined BOARD_CORE64C_RASPI_PICO
     // Nothing here

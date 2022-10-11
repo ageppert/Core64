@@ -43,6 +43,14 @@ void DemosSubMenu() {
     Serial.print(PROMPT);
     TopLevelSetSoftButtonGlobalEnableSet(false);          // 
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(1);  // The DEMO SUB MENU Icon.
+    #if defined BOARD_CORE64_TEENSY_32
+      #ifdef NEON_PIXEL_ARRAY
+        CopyColorFontSymbolToNeonPixelArrayMemory(1);
+        Neon_Pixel_Array_Matrix_Mono_Display();
+      #endif
+    #elif defined BOARD_CORE64C_RASPI_PICO
+      // Nothing here
+    #endif
     LED_Array_Matrix_Color_Display();
     }
   if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }   // Dwell 5 seconds in Demo Submenu, then move to first demo.

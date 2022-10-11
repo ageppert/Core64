@@ -10,6 +10,7 @@
 */
 
 #include "Config/HardwareIOMap.h"
+#include "Config/CharacterMap.h"
 
 #if defined BOARD_CORE64_TEENSY_32
   #include "Hal/Core_HAL.h"       // ToDo This core_api shouldn't be directly accessed from this files. Interaction should be through higher level application
@@ -70,7 +71,7 @@
 
     // PWM Neon Pixel brightness is only in the range 0x00 to 0x7F, while 0x80 to 0xFF is full brightness.
     // High brightness pulls down USB/BAT power available and system becomes instable.
-    uint8_t NeonPixelBrightnessOn  = 0X7F;
+    uint8_t NeonPixelBrightnessOn  = 0x7F;
     uint8_t NeonPixelBrightnessOff = 0x00;
     uint8_t MatrixHeight = 8;
     uint8_t MatrixWidth = 8;
@@ -100,6 +101,20 @@
           }
         }
       }
+
+  //
+  // Copy Color Font Symbol into Neon Pixel Array memory
+  //
+    void CopyColorFontSymbolToNeonPixelArrayMemory(uint8_t SymbolNumber) {
+      for( uint8_t y = 0; y < MatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < MatrixWidth; x++) 
+        {
+          NeonPixelScreenMemoryMatrixMono[y][x] = ColorFontSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
     //
     // Write one bit into monochrome Neon Pixel Array memory
     //

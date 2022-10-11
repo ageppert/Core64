@@ -92,7 +92,15 @@ void loop() {
   MainLoopStartTime = millis(); 
   if(DebugLevel==1) { Serial.println("DEBUG: START OF HOUSEKEEPING"); }
   TopLevelModeManagerRun(); // First time run contains all the stuff normally done in Arduino setup()
-  HeartBeat(); 
+  #if defined BOARD_CORE64_TEENSY_32
+    #ifdef NEON_PIXEL_ARRAY
+      // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
+    #else
+      HeartBeat();
+    #endif
+  #elif defined BOARD_CORE64C_RASPI_PICO
+    HeartBeat(); 
+  #endif
   AnalogUpdate();
   CommandLineUpdate();
   // OLEDScreenUpdate();

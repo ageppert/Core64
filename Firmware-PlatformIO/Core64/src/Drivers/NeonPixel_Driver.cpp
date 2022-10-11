@@ -7,14 +7,31 @@
     #include <SPI.h>
 
     // Teensy 3.2
-    #define CLOCKPIN        13
-    #define DATA_OUT        11
-    #define DATA_IN         12
-    #define CHIP_SELECT      8 // already available as Pin_SPI_LCD_CS in HardwareIOMap
-
-    static const int spiClk =  480000; 
-    
-    SPIClass * hspi = NULL; //uninitalised pointers to SPI object
+    #define CLOCKPIN                  13
+    #define DATA_OUT                  11 
+    #define DATA_IN                   12
+    #define CHIP_SELECT                8 // already available as Pin_SPI_LCD_CS in HardwareIOMap.
+    #define NEON_PIXEL_SPI_BIT_MODE   MSBFIRST
+    #define NEON_PIXEL_SPI_POLARITY   SPI_MODE0
+    static const int spiClk        =  380000; 
+    /* Neon Pixel Notes
+        Only DATA OUT and CLOCK are used to control the Neon Pixels.
+        SPI DATA IN is not used because there is no return line from the Neon Pixels.
+        CHIP SELECT is not used because it doesn't exist on the Neon Pixels.
+        There is no incoming SPI buffer reset - it is always alive so ANY movement of the SPI CLK will cause the pixels to interpret SPI DAT as useful data.
+        They should work reliably at 380kHz.
+        MSB first. First byte of data is the last pixel in the string. Last byte of data is the first pixel in the string.
+        Full brightness is 0x7F or greater.
+        2022-10-07 Troubleshooting and FIX!
+            Andy's Neon Pixel configuration (Core64 LB V0.4 w/ Teensy 3.2) is (and always has been) showing signs of the data being shifted 
+            so that the pixel left of the commanded pixel is lighting up to various degrees.
+            Two problems fixed:
+            1) The LED on the Teensy is shared with the SPI CLK and was used for heart beat. During setup of heart beat, the the SPI CLK is
+               toggled and the Neon Pixels take that in as data. But the incoming data buffer is not reset [after a timeout] so the next
+               "real" ends up being offset from there. Disable the LED Heart Beat if Teensy is used!
+            2) There was an extra NULL byte I was sending in the FOR loop that sends the SPI data out. That was causing the Neon Pixel to the
+               left to be addressed instead of the intended one.  
+    */
 
     NeonPixelMatrix::NeonPixelMatrix(int16_t w, int16_t h) : 
         Adafruit_GFX(w, h) {
@@ -62,7 +79,6 @@
         if (x>=WIDTH || y>=HEIGHT) return;
         if (x<0 || y<0) return;
         frameBuffer[ (y*WIDTH)+x ] = color;
-
     }
 
     void NeonPixelMatrix::drawPixelin1DArray(int16_t position, uint16_t color) {
@@ -72,24 +88,17 @@
 
     }
 
-// This is what I've been doing that doesn't seem to line up with the screen correctly.
     void NeonPixelMatrix::display() {
         uint16_t i=0;
         uint8_t  dataToSend;
-
-        SPI.setSCK(CLOCKPIN);
-        SPI.begin();                  //   <<<--- THE MISSING KEY TO MAKING THE setCLK assignment work!!!
-        // digitalWriteFast(CHIP_SELECT, 0);    // Not implemented in the Neon Pixel Hardware.
-        SPI.beginTransaction(SPISettings(spiClk, MSBFIRST, SPI_MODE0));   
+        SPI.beginTransaction(SPISettings(spiClk, NEON_PIXEL_SPI_BIT_MODE, NEON_PIXEL_SPI_POLARITY));   
         for(int x=viewOriginX; x<viewOriginX+pixelWidth; x++) {
             for(int y=viewOriginY; y<viewOriginY+pixelHeight; y++){
               dataToSend = frameBuffer[((y%HEIGHT)*WIDTH) + (x%WIDTH)];
               SPI.transfer(dataToSend);
             }
         }
-        SPI.transfer(NULL);
         SPI.endTransaction();
-        // digitalWriteFast(CHIP_SELECT, 1);    // Not implemented in the Neon Pixel Hardware.
     }
 
     uint8_t *NeonPixelMatrix::getBuffer() { return frameBuffer; }
