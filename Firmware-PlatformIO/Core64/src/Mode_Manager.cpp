@@ -73,7 +73,7 @@
       "   MODE_LED_TEST_ONE_STRING           ",
       "   MODE_TEST_EEPROM                   ",
       "   MODE_LED_TEST_ALL_COLOR            ",
-      "   MODE_CORE_TOGGLE_BIT               ",
+      "   MODE_CORE_TOGGLE_BITS_WITH_3V3_READ",
       "   MODE_CORE_TEST_ONE                 ",
       "   MODE_CORE_TEST_MANY                ",
       "   MODE_HALL_TEST                     ",
@@ -615,14 +615,18 @@ void TopLevelModeManagerRun () {
         OLEDScreenUpdate();
         break;
         
-      case MODE_CORE_TOGGLE_BIT:     // Just toggle a single bit on and off. Or just pulse on.
+      case MODE_CORE_TOGGLE_BITS_WITH_3V3_READ:     // Just toggle a single bit on and off. Or just pulse on.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(50,255,255);
         #if defined BOARD_CORE64_TEENSY_32        
-          for (uint8_t bit = coreToTest; bit<(coreToTest+1); bit++)
+          Serial.println();
+          for (uint8_t bit = coreToTest; bit<(coreToTest+64); bit++)
             {
               // IOESpare1_On();
+              Serial.print("CLR,Core #,");
+              Serial.print(bit);
+              Serial.print(",");
               Core_Mem_Bit_Write_With_V_MON(bit,0);
               LED_Array_String_Write(bit,0);
               LED_Array_String_Display();
@@ -630,12 +634,43 @@ void TopLevelModeManagerRun () {
               // delay(5);
 
               // IOESpare1_On();
+              Serial.print(" SET,Core #,");
+              Serial.print(bit);
+              Serial.print(",");
               Core_Mem_Bit_Write_With_V_MON(bit,1);
               LED_Array_String_Write(bit,1);
               LED_Array_String_Display();
               // IOESpare1_Off();
               // delay(50);
+              Serial.println();
             }
+
+          Serial.println();
+          // Serial.println("Clear All Cores, showing 3V3 voltage.");
+          Serial.println("Clear All Cores, showing CAE FET voltage.");
+          uint8_t column_counter = 0;
+          for (uint8_t bit = 0; bit<64; bit++)
+            {
+              Core_Mem_Bit_Write_With_V_MON(bit,0);
+              LED_Array_String_Write(bit,0);
+              LED_Array_String_Display();
+              if (column_counter==7) {Serial.println(); column_counter=0;}
+              else {Serial.print(", "); column_counter++;}
+            }
+
+          Serial.println();
+          // Serial.println("Set All Cores, showing 3V3 voltage.");
+          Serial.println("Set All Cores, showing CAE FET voltage.");
+        column_counter = 0;
+          for (uint8_t bit = 0; bit<64; bit++)
+            {
+              Core_Mem_Bit_Write_With_V_MON(bit,1);
+              LED_Array_String_Write(bit,1);
+              LED_Array_String_Display();
+              if (column_counter==7) {Serial.println(); column_counter=0;}
+              else {Serial.print(", "); column_counter++;}
+            }
+
         #elif defined BOARD_CORE64C_RASPI_PICO
           // TODO: Port Core HAL and Driver to handle Teensy and Pico.
               // TODO: Remove this test once shift registers are working. To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.

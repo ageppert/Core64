@@ -39,7 +39,7 @@ SETUP:
             MODE_LED_TEST_ONE_STRING                ,                  // Testing LED Driver
             MODE_TEST_EEPROM                        ,                  // Read out the raw EEPROM values
             MODE_LED_TEST_ALL_COLOR                 ,                  // Test LED Driver with all pixels and all colors
-            MODE_CORE_TOGGLE_BIT                    ,                  // Test one core with one function
+            MODE_CORE_TOGGLE_BITS_WITH_3V3_READ     ,                  // Test one core with one function
             MODE_CORE_TEST_ONE                      ,                  // Testing core #coreToTest and displaying core state
             MODE_CORE_TEST_MANY                     ,                  // Testing multiple cores and displaying core state
             MODE_HALL_TEST                          ,                  // Testing hall switch and sensor response

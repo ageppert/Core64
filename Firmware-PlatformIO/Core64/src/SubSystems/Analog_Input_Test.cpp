@@ -238,3 +238,18 @@
     Serial.print(Core_Row0_Q9P_Q9N_V,2);
     Serial.println();
   }
+
+  void AnalogUpdateCoresOnly3V3() {
+    ReadAnalogVoltage();
+    Serial.print(Bus_3V3_V,2);
+  }
+
+  // This function used with modified Core64 LB V0.5 and V0.6 when ANA7 (Teensy A12) is connected above CAE FET.
+  // Used to see how much (relative) current is flowing through CAE FET as different core matrix wires are acivated.
+  // Hoping to determine which core matrix wires are not being activated correctly or have open circuits.
+  void AnalogUpdateCoresOnlyBC0Mon() {
+    ReadAnalogVoltage();
+    Serial.print(Core_Col0_Q1P_Q1N_V,2);
+  }
+
+

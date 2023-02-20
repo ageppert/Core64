@@ -179,8 +179,11 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
     TracingPulses(3);
     MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
     delayMicroseconds(20);                            // give the core time to change state
+    // delay(10);                                        // give the 3V3 regulator more time to sag lower
     #if defined BOARD_CORE64_TEENSY_32
-      AnalogUpdateCoresOnly();                          // Testing analog updates only during active core time.
+      // AnalogUpdateCoresOnly();                        // Testing analog updates only during active core time. All voltages.
+      // AnalogUpdateCoresOnly3V3();                     // Serial print only 3V3 voltage.
+      AnalogUpdateCoresOnlyBC0Mon();                  // Serial print CAE top of FET voltage as proxy for current.
     #endif
     MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
     // Turn off all of the matrix signals

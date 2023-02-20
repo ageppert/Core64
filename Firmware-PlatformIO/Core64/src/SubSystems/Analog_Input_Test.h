@@ -26,5 +26,7 @@ float    GetCoreRR0V();
 void     AnalogSetup();
 void     AnalogUpdate();
 void     AnalogUpdateCoresOnly();
+void     AnalogUpdateCoresOnly3V3();
+void     AnalogUpdateCoresOnlyBC0Mon();
 
 #endif
