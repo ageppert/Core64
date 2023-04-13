@@ -20,13 +20,14 @@
 // #define DEBUG_HALL_SWITCHES
 
 static bool ButtonSetupCompleted = false;
+static int8_t HallSensorFieldStrengthButtonPressThreshold            =  1;        // Level of mT (absolute value) which registers as a button press.
+static int8_t HallSensorFieldStrengthButtonPressThresholdStylus2_5mm =  2;        // Default for V0.5 and earlier 2.5mm magnet stylus.
+static int8_t HallSensorFieldStrengthButtonPressThresholdStylus3_0mm =  7;        // Default for V0.6 and later 3mm magnet stylus.
 
 #ifdef HALL_SENSOR_ENABLE
-  #define HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL      1     // Level of mT which registers as a button press
-  #define HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL     -1     // Level of mT which registers as a button press
   si7210_status_t rslt = SI7210_E_DEV_NOT_FOUND;  // Unexpected return from the sensor library, making sure it returns something other than 99
 
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     si7210_status_t usr_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len)
     {
         si7210_status_t rslt = SI7210_OK;
@@ -63,7 +64,7 @@ static bool ButtonSetupCompleted = false;
         
         return rslt;
     }
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     MbedI2C I2C1_HALL_SENSOR(p10,p11);
     
     si7210_status_t usr_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *data, uint16_t len)
@@ -139,19 +140,25 @@ static bool ButtonSetupCompleted = false;
 
 
 void Buttons_Setup() {
-  #if defined BOARD_CORE64_TEENSY_32
-  if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
-  #elif defined BOARD_CORE64C_RASPI_PICO
-  if ( (HardwareVersionMajor == 0) && ((HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) || (HardwareVersionMinor == 4)) )
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+    if ( (LogicBoardTypeGet() == eLBT_CORE64_T32 ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 5) )
+      { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus2_5mm; }
+  #elif defined MCU_TYPE_RP2040
+  if (
+    ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor <= 0) && (HardwareVersionMinor <= 6) ) ||
+    ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor <= 0) && (HardwareVersionMinor <= 4) ) )
+      { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus2_5mm; }  
+  if ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) )
+      { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus3_0mm; }
   #endif
   {
     #ifdef HALL_SENSOR_ENABLE
       if( HardwareConnectedCheckButtonHallSensors() ) {
 
         Serial.println("      HardwareConnectedCheckButtonHallSensors = true");
-        #if defined BOARD_CORE64_TEENSY_32
+        #if defined  MCU_TYPE_MK20DX256_TEENSY_32
           // Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
-        #elif defined BOARD_CORE64C_RASPI_PICO
+        #elif defined MCU_TYPE_RP2040
           // "Begin" is needed before the driver tries to talk to the hardware for Pico with MBED.
           I2C1_HALL_SENSOR.begin();                     // testing this as a replacement to wire.xxxxx calls for Pico MBED
           Serial.println("      I2C1_HALL_SENSOR.begin() was called.");
@@ -280,9 +287,22 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           Button1delta = thistime - Button1lasttime ;
           #ifdef HALL_SENSOR_ENABLE
             si7210_get_field_strength(&HallSensor1, &field_strength);
-            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+            if(   ((int)field_strength > HallSensorFieldStrengthButtonPressThreshold) 
+               || ((int)field_strength < (-1 * HallSensorFieldStrengthButtonPressThreshold)) )
               { duration_b1 = duration_b1 + Button1delta ; sensed = true; }
+              #if defined DEBUG_HALL_SENSORS  
+                Serial.print("HALL SENSOR: ");
+                Serial.print(button_number);
+                Serial.print(", time (ms): ");
+                Serial.print(duration_b1);
+                Serial.print(", strength (mT): ");
+                Serial.println((int)field_strength);
+              #endif
+
+
+
+
+
           #endif
           #ifdef HALL_SWITCH_ENABLE
             if(digitalRead(PIN_HALL_SWITCH_1)==0) { duration_b1 = duration_b1 + Button1delta ; sensed = true; }
@@ -295,8 +315,8 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           Button2delta = thistime - Button2lasttime ;
           #ifdef HALL_SENSOR_ENABLE
             si7210_get_field_strength(&HallSensor2, &field_strength);
-            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+            if(   ((int)field_strength > HallSensorFieldStrengthButtonPressThreshold) 
+               || ((int)field_strength < (-1 * HallSensorFieldStrengthButtonPressThreshold)) )
               { duration_b2 = duration_b2 + Button2delta ; sensed = true; }
           #endif
           #ifdef HALL_SWITCH_ENABLE
@@ -310,8 +330,8 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           Button3delta = thistime - Button3lasttime ;
           #ifdef HALL_SENSOR_ENABLE
             si7210_get_field_strength(&HallSensor3, &field_strength);
-            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+            if(   ((int)field_strength > HallSensorFieldStrengthButtonPressThreshold) 
+               || ((int)field_strength < (-1 * HallSensorFieldStrengthButtonPressThreshold)) )
               { duration_b3 = duration_b3 + Button3delta ; sensed = true; }
           #endif
           #ifdef HALL_SWITCH_ENABLE
@@ -324,8 +344,8 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           Button4delta = thistime - Button4lasttime ;
           #ifdef HALL_SENSOR_ENABLE
             si7210_get_field_strength(&HallSensor4, &field_strength);
-            if(   ((int)field_strength > HALL_SENSOR_FIELD_STRENGTH_ON_POS_LEVEL) 
-               || ((int)field_strength < HALL_SENSOR_FIELD_STRENGTH_ON_NEG_LEVEL) )
+            if(   ((int)field_strength > HallSensorFieldStrengthButtonPressThreshold) 
+               || ((int)field_strength < (-1 * HallSensorFieldStrengthButtonPressThreshold)) )
               { duration_b4 = duration_b4 + Button4delta ; sensed = true; }
           #endif
           #ifdef HALL_SWITCH_ENABLE
@@ -339,17 +359,17 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           break;
         }
       }
-  #if defined DEBUG_HALL_SENSORS  
-    Serial.print("HALL SENSOR 1,2,3,4: ");
-    Serial.print(duration_b1);
-    Serial.print(", ");
-    Serial.print(duration_b2);
-    Serial.print(", ");
-    Serial.print(duration_b3);
-    Serial.print(", ");
-    Serial.print(duration_b4);
-    Serial.println("");
-  #endif
+//   #if defined DEBUG_HALL_SENSORS  
+//     Serial.print("HALL SENSOR 1,2,3,4: ");
+//     Serial.print(duration_b1);
+//     Serial.print(", ");
+//     Serial.print(duration_b2);
+//     Serial.print(", ");
+//     Serial.print(duration_b3);
+//     Serial.print(", ");
+//     Serial.print(duration_b4);
+//     Serial.println("");
+//   #endif
 
   #if defined DEBUG_HALL_SWITCHES  
     Serial.print("HALL SWITCH 1,2,3,4: ");
@@ -363,12 +383,6 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
     Serial.println("");
   #endif
 
-          // DEBUG
-          // Serial.print("Hall 1 Field / On Duration: ");
-          // Serial.print(field_strength);
-          // Serial.print(" / ");
-          // Serial.println(duration_b1);
-  
   switch (button_number) {
     case 1:
       Button1lasttime = thistime;

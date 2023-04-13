@@ -19,7 +19,7 @@
 */
 uint8_t LoopBackTest() {
   uint8_t TestFailCounter = 255 ; // Result = Unhandled
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     if ( (HardwareVersionMinor == 6) ) {
       TestFailCounter = 0;
       // SPI_SDO and SPI_SDI test
@@ -68,7 +68,7 @@ uint8_t LoopBackTest() {
       TestFailCounter = 253; // Result = Not implemented for Core64 V0.5.0
     }
 
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     TestFailCounter = 254; // Result = Not implemented for Core64c
   #endif
 

@@ -43,12 +43,12 @@ void DemosSubMenu() {
     Serial.print(PROMPT);
     TopLevelSetSoftButtonGlobalEnableSet(false);          // 
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(1);  // The DEMO SUB MENU Icon.
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       #ifdef NEON_PIXEL_ARRAY
         CopyColorFontSymbolToNeonPixelArrayMemory(1);
         Neon_Pixel_Array_Matrix_Mono_Display();
       #endif
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       // Nothing here
     #endif
     LED_Array_Matrix_Color_Display();

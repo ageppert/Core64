@@ -10,7 +10,7 @@
 #include "Hal/Debug_Pins_HAL.h"
 #include "Config/HardwareIOMap.h"
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
    extern void Debug_Pins_Setup() {
       pinMode(Pin_SAO_G1_SPARE_1_CP_ADDR_0, OUTPUT);
       Debug_Pin_1(0);
@@ -24,7 +24,7 @@
       return;
    }
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
    extern void Debug_Pins_Setup() {
       #ifdef Pin_SAO_G1_or_SPARE1_or_CP1
         pinMode(Pin_SAO_G1_or_SPARE1_or_CP1, OUTPUT);

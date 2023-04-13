@@ -24,7 +24,7 @@
     SOLVED in "Core64c_Test_Pico_I2C_Scanner"
     Using the native Arduino Pico Board support through Boards Manager (Not the Earle version)
     To enable RP2040 I2C channel 1 as Wire (this really needs to be cleaned up by Arduino so I2C channel 0 is Wire, and Channel 1 is Wire1),
-    change as follows in file "pins_arduino.h" located in Macintosh HD ▸ Users ▸ ageppert ▸ Library ▸ Arduino15 ▸ packages ▸ arduino ▸ hardware ▸ mbed_rp2040 ▸ 2.3.1 ▸ variants ▸ RASPBERRY_PI_PICO
+    change as follows in file "pins_arduino.h" located in Macintosh HD ▸ Users ▸ ageppert ▸ Library ▸ Arduino15 ▸ packages ▸ arduino ▸ hardware ▸ mbed_rp2040 ▸ 2.3.1 ▸ Types ▸ RASPBERRY_PI_PICO
       // Wire
       #define PIN_WIRE_SDA        (10u)  // I2C1_SDA GP10 is Pico pin 14
       #define PIN_WIRE_SCL        (11u)  // I2C1_SCL GP11 is Pico pin 15
@@ -38,9 +38,9 @@
 
 */
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
   // Nothing to do here with the Arduino Core for I2C.
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
   /*
     Jan 2022: I'm trying to get I2C1 working in PlatformIO. Trying this stuff but it didn't work.
     // Wire
@@ -74,9 +74,9 @@ bool HardwareConnectedCheckButtonHallSensors() {
 }
 
 void I2CManagerSetup() {
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     I2C1.begin(); // testing this as a replacement to wire.xxxxx calls.
   #endif
   Serial.println(F("\n  I2C Manager: Setup Complete."));
@@ -205,10 +205,10 @@ void I2CManagerBusScan() {
     // The i2c_scanner uses the return value of
     // the Write.endTransmisstion to see if
     // a device did acknowledge to the address.
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       Wire.beginTransmission(address);
       error = Wire.endTransmission();
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       I2C1.beginTransmission(address);
       error = I2C1.endTransmission();
     #endif
@@ -243,10 +243,10 @@ void I2CManagerBusScan() {
 
 bool I2CDetectExternalEEPROM(uint8_t address) {
   bool presentnpresent = 0;
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     Wire.beginTransmission(address);
     uint8_t error = Wire.endTransmission(); // Normal Arduino 
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     I2C1.beginTransmission(address);
     uint8_t error = I2C1.endTransmission(); // Normal Arduino 
   #endif
@@ -255,7 +255,7 @@ bool I2CDetectExternalEEPROM(uint8_t address) {
   return (presentnpresent);
 }
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
   void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, uint8_t data ) 
   {
     Wire.beginTransmission(deviceaddress);
@@ -288,7 +288,7 @@ bool I2CDetectExternalEEPROM(uint8_t address) {
     return rdata;
   }
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
   void EEPROMExtWriteByte(int deviceaddress, unsigned int eeaddress, uint8_t data ) 
   {
     I2C1.beginTransmission(deviceaddress);

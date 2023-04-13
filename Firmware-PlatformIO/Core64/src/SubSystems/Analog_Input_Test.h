@@ -23,6 +23,7 @@ float    GetCoreTC0V();
 float    GetCoreBC0V();
 float    GetCoreLR0V();
 float    GetCoreRR0V();
+float    GetCoreGMEM(); 
 void     AnalogSetup();
 void     AnalogUpdate();
 void     AnalogUpdateCoresOnly();

@@ -135,10 +135,13 @@ static uint8_t LEDArrayMonochromeColorHSV  [3] = {DEFAULTLEDArrayMonochromeColor
 static uint8_t LEDArrayBrightness = BRIGHTNESS;
 
 void LED_Array_Auto_Brightness() {
-  #if defined BOARD_CORE64_TEENSY_32
-  if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) )
-  #elif defined BOARD_CORE64C_RASPI_PICO
-  if ( (HardwareVersionMajor == 0) && ((HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) || (HardwareVersionMinor == 4)) )
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+    if ( (LogicBoardTypeGet() == eLBT_CORE64_T32 ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 4) )
+  #elif defined MCU_TYPE_RP2040
+  if (
+    ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) ) ||
+    ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) )
+  )  
   #endif
     {
       if(AmbientLightAvaible()==0) {LEDArrayBrightness = BRIGHTNESS;}
@@ -150,7 +153,7 @@ void LED_Array_Auto_Brightness() {
       #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
         LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
         strip.show();
-      #endif 
+      #endif
     }
     // Serial.println(LEDArrayBrightness);
 }

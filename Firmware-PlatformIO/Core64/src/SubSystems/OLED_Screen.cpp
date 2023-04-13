@@ -33,9 +33,9 @@
     #include <Adafruit_SSD1306.h>
     #define SCREEN_WIDTH 128 // OLED display width, in pixels
     #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, CLK_DURING, CLK_AFTER);
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       MbedI2C I2C1_OLED(p10,p11);
       Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C1_OLED, OLED_RESET, CLK_DURING, CLK_AFTER);
     #endif
@@ -78,17 +78,17 @@
     display.clearDisplay();
     display.setCursor(0, 10);     // Start at top-left corner
     display.println(F(" Core64.io"));
-    #if defined BOARD_CORE64_TEENSY_32
-      display.print(F("HV:"));
-    #elif defined BOARD_CORE64C_RASPI_PICO
-      display.print(F("cHV:"));    
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+      display.print(F("tHV:"));
+    #elif defined MCU_TYPE_RP2040
+      display.print(F("pHV:"));    
     #endif
     display.print(HardwareVersionMajor);
     display.print(F("."));
     display.print(HardwareVersionMinor);
     display.print(F("."));
     display.println(HardwareVersionPatch);
-    display.print(F("FV:"));
+    display.print(F("FWV:"));
     display.print(FirmwareVersionMajor);
     display.print(".");
     display.print(FirmwareVersionMinor);
@@ -106,9 +106,9 @@
   void OLEDScreenSetup() {
     Serial.print("  OLED Screen Setup started.");
 
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       // Wire.begin(); // Nothing to do here with the Arduino Core for I2C.
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       // "Begin" is needed before the driver tries to talk to the hardware for Pico with MBED.
       I2C1_OLED.begin();                     // testing this as a replacement to wire.xxxxx calls for Pico MBED
       Serial.println("      I2C1_OLED.begin() was called.");

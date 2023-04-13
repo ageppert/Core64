@@ -65,11 +65,12 @@
 	|  0.7.21 | 2022-09-17 | Add basic game of Pong, protect for LED Matrix Array overload
 	|  0.7.22 | 2022-10-10 | Refine simplistic game of Pong. Works with Neon Pixels too!
 	|  0.7.23 | 2022-12-27 | Core64, add core # to MODE_CORE_TOGGLE_BITS_WITH_3V3_READ analog voltage data stream, add read ANA7 (A12) connected above CAE FET with modified LB. 
+	|  0.7.24 | 2023-02-19 | Core64, add compatibility for Core64 V0.7+ Pico Version, remove unused Detect_Board file.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core64, add core # to MODE_CORE_TOGGLE_BITS_WITH_3V3_READ analog voltage data stream, add read ANA7 (A12) connected above CAE FET with modified LB."
+	#define FIRMWARE_DESCRIPTION "Core64, add compatibility for Core64 V0.7+ Pico Version, remove unused Detect_Board file."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 23 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 24 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

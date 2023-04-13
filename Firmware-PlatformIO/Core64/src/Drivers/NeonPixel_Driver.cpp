@@ -1,6 +1,6 @@
 
 #include "Config/HardwareIOMap.h"
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
 
     #include "Drivers/NeonPixel_Driver.h"
     #include <Adafruit_GFX.h>
@@ -114,6 +114,6 @@
         }
     }
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
 
 #endif

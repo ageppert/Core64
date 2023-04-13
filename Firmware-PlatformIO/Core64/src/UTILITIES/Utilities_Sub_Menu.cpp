@@ -44,12 +44,12 @@ void UtilitiesSubMenu() {
     TopLevelSetSoftButtonGlobalEnableSet(false);
     WriteColorFontSymbolToLedScreenMemoryMatrixColor(4);
     LED_Array_Matrix_Color_Display();
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       #ifdef NEON_PIXEL_ARRAY
         CopyColorFontSymbolToNeonPixelArrayMemory(4);
         Neon_Pixel_Array_Matrix_Mono_Display();
       #endif
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       // Nothing here
     #endif
     }

@@ -8,7 +8,6 @@
 
 #ifndef HARDWARE_IO_MAP_H
 	#define HARDWARE_IO_MAP_H
-
 	#include <stdint.h>
 	#include <stdbool.h>
 
@@ -19,26 +18,28 @@
 				PATCH version when you make backwards compatible bug fixes.
 			Hardware version is stored in Board ID EEPROM on the Logic Board.
 	*/
-	/********************************** CORE64 HARDWARE VERSION TABLE ******************************************
-	| VERSION |  DATE      | DESCRIPTION                                                                       |
-	------------------------------------------------------------------------------------------------------------
-	|  0.1.0  | 2019-08-09 | Single board prototype development
-	|  0.1.5  | 2020-02-22 | Single board, reworked board fixes, prototype development
-	|  0.2.0  | 2020-03-16 | Single board, design updated to match v0.1.5, theoretically (not produced)
-	|  0.3.0  | 2020-05-30 | Dual board, hardware version detection for 0.2.x (includes v0.1.x) and v0.3.x
-	|  0.3.1  | 2020-05-30 | Two voltage regulators, 5V0 and 3V3, powered from common switch point
-	|  0.4.0  | 2020-11-28 | Blue LB, Yellow CB with Plane 4 set, as-built bring-up
-	|  0.5.0  | 2021-03-20 | Triple-board, Black LB/CB/CM
+	/**************************************** CORE64 HARDWARE VERSION TABLE *******************************************
+	| VERSION |  DATE      | MCU  | DESCRIPTION                                                                       |
+	-------------------------------------------------------------------------------------------------------------------
+	|  0.1.0  | 2019-08-09 | TLC  | Single board prototype development
+	|  0.1.5  | 2020-02-22 | TLC  | Single board, reworked board fixes, prototype development
+	|  0.2.0  | 2020-03-16 | TLC  | Single board, design updated to match v0.1.5, theoretically (not produced)
+	|  0.3.0  | 2020-05-30 | TLC  | Dual board, hardware version detection for 0.2.x (includes v0.1.x) and v0.3.x
+	|  0.3.1  | 2020-05-30 | TLC  | Two voltage regulators, 5V0 and 3V3, powered from common switch point
+	|  0.4.0  | 2020-11-28 | T32  | Blue LB, Yellow CB with Plane 4 set, as-built bring-up
+	|  0.5.0  | 2021-03-20 | T32  | Triple-board, Black LB/CB/CM
+	|  0.6.0  | 2021-12-25 | T32  | Triple-board, Black LB/CB/CM
+	|  0.7.x  | 2023-03-19 | Pico | Triple-board, White LB/CB/CM, and reworked LB 0.7.1
 	|         |            | 
-	----------------------------------------------------------------------------------------------------------*/
-	/********************************** CORE64c HARDWARE VERSION TABLE *****************************************
-	| VERSION |  DATE      | DESCRIPTION                                                                       |
-	------------------------------------------------------------------------------------------------------------
-	|  0.1.0  | 2021-05-28 | First layout, abandonded, not prototyped
-	|  0.2.0  | 2021-06-04 | White Board, as prototyped
-	|  0.2.1  | 2022-04-13 | White Board, air wired fixes to shift register circuit (pin 9 to 14 daisy chained, pin 12 all common)
-	|  0.3.0  | 2022-05-25 | White Board, as prototyped
-	|  0.4.0  | 2022-06-11 | White Board, multiple production batches
+	-----------------------------------------------------------------------------------------------------------------*/
+	/**************************************** CORE64c HARDWARE VERSION TABLE ******************************************
+	| VERSION |  DATE      | MCU  | DESCRIPTION                                                                       |
+	------------------------------------------------------------------------------------------------------------------
+	|  0.1.0  | 2021-05-28 | Pico | First layout, abandoned, not prototyped
+	|  0.2.0  | 2021-06-04 | Pico | White Board, as prototyped
+	|  0.2.1  | 2022-04-13 | Pico | White Board, air wired fixes to shift register circuit (pin 9 to 14 daisy chained, pin 12 all common)
+	|  0.3.0  | 2022-05-25 | Pico | White Board, as prototyped
+	|  0.4.0  | 2022-06-11 | Pico | White Board, multiple production batches
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
 	extern uint8_t HardwareVersionMajor; // See EEPROM_HAL
@@ -47,29 +48,59 @@
 	static bool PicoWTested;	// See Analog_Input_Test
 	static bool PicoWPresent;	// See Analog_Input_Test
 
-	// Board Detection.
-	// TODO: add seperate enum variables to identify specific Teensy version (LC, 3.1...), Pico Version (OTS, DIY, Core64 model (Core64 or Core64c)
-	// 	Reference: https://arduino.stackexchange.com/questions/21137/arduino-how-to-get-the-board-type-in-code
-		  #if defined(TEENSYDUINO) 
-		      //  --------------- Teensy -----------------
-		      #if defined(__MK20DX256__)       
-		          #define BOARD "Teensy 3.2 (MK20DX256)" // and Teensy 3.1 (obsolete)
-		          #define BOARD_CORE64_TEENSY_32
-		      #endif
-		  #else // --------------- RP2040 ------------------
-		      #if defined(ARDUINO_ARCH_RP2040)       
-		          #define BOARD "Raspberry Pi Pico (RP2040)"
-		          #define BOARD_CORE64C_RASPI_PICO
-		      #endif
-		  #endif
-	// Display board name which is being compiled for:
-		  #pragma message ( "C++ Preprocessor identified board type:" )
-		  #ifdef BOARD
-		    #pragma message ( BOARD )
-		  #else
-		    #error ( "Unsupported board. Choose Teensy 3.1/3.2 or Raspberry Pi Pico in 'Tools > Boards' menu.")
-		  #endif
-	// End of Board Detection.
+/*
+	CARRIER BOARD Type and MCU TYPE
+	ex: Teensy 3.2 with MK20DX256, Raspberry Pi Pico with RP2040
+	MCU selected at compile time based on user selected build environment and per compiler configuration. Use 
+	#define because there is no need to use a RAM variable. The #define will specify what can be compiled in
+	because there is no reason to compile in potentially incompatible MCU-specific functions.
+	Reference: https://arduino.stackexchange.com/questions/21137/arduino-how-to-get-the-board-type-in-code
+*/
+	#if defined(TEENSYDUINO) 
+		#if defined(__MK20DX256__) 
+			#define CARRIER_BOARD "Teensy 3.2" // and Teensy 3.1 (obsolete)
+			#define CARRIER_BOARD_CORE64_TEENSY_32
+			#define MCU "MK20DX256"
+			#define MCU_TYPE_MK20DX256_TEENSY_32
+		#elif defined(__MKL26Z64__)       
+	        #define CARRIER_BOARD "Teensy LC"
+			#define CARRIER_BOARD_CORE64_TEENSY_LC
+			#define MCU "MKL26Z64"
+			#define MCU_TYPE_MKL26Z64_TEENSY_LC
+		#endif
+	#else
+		#if defined(ARDUINO_ARCH_RP2040)       
+			#define CARRIER_BOARD "Raspberry Pi Pico RP2040 MCU"
+			#define CARRIER_BOARD_RASPBERRY_PI_PICO
+			#define MCU "RP2040"
+			#define MCU_TYPE_RP2040
+		#endif
+	#endif
+	// Display MCU and carrier board name which is being compiled for:
+	#pragma message ( "C++ Preprocessor identified CARRIER BOARD and MCU type: " )
+	#ifdef CARRIER_BOARD
+		#pragma message ( CARRIER_BOARD )
+		#pragma message ( MCU )
+	#else
+		#error ( "Unsupported board. In bottom of editing window choose 'env:pico' or 'env:teensy31'." )
+	#endif
+
+/*
+	Core Memory Logic Board Type
+	ex: Core64, Core64c
+	Read during runtime from value stored in the EEPROM on the Logic Board (not in the MCU).
+	Using the first digit of the S/N makes this easier and more straightforward:
+*/
+    enum eLogicBoardType
+    {
+    eLBT_CORE64_T32  = 0    ,   // 0 
+    eLBT_CORE64C_PICO     	,   // 1
+    eLBT_CORE64_PICO     	,   // 2
+    eLBT_UNKNOWN, // = 255	,   // 255
+    };
+
+	uint8_t LogicBoardTypeGet ();
+	void LogicBoardTypeSet (uint8_t incoming);
 
   // SELECT HARDWARE TO ACTIVATE
 	// TODO: Move all of these to variables which can be configured on-the-fly.
@@ -92,16 +123,16 @@
 		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 		// #define SDCARD_ENABLE
 
-	    #if defined BOARD_CORE64_TEENSY_32 
+	    #if defined  MCU_TYPE_MK20DX256_TEENSY_32 
 	    	#define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
 			// #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.		
-	    #elif defined BOARD_CORE64C_RASPI_PICO
+	    #elif defined MCU_TYPE_RP2040
 		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
 		#endif
 
-	#if defined BOARD_CORE64_TEENSY_32
+	#if defined  MCU_TYPE_MK20DX256_TEENSY_32
 		// Core64 HARDWARE v0.5.0
 			// PRIMARY AND DEFAULT FUNCTIONALITY
 				// HEART BEAT - HELLO WORLD
@@ -187,7 +218,7 @@
 						// #define Pin_SPARE_3_Assigned_To_Spare_3_Input
 						// #define Pin_SPARE_3_Assigned_To_SPI_SD_CD_Input
 
-	#elif defined BOARD_CORE64C_RASPI_PICO
+	#elif defined MCU_TYPE_RP2040
 		// Core64c HARDWARE v0.2.0
 			// PRIMARY AND DEFAULT FUNCTIONALITY
 						#define Pin_Built_In_VBUS_Sense   	24  // BUILT-IN to Pico Board, high if VBUS is present, which means USB power is connected to Pico.

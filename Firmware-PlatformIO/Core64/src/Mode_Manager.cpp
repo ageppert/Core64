@@ -115,6 +115,7 @@ static uint8_t  coreToTest = 0;
 uint8_t EepromByteValue = 0;
 uint8_t Eeprom_Byte_Mem_Address = 0;
 extern int StreamTopLevelModeEnable;
+extern const char* LogicBoardTypeArrayText[];
 
 static uint32_t MenuTimeoutTimerms  = 0;
 static uint32_t MenuTimeoutDeltams  = 0;
@@ -300,13 +301,13 @@ void TopLevelModeManagerRun () {
       Serial.println(".");
       Serial.println("  Power-on sequence has begun.");
       CommandLineSetup();
-      #if defined BOARD_CORE64_TEENSY_32
+      #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         #ifdef NEON_PIXEL_ARRAY
           // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
         #else
           HeartBeatSetup();
         #endif
-      #elif defined BOARD_CORE64C_RASPI_PICO
+      #elif defined MCU_TYPE_RP2040
         HeartBeatSetup();
       #endif
       Serial.println("  Heartbeat started.");
@@ -325,7 +326,7 @@ void TopLevelModeManagerRun () {
       Serial.println("    Starting LED Matrix.");
       LED_Array_Init();                                       // Assuming this hardware is available... it's a blind output only.
       LED_Array_Start_Up_Symbol_Loop_Begin();                 // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
-      Serial.println("    Starting OLED Display.");
+      Serial.println("    Starting I2C OLED Display.");
       OLEDScreenSetup();
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
@@ -338,12 +339,27 @@ void TopLevelModeManagerRun () {
       LED_Array_Start_Up_Symbol_Loop_Continue();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
-      Serial.println("  EEPROM read has begun...");
-      if (ReadHardwareVersion()) {Serial.println("  EEPROM Present.");}
-      else {Serial.println("  EEPROM not found. Default firmware values used.");}
+      Serial.println("  EEPROM - Attempting to access...");
+      if (ReadHardwareVersion()) {
+        Serial.println("  EEPROM is present.");
+        ReadLogicBoardType ();
+        Serial.print("  EEPROM S/N indicates Logic Board Type: ");
+        Serial.print(LogicBoardTypeGet());
+        Serial.print(" (");
+        Serial.print(LogicBoardTypeArrayText[LogicBoardTypeGet()]);
+        Serial.println(")");
+      }
+      else {
+        Serial.println("  EEPROM not found. Default firmware values used.");
+        Serial.print("  Default Logic Board Type: ");
+        Serial.print(LogicBoardTypeGet());
+        Serial.print(" (");
+        Serial.print(LogicBoardTypeArrayText[LogicBoardTypeGet()]);
+        Serial.println(")");
+      }
       Serial.println("  ...completed EEPROM read.");
       Serial.println("  Starting Hall Sensor Buttons");
-      Buttons_Setup(); // This breaks Pico MBED with error code.
+      Buttons_Setup();
       TopLevelModePreviousSet (TopLevelModeGet());
       TopLevelModeSetInc();
       delay(DebugDelayBetweenStartUpStates);
@@ -377,11 +393,11 @@ void TopLevelModeManagerRun () {
       CoreSetup();
       OLEDScreenUpdate();
       SDInfo();
-      #if defined BOARD_CORE64_TEENSY_32
+      #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         AmbientLightSetup();
         Neon_Pixel_Array_Init();
         SDCardSetup();
-      #elif defined BOARD_CORE64C_RASPI_PICO
+      #elif defined MCU_TYPE_RP2040
         // TODO: Handle the difference in the hardware inside the functions above and remove this #if sequence
       #endif
       Serial.println("  ...Completed configuration specific setup.");
@@ -427,12 +443,12 @@ void TopLevelModeManagerRun () {
         Serial.println("    To access modes directly from serial command line, type 'mode' and press RETURN.");
         WriteColorFontSymbolToLedScreenMemoryMatrixColor(0);
         LED_Array_Matrix_Color_Display();
-        #if defined BOARD_CORE64_TEENSY_32
+        #if defined  MCU_TYPE_MK20DX256_TEENSY_32
           #ifdef NEON_PIXEL_ARRAY
             CopyColorFontSymbolToNeonPixelArrayMemory(0);
             Neon_Pixel_Array_Matrix_Mono_Display();
           #endif
-        #elif defined BOARD_CORE64C_RASPI_PICO
+        #elif defined MCU_TYPE_RP2040
           // Nothing here
         #endif
         Serial.print(PROMPT);
@@ -544,7 +560,7 @@ void TopLevelModeManagerRun () {
       case MODE_UTIL_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
         LED_Array_Monochrome_Set_Color(50,255,255);
         LED_Array_Memory_Clear();
-//        #if defined BOARD_CORE64_TEENSY_32
+//        #if defined  MCU_TYPE_MK20DX256_TEENSY_32
           for (coreToTest = 0; coreToTest < 64 ; coreToTest++) {   
             Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
             if (Core_Mem_Bit_Read(coreToTest)==true) {
@@ -565,7 +581,7 @@ void TopLevelModeManagerRun () {
           #ifdef NEON_PIXEL_ARRAY
             Neon_Pixel_Array_Matrix_String_Display();
           #endif
-//        #elif defined BOARD_CORE64C_RASPI_PICO
+//        #elif defined MCU_TYPE_RP2040
 //          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
 //        #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
@@ -619,7 +635,7 @@ void TopLevelModeManagerRun () {
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(50,255,255);
-        #if defined BOARD_CORE64_TEENSY_32        
+        #if defined  MCU_TYPE_MK20DX256_TEENSY_32        
           Serial.println();
           for (uint8_t bit = coreToTest; bit<(coreToTest+64); bit++)
             {
@@ -671,18 +687,18 @@ void TopLevelModeManagerRun () {
               else {Serial.print(", "); column_counter++;}
             }
 
-        #elif defined BOARD_CORE64C_RASPI_PICO
+        #elif defined MCU_TYPE_RP2040
           // TODO: Port Core HAL and Driver to handle Teensy and Pico.
               // TODO: Remove this test once shift registers are working. To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
               Core_Mem_All_Drive_IO_Toggle();
 
               // ClearRowZeroAndColZero ();
-              Core_Mem_Bit_Write(0,0);
+              Core_Mem_Bit_Write_With_V_MON(0,0);
               LED_Array_String_Write(0,0);
               LED_Array_String_Display();
               delay(5);
               // SetRowZeroAndColZero ();
-              Core_Mem_Bit_Write(0,1);
+              Core_Mem_Bit_Write_With_V_MON(0,1);
               LED_Array_String_Write(0,1);
               LED_Array_String_Display();
         #endif
@@ -692,29 +708,35 @@ void TopLevelModeManagerRun () {
         break;
 
       case MODE_CORE_TEST_ONE:
+        /* 
+        TODO: This code works fine on Teensy with Neon Pixels when it is run under
+        the MODE_UTIL_FLUX_DETECTOR. But it doesn't work down here in MODE_CORE_TEST_ONE.
+        And the code works fine on Pico without Neon Pixels.
+        What in the world is going on??? 
+        */
+
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(100,255,255);
         LED_Array_Memory_Clear();
-        #if defined BOARD_CORE64_TEENSY_32     
-          //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
-          //  TracingPulses(1);
-          // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
-          Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
-          //  TracingPulses(2);
-          if (Core_Mem_Bit_Read(coreToTest)==true) {LED_Array_String_Write(coreToTest, 1);}
-          else { LED_Array_String_Write(coreToTest, 0); }
-          //  TracingPulses(1);
-          // delay(10);
-        #elif defined BOARD_CORE64C_RASPI_PICO
-          // TracingPulses_Debug_Pin_1(1);
-          Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
-          // TracingPulses_Debug_Pin_1(2);
-          if (Core_Mem_Bit_Read(coreToTest)==true) {LED_Array_String_Write(coreToTest, 1);}
-          else { LED_Array_String_Write(coreToTest, 0); }
-          // TracingPulses_Debug_Pin_1(3);
-        #endif
+
+        Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
+        if (Core_Mem_Bit_Read(coreToTest)==true) {
+          LED_Array_String_Write(coreToTest, 1);
+          #ifdef NEON_PIXEL_ARRAY
+            Neon_Pixel_Array_String_Write(coreToTest, 1);
+          #endif
+          }
+        else { 
+          LED_Array_String_Write(coreToTest, 0); 
+          #ifdef NEON_PIXEL_ARRAY
+            Neon_Pixel_Array_String_Write(coreToTest, 0);
+          #endif
+          }
         LED_Array_String_Display();
+        #ifdef NEON_PIXEL_ARRAY
+          Neon_Pixel_Array_Matrix_String_Display();
+        #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         delay(100);  // This delay makes it easier to trigger on the first debug pulse consistently.
@@ -723,7 +745,7 @@ void TopLevelModeManagerRun () {
       case MODE_CORE_TEST_MANY:
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
-        #if defined BOARD_CORE64_TEENSY_32     
+        #if defined  MCU_TYPE_MK20DX256_TEENSY_32     
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
           for (uint8_t bit = coreToTest; bit<(64); bit++)
             {
@@ -739,7 +761,7 @@ void TopLevelModeManagerRun () {
             // delay(10);
             LED_Array_String_Display();
             }
-        #elif defined BOARD_CORE64C_RASPI_PICO
+        #elif defined MCU_TYPE_RP2040
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
           for (uint8_t bit = coreToTest; bit<(64); bit++)
             {

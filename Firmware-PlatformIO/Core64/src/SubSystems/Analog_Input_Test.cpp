@@ -21,18 +21,19 @@
   static uint16_t BatteryAvgmV = 0 ;
   static float    BatteryQuarterAvgV  = 0 ;
   static float    BatteryAvgV  = 0 ;
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     // TO DO: Is the analog reference really 3.3V, set in Teensy?
     // ADC reading is 1/4 of the battery voltage, scaled relative to 3.3V Analog Reference
     // 3300 mV per 1023 counts = 3.226 milliVolts/count [1/4 battery voltage]
     // Multiply above result by 4 = 12.904 milliVolts/count [full battery voltage] 
     // ADC reading * 12.904 = battery voltage in milliVolts
   static float BatteryScalarADCtomV = 12.904; // 1:4
-  static float    Bus_5V0_ADCtomV   = 6.452; // 1:2
-  static float    Bus_3V3_ADCtomV   = 3.226; // 1:1
-  static float    Core_Col0_ADCtomV = 3.226; // 1:1
-  static float    Core_Row0_ADCtomV = 3.226; // 1:1
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  static float    Bus_5V0_ADCtomV   = 6.452;  // 1:2
+  static float    Bus_3V3_ADCtomV   = 3.226;  // 1:1
+  static float    Core_Col0_ADCtomV = 3.226;  // 1:1
+  static float    Core_Row0_ADCtomV = 3.226;  // 1:1
+  static float    Core_GMEM_ADCtomV = 0;      // N/A
+  #elif defined MCU_TYPE_RP2040
     // ADC reading is 1/3 of the battery voltage, scaled relative to 3.3V Analog Reference
     // 3300 mV per 4096 counts = .8057 milliVolts/count [1/3 battery voltage]
     // Multiply above result by 3 = 2.417 milliVolts/count [full battery voltage] 
@@ -43,6 +44,7 @@
     static float    Bus_3V3_ADCtomV   = 0.8057 * 1.0 * 4.0; // 1:1 reading:actual
     static float    Core_Col0_ADCtomV = 0; // N/A
     static float    Core_Row0_ADCtomV = 0; // N/A
+    static float    Core_GMEM_ADCtomV = 0.8057 * 1.0 * 4.0; // 1:1 reading:actual
   #endif
 
   static uint16_t BatteryVoltageFilterArray[BATTERY_FILTER_SIZE];
@@ -50,16 +52,18 @@
   static uint8_t BatteryVoltageFilterArrayPosition = 0;
   static bool BatteryVoltageFilterLoaded = false;
 
-  static float Bus_5V0_V         = 0 ;
-  static float Bus_3V3_V         = 0 ;
+  static float Bus_5V0_V           = 0 ;
+  static float Bus_3V3_V           = 0 ;
   static float Core_Col0_Q3P_Q3N_V = 0 ;
   static float Core_Col0_Q1P_Q1N_V = 0 ;
   static float Core_Row0_Q7P_Q7N_V = 0 ;
   static float Core_Row0_Q9P_Q9N_V = 0 ;
+  static float Core_GMEM_V         = 0 ;  // Voltage at top of Core Enable FET, just above ground.
 
   static uint16_t Bus_VBAT_ADC_raw = 0 ;
   static uint16_t Bus_5V0_ADC_raw  = 0 ;
   static uint16_t Bus_3V3_ADC_raw  = 0 ;
+  static uint16_t Core_GMEM_ADC_raw  = 0 ;
 
   static uint16_t Analog_A11 = 0 ;
   static uint16_t Analog_A12 = 0 ;
@@ -98,10 +102,14 @@
     return (Core_Row0_Q9P_Q9N_V);
   }
 
+  float GetCoreGMEM() {
+    return (Core_GMEM_V);
+  }
+
   void ReadAnalogVoltage() {
 
-    #if defined BOARD_CORE64_TEENSY_32
-      if ( (HardwareVersionMinor == 4) || (HardwareVersionMinor == 5) || (HardwareVersionMinor == 6) ) 
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+      if ( (LogicBoardTypeGet() == eLBT_CORE64_T32 ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 4) )
       {
         Bus_VBAT_ADC_raw = analogRead ( Pin_Battery_Voltage   );  //  VBAT_MON
         #if defined Pin_SPARE_3_Assigned_To_Spare_3_Analog_Input
@@ -114,12 +122,15 @@
         Analog_A13 = analogRead ( Pin_SPARE_ANA_8       );  //  LR0_MON ("left of ROW 0 resistor" between Q7P and Q7N transistors)
         Analog_A14 = analogRead ( Pin_Spare_ADC_DAC     );  //  RR0_MON ("right of ROW 0 resistor" between Q9P and Q9N transistors)
       }
-    #elif defined BOARD_CORE64C_RASPI_PICO
-      #ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
-        if ( (HardwareVersionMajor == 0) && ((HardwareVersionMinor == 2) || (HardwareVersionMinor == 3) || (HardwareVersionMinor == 4)) ) 
+    #elif defined MCU_TYPE_RP2040
+      if (
+        ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) ) ||
+        ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) )
+      )  
         {
-          Bus_VBAT_ADC_raw = analogRead ( Pin_Battery_Voltage   );                      // VBAT_MON at 3:1 reading
-          Bus_3V3_ADC_raw  = analogRead ( Pin_SPARE_ADC1_Assigned_To_Analog_Input );    //  3V3_MON at 1:1 reading
+          Bus_VBAT_ADC_raw  = analogRead ( Pin_Battery_Voltage   );                      // VBAT_MON at 3:1 reading
+          Bus_3V3_ADC_raw   = analogRead ( Pin_SPARE_ADC1_Assigned_To_Analog_Input );    //  3V3_MON at 1:1 reading
+          Core_GMEM_ADC_raw = analogRead ( Pin_SPARE_ADC2_Assigned_To_Analog_Input );    // Voltage just above Core Enable FET Drain
 
           // TO DO: Move this Pico vs W test to HardwareIOMap.c (needs to be created)
           // TO DO: Integrate additional Pico W library into this project.
@@ -147,7 +158,6 @@
             }
           Bus_5V0_ADC_raw  = analogRead ( Pin_Built_In_ADC3_Assigned_To_Analog_Input ); //  5V0_MON (built-in to Pico VSYS) at 3:1 reading
         }
-      #endif
     #endif
 
     if(!BatteryVoltageFilterLoaded)
@@ -185,6 +195,7 @@
     Core_Col0_Q1P_Q1N_V = Analog_A12 * Core_Col0_ADCtomV / 1000.0 ;
     Core_Row0_Q7P_Q7N_V = Analog_A13 * Core_Row0_ADCtomV / 1000.0 ;
     Core_Row0_Q9P_Q9N_V = Analog_A14 * Core_Row0_ADCtomV / 1000.0 ;
+    Core_GMEM_V         = Core_GMEM_ADC_raw * Core_GMEM_ADCtomV / 1000.0 ;
 
   }
 
@@ -236,6 +247,8 @@
     Serial.print(Core_Row0_Q7P_Q7N_V,2);
     Serial.print(", ");
     Serial.print(Core_Row0_Q9P_Q9N_V,2);
+    Serial.print(", ");
+    Serial.print(Core_GMEM_V,2);
     Serial.println();
   }
 

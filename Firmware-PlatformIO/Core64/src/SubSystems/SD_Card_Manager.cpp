@@ -16,7 +16,7 @@
 
 bool SDCardPresent = false;     // Keep track of whether the card is present or not.
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
 
   #ifdef SDCARD_ENABLE // is true
     #include "SD_Card_Manager.h"
@@ -414,7 +414,7 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
     }
   #endif // SDCARD_ENABLE
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
   #ifdef SDCARD_ENABLE
     /****************************************************************************************************************************
       ReadWrite.ino

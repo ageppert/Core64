@@ -72,12 +72,12 @@ void DemoScrollingText() {
   LED_Array_Matrix_Mono_Display();
   OLEDTopLevelModeSet(TopLevelModeGet());
   OLEDScreenUpdate();
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
       CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
       Neon_Pixel_Array_Matrix_Mono_Display();
     #endif
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     // Nothing here
   #endif
   if (ScrollTextToCoreMemoryCompleteFlagCheck()) { 

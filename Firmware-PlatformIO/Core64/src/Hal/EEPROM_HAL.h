@@ -28,6 +28,7 @@ uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
 uint8_t EEPROMExtReadCorePatternArrangement();
 void EEPROMExtWriteCorePatternArrangement(uint8_t value);
-bool ReadHardwareVersion ();								// Use once to detect and set the hardware version variables.
+bool ReadHardwareVersion();									// Use once to detect and set the hardware version variables. Return true if EEPROM is present and the value is in bounds.
+bool ReadLogicBoardType();								// Use once to detect and set the Logic Board Type variables. Return true if EEPROM is present and the value is in bounds.
 
 #endif // EEPROM_HAL_H

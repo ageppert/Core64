@@ -15,9 +15,9 @@ SETUP:
     #include <stdint.h>
     #include "Config/HardwareIOMap.h"   // Detects board type
 
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         #define PROMPT "Core64> "
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
         #define PROMPT "Core64c: "
     #else
         #define PROMPT "unknown: "

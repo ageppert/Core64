@@ -406,11 +406,11 @@ void ConvertGameFieldToLEDMatrixScreenMemory() {
       if (GameField[y][x] == GPT_P2R_MID ) { Color = GPC_P2R_MID ; }
       if (GameField[y][x] == GPT_P2R_BOT ) { Color = GPC_P2R_BOT ; }
       LED_Array_Matrix_Color_Write(ScreenY, ScreenX, Color);
-      #if defined BOARD_CORE64_TEENSY_32
+      #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_Mono_Write(ScreenY, ScreenX, Color); // Any non-zero color will be an illuminated Neon Pixel.
         #endif
-      #elif defined BOARD_CORE64C_RASPI_PICO
+      #elif defined MCU_TYPE_RP2040
         // Nothing here
       #endif
       if(DebugLevel==4) {
@@ -429,11 +429,11 @@ void ConvertGameFieldToLEDMatrixScreenMemory() {
 
 void GameScreenRefresh() {
   LED_Array_Matrix_Color_Display();
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_Mono_Display();
     #endif
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     // Nothing here
   #endif
 }

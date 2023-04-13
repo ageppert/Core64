@@ -50,7 +50,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
   };
 #endif
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
   // Array from 1-20 with MCU pin # associated to verbose transitor drive line name. Ex: PIN_MATRIX_DRIVE_Q1P
   // Array position number 0 is not used in the matrix pin numbering
   // Matrix Drive Line array position :         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33
@@ -585,7 +585,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     }
   }
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
     // Core64c V0.3. hardware (CMMD controlled through 3 shift registers)
 
     // All QxN transistors are Active High. The Inactive state is LOW.
@@ -598,7 +598,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     // bit #                                32     24  20| 16       8       0
     //                                       |      |   ||  |       |       |
     uint32_t CMMDTransistorInactiveState = 0b00000000000010101010101010101010;
-    uint32_t CMMDTransistorActiveState =   0b00000000000001010101010101010101;    // Usefull for testing as long as Write_Enable is not active!
+    uint32_t CMMDTransistorActiveState =   0b00000000000001010101010101010101;    // Useful for testing as long as Write_Enable is not active!
 
   // MCU output pin is set to these states to correspond to activation of the transistor needed to achieve active/inactive state.
   #define WRITE_ENABLE_ACTIVE   1 // logic level to turn on transistor

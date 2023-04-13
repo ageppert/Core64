@@ -29,7 +29,7 @@ uint32_t EEPROMExtReadSerialNumber() {
   SerialNumberLocal = SerialNumberLocal + (100 * EEPROMExtReadByte(EEPROM_ADDRESS, 3) );
   SerialNumberLocal = SerialNumberLocal + (1000 * EEPROMExtReadByte(EEPROM_ADDRESS, 2) );
   SerialNumberLocal = SerialNumberLocal + (10000 * EEPROMExtReadByte(EEPROM_ADDRESS, 1) );
-  SerialNumberLocal = SerialNumberLocal + (100000 * EEPROMExtReadByte(EEPROM_ADDRESS, 0) );
+  SerialNumberLocal = SerialNumberLocal + (100000 * EEPROMExtReadByte(EEPROM_ADDRESS, 0) );  // This digit indicates Logic Board Type. See enum eLogicBoardType.
   return (SerialNumberLocal);
 }
 
@@ -70,6 +70,22 @@ bool ReadHardwareVersion() {
 		HardwareVersionMajor  = 0;
 		HardwareVersionMinor  = 2;
 		HardwareVersionPatch  = 0;
+    return false;
+	}
+}
+
+bool ReadLogicBoardType () {
+	if (I2CDetectExternalEEPROM(0x57))
+	{
+		uint8_t temp =  EEPROMExtReadByte(EEPROM_ADDRESS, 0);
+    if (temp <= 2) { LogicBoardTypeSet(temp);         }
+    else           { LogicBoardTypeSet(eLBT_UNKNOWN); }
+    return true;
+	}
+	else
+	{
+		// If the external EEPROM is not present, assume Logic Board Type Unknown
+    LogicBoardTypeSet(eLBT_UNKNOWN);
     return false;
 	}
 }

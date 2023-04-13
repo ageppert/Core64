@@ -12,9 +12,13 @@
 
 void HeartBeatSetup() {
   pinMode(Pin_Built_In_LED, OUTPUT);
-  #if defined BOARD_CORE64_TEENSY_32
-    digitalWriteFast(Pin_Built_In_LED, 1);
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+    #ifdef NEON_PIXEL_ARRAY
+      // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
+    #else
+      digitalWriteFast(Pin_Built_In_LED, 1);
+    #endif
+  #elif defined MCU_TYPE_RP2040
     digitalWrite(Pin_Built_In_LED, 1);
   #endif
 }
@@ -34,9 +38,9 @@ void HeartBeat() {
     HeartBeatSequencePosition++;
     if(HeartBeatSequencePosition>3) {HeartBeatSequencePosition = 0;}
   }
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     digitalWriteFast(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
     digitalWrite(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
   #endif
 }

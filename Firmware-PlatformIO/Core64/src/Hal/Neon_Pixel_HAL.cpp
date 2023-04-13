@@ -12,7 +12,7 @@
 #include "Config/HardwareIOMap.h"
 #include "Config/CharacterMap.h"
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
   #include "Hal/Core_HAL.h"       // ToDo This core_api shouldn't be directly accessed from this files. Interaction should be through higher level application
   #include "Drivers/NeonPixel_Driver.h"
 
@@ -357,6 +357,6 @@
 
   #endif // NEON_PIXEL_ARRAY
 
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
 
 #endif

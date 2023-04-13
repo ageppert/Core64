@@ -39,7 +39,7 @@ extern void TracingPulses(uint8_t numberOfPulses);
 void DebugWithReedSwitchOutput();
 void DebugWithReedSwitchInput();
 
-#if defined BOARD_CORE64_TEENSY_32
+#if defined  MCU_TYPE_MK20DX256_TEENSY_32
     void DebugIOESpare1_On();
     void DebugIOESpare1_Off();
     void DebugIOESpare2_On();
@@ -51,7 +51,7 @@ void DebugWithReedSwitchInput();
     void DebugPin14_Off();
     void DebugPin15_On();
     void DebugPin15_Off();
-#elif defined BOARD_CORE64C_RASPI_PICO
+#elif defined MCU_TYPE_RP2040
     void OutputToSerialShiftRegister(uint32_t value);
 #endif
 

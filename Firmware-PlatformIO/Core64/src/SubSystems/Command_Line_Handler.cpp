@@ -24,6 +24,8 @@
 #include "Hal/Debug_Pins_HAL.h"
 #include "Mode_Manager.h"
 
+extern const char* LogicBoardTypeArrayText[];
+
 uint32_t SerialNumber;          // Default value is 0 and should be non-zero if the Serial Number is valid.
 
 int StreamTopLevelModeEnable;
@@ -87,7 +89,7 @@ void coreTesting() {
 
 void CommandLineSetup ()
 {
-  #if defined BOARD_CORE64_TEENSY_32
+  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
   // Pre-defined commands
 
   // On-the-fly commands -- instance is allocated dynamically
@@ -103,7 +105,7 @@ void CommandLineSetup ()
   commandLine.add("splash", &handleSplash);
   commandLine.add("stream", &handleStream);
   commandLine.add("thanks", &handleThanks);
-  #elif defined BOARD_CORE64C_RASPI_PICO
+  #elif defined MCU_TYPE_RP2040
   // Pre-defined commands
 
   // On-the-fly commands -- instance is allocated dynamically
@@ -233,13 +235,20 @@ void  CommandLineUpdate()
     Serial.println("  |     INFO     |");
     Serial.println("  ----------------");
 
-    #if defined BOARD_CORE64_TEENSY_32
+    ReadLogicBoardType ();
+    Serial.print("  EEPROM S/N indicates Logic Board Type: ");
+    Serial.print(LogicBoardTypeGet());
+    Serial.print(" (");
+    Serial.print(LogicBoardTypeArrayText[LogicBoardTypeGet()]);
+    Serial.println(")");
+
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       Serial.print("  Core64 Logic Board with ");
-      Serial.print(BOARD);
+      Serial.print(CARRIER_BOARD);
       Serial.println(". Hardware configuration in HardwareIOMap.h");
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       Serial.print("  Core64c Logic Board with ");
-      Serial.print(BOARD);
+      Serial.print(CARRIER_BOARD);
       Serial.println(". Hardware configuration in HardwareIOMap.h");
     #else
       Serial.println("  Unknown Logic Board with unknown Microcontroller Board.");
@@ -252,11 +261,11 @@ void  CommandLineUpdate()
     Serial.print(".");
     Serial.print(HardwareVersionPatch);
     Serial.print("     Serial Number: ");
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       char SerialNumberPadded[6];
       sprintf(SerialNumberPadded, "%06lu", SerialNumber);
       Serial.print(SerialNumberPadded);
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       Serial.print(SerialNumber);
     #endif
     Serial.print("     Born on: 20");
@@ -265,9 +274,9 @@ void  CommandLineUpdate()
     Serial.print(EEPROMExtReadBornOnMonth());
     Serial.print("-");
     Serial.println(EEPROMExtReadBornOnDay());    
-    #if defined BOARD_CORE64_TEENSY_32
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       Serial.print("  Voltages: Input (USB or Bat.): ");
-    #elif defined BOARD_CORE64C_RASPI_PICO
+    #elif defined MCU_TYPE_RP2040
       pinMode(Pin_Built_In_VBUS_Sense, INPUT);
       if (digitalRead(Pin_Built_In_VBUS_Sense)) {
         Serial.print("  Voltages: Input (USB detected): ");
@@ -365,7 +374,7 @@ void  CommandLineUpdate()
     Serial.println("   \\____\\___/|_|  \\___|\\___/   |_|  ");
     Serial.println();
     Serial.println("  Core64 Interactive Core Memory - Project website: www.Core64.io");
-    Serial.println("  2019-2022 Concept and Design by Andy Geppert at www.MachineIdeas.com");
+    Serial.println("  2019-2023 Concept and Design by Andy Geppert of www.MachineIdeas.com");
     Serial.println("  This source code: https://www.github.com/ageppert/Core64");
     Serial.println("  See main.cpp for IDE and library requirements.");
     Serial.println("  See HardwareIOMap.h for hardware configuration.");
