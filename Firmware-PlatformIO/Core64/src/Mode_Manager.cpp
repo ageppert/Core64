@@ -35,7 +35,7 @@
 #include "GAMES/Game_Snake.h"
 #include "GAMES/Game_Pong.h"
 #include "APPS/Apps_Sub_Menu.h"
-#include "APPS/Drawing.h"
+#include "APPS/App_Paint.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
 #include "SPECIAL/Special_Sub_Menu.h"
 #include "SETTINGS/Settings_Sub_Menu.h"
@@ -63,7 +63,7 @@
       "   MODE_GAME_PONG                     ",
       "   MODE_GAME_END_OF_LIST              ",
       "  MODE_APP_SUB_MENU                   ",
-      "   MODE_APP_DRAW                      ",
+      "   MODE_APP_PAINT                      ",
       "   MODE_APP_END_OF_LIST               ",
       "  MODE_UTIL_SUB_MENU                  ",
       "   MODE_UTIL_FLUX_DETECTOR            ",
@@ -549,7 +549,7 @@ void TopLevelModeManagerRun () {
 // ***************************************************** APP ***************************************************************************************** //
 // *************************************************************************************************************************************************** //
     case MODE_APP_SUB_MENU:                     AppsSubMenu();                            break;
-    case MODE_APP_DRAW:                         Draw();                                   break;
+    case MODE_APP_PAINT:                        AppRunPaint();                            break;
     case MODE_APP_END_OF_LIST:                  TopLevelModeSet(MODE_APP_SUB_MENU);       break;
 
 // *************************************************************************************************************************************************** //
@@ -831,6 +831,12 @@ void TopLevelModeManagerRun () {
       delay(5000);
       TopLevelModeSet(MODE_SPECIAL_HARD_REBOOT);
       break;
+
+    case MODE_SPECIAL_HI_GLAMOR_SHOT:
+        LED_Array_Memory_Clear();
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(16);
+        LED_Array_Matrix_Color_Display();
+    break;
 
     case MODE_SPECIAL_HARD_REBOOT:
       LED_Array_Memory_Clear();
