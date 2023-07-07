@@ -69,6 +69,7 @@
       "   MODE_UTIL_FLUX_DETECTOR            ",
       "   MODE_UTIL_END_OF_LIST              ",
       "  MODE_SPECIAL_SUB_MENU               ",
+      "   MODE_GLAMOR_SHOT                   ",
       "   MODE_LED_TEST_ALL_BINARY           ",
       "   MODE_LED_TEST_ONE_STRING           ",
       "   MODE_TEST_EEPROM                   ",
@@ -594,6 +595,16 @@ void TopLevelModeManagerRun () {
 // ***************************************************** SPECIAL ************************************************************************************* //
 // *************************************************************************************************************************************************** //
     case MODE_SPECIAL_SUB_MENU:   SpecialSubMenu();      break;
+
+      case MODE_GLAMOR_SHOT: // Static image display, no timeout.
+        TopLevelThreeSoftButtonGlobalEnableSet (true);
+        LED_Array_Set_Brightness(200);
+        LED_Array_Memory_Clear();
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(17);
+        LED_Array_Matrix_Color_Display();
+        OLEDTopLevelModeSet(TopLevelModeGet());
+        OLEDScreenUpdate();
+        break;
 
       case MODE_LED_TEST_ALL_BINARY: // Counts from lower right and left/up in binary, using Binary LUT.
         TopLevelThreeSoftButtonGlobalEnableSet (true);

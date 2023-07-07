@@ -177,7 +177,7 @@ SETUP:
   }
   };
 
-  const static uint8_t NumberOfColorFontSymbols = 16;
+  const static uint8_t NumberOfColorFontSymbols = 18;
   const static uint8_t ColorFontSymbols[NumberOfColorFontSymbols][8][8] PROGMEM = {   // Character, Row, Column
     // 0
     { {  0,  0,  0, 85, 85,  0, 42,  0},     // DGAUSS Menu Symbol
@@ -322,7 +322,25 @@ SETUP:
       {  0,  0,  0,  0,  0,  0,  0,  0},
       {  0,  0,  0,  0,  0, 60,  0,  0},
       {254,  0,155,155,155, 60,  0,  0},
-      {254,254,254,155, 60, 60,  0,  0}  }   // Tetris Game logo
+      {254,254,254,155, 60, 60,  0,  0}  },  // Tetris Game logo
+    // 16
+    { {  0,  0,  0,  0,  0,  0,  0,  0},
+      { 20,  0, 20,  0,  0,  0, 20,  0},
+      { 20,  0, 20,  0, 20,  0, 20,  0},
+      { 20, 20, 20,  0,  0,  0, 20,  0},
+      { 20,  0, 20,  0, 20,  0,  0,  0},
+      { 20,  0, 20,  0, 20,  0, 20,  0},
+      {  0,  0,  0,  0,  0,  0,  0,  0},
+      {  0,  0,  0,  0,  0,  0,  0,  0}  },  // "Hi!"
+    // 17
+    { {  0,  0,  0,  0,  0,  0,  0,  0},
+      {  0,  0,  0,  0,  0,  0,  0,  0},
+      {  0, 20, 20,  0,  0, 20, 20,  0},
+      {  0, 20, 20,  0,  0, 20, 20,  0},
+      {  0,  0,  0,  0,  0,  0,  0,  0},
+      {  0, 20,  0,  0,  0,  0, 20,  0},
+      {  0,  0, 20, 20, 20, 20,  0,  0},
+      {  0,  0,  0,  0,  0,  0,  0,  0}  }   // Smiley face
   };
 
   const static uint8_t GameSnakeSymbols[3][8][8] PROGMEM = {   // Symbol #, Row, Column

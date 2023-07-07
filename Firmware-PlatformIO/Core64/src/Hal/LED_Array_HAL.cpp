@@ -158,6 +158,15 @@ void LED_Array_Auto_Brightness() {
     // Serial.println(LEDArrayBrightness);
 }
 
+  void LED_Array_Set_Brightness(uint8_t brightness) {
+      #if defined USE_FASTLED_LIBRARY
+        FastLED.setBrightness( brightness );
+      #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+        LEDArrayMonochromeColorHSV [2] = brightness; // Neopixels use VALUE to change brightness through HSV
+        strip.show();
+      #endif
+  }
+
   void LED_Array_Memory_Clear() {
     LedArrayMemoryBinary = 0;
     for( uint8_t i = 0; i < NUM_LEDS; i++) {
