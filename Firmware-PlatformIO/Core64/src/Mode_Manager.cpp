@@ -598,9 +598,9 @@ void TopLevelModeManagerRun () {
 
       case MODE_GLAMOR_SHOT: // Static image display, no timeout.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        LED_Array_Set_Brightness(200);
+        LED_Array_Set_Brightness(255); // Not yet working!
         LED_Array_Memory_Clear();
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(17);
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(14);
         LED_Array_Matrix_Color_Display();
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
