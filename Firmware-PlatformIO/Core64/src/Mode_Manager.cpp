@@ -35,7 +35,7 @@
 #include "GAMES/Game_Snake.h"
 #include "GAMES/Game_Pong.h"
 #include "APPS/Apps_Sub_Menu.h"
-#include "APPS/Drawing.h"
+#include "APPS/App_Paint.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
 #include "SPECIAL/Special_Sub_Menu.h"
 #include "SETTINGS/Settings_Sub_Menu.h"
@@ -63,7 +63,7 @@
       "   MODE_GAME_PONG                     ",
       "   MODE_GAME_END_OF_LIST              ",
       "  MODE_APP_SUB_MENU                   ",
-      "   MODE_APP_DRAW                      ",
+      "   MODE_APP_PAINT                     ",
       "   MODE_APP_END_OF_LIST               ",
       "  MODE_UTIL_SUB_MENU                  ",
       "   MODE_UTIL_FLUX_DETECTOR            ",
@@ -286,7 +286,7 @@ bool MenuTimeOutCheck (uint32_t MenuTimeoutLimitms) {
   }
 }
 
-void TopLevelModeManagerRun () {
+void TopLevelModeManagerRun() {
   switch(TopLevelMode) {
     // *************************************************************************************************************************************************** //
     case MODE_START_POWER_ON:                    // Perform the bare minimum required to start and support serial status and debugging.
@@ -442,8 +442,8 @@ void TopLevelModeManagerRun () {
         Serial.println("    s = Special");
         Serial.println("    s = Settings");
         Serial.println("    To access modes directly from serial command line, type 'mode' and press RETURN.");
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(0);
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(0);
+        LED_Array_Matrix_Color_Display(1);
         #if defined  MCU_TYPE_MK20DX256_TEENSY_32
           #ifdef NEON_PIXEL_ARRAY
             CopyColorFontSymbolToNeonPixelArrayMemory(0);
@@ -550,7 +550,7 @@ void TopLevelModeManagerRun () {
 // ***************************************************** APP ***************************************************************************************** //
 // *************************************************************************************************************************************************** //
     case MODE_APP_SUB_MENU:                     AppsSubMenu();                            break;
-    case MODE_APP_DRAW:                         Draw();                                   break;
+    case MODE_APP_PAINT:                        Paint();                                  break;
     case MODE_APP_END_OF_LIST:                  TopLevelModeSet(MODE_APP_SUB_MENU);       break;
 
 // *************************************************************************************************************************************************** //
@@ -600,8 +600,8 @@ void TopLevelModeManagerRun () {
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Set_Brightness(255); // Not yet working!
         LED_Array_Memory_Clear();
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(14);
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(14);
+        LED_Array_Matrix_Color_Display(1);
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
@@ -874,8 +874,8 @@ void TopLevelModeManagerRun () {
         Serial.println("  Nothing to see yet.");
         Serial.print(PROMPT);
         TopLevelThreeSoftButtonGlobalEnableSet(true);
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(11);   // TODO: Change to a mfg symbol.
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
+        LED_Array_Matrix_Color_Display(1);
         }
       if (MenuTimeOutCheck(3000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
@@ -913,8 +913,8 @@ void TopLevelModeManagerRun () {
         // Pass, write to EEPROM. The read back out to compare and verify.
 
         TopLevelThreeSoftButtonGlobalEnableSet(true);
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(11);   // TODO: Change to a mfg symbol.
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
+        LED_Array_Matrix_Color_Display(1);
         }
       if (MenuTimeOutCheck(10000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();

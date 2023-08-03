@@ -67,11 +67,12 @@
 	|  0.7.23 | 2022-12-27 | Core64, add core # to MODE_CORE_TOGGLE_BITS_WITH_3V3_READ analog voltage data stream, add read ANA7 (A12) connected above CAE FET with modified LB. 
 	|  0.7.24 | 2023-02-19 | Core64, add compatibility for Core64 V0.7+ Pico Version, remove unused Detect_Board file.
 	|  0.7.25 | 2023-07-07 | Add glamor shot display mode in first special menu, set to pong game
+	|  0.7.26 | 2023-07-24 | Enhance App_Drawing to become App_Paint
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Add glamor shot display mode in first special menu, set to pong game."
+	#define FIRMWARE_DESCRIPTION "Enhance App_Drawing to become App_Paint."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 25 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 26 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

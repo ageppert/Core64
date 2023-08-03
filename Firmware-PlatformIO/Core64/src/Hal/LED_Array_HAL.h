@@ -50,21 +50,24 @@ uint64_t LED_Array_Binary_Read();
 void LED_Array_String_Write(uint8_t bit, bool value);
 void LED_Array_Matrix_Mono_Write(uint8_t y, uint8_t x, bool value);
 bool LED_Array_Matrix_Mono_Read(uint8_t y, uint8_t x);
-void LED_Array_Matrix_Color_Write(uint8_t y, uint8_t x, uint8_t hue);
+void LED_Array_Matrix_Color_Hue_Write(uint8_t y, uint8_t x, uint8_t hue);
+void LED_Array_Matrix_Color_Hue_Sat_Write(uint8_t y, uint8_t x, uint8_t hue, uint8_t sat);
 
 void LED_Array_Binary_Display();
 void LED_Array_String_Display();
 void LED_Array_Matrix_Mono_Display();
-void LED_Array_Matrix_Color_Display();
+void LED_Array_Matrix_Color_Display(bool HuenHueSat); // Display from Hue only with 1, and Hue and Sat with 0.
 
 void LED_Array_Binary_Write_Default(); // Set the Binary memory to it's default value
 void LED_Array_Binary_To_Matrix_Mono(); // convert the contents of the 64 Bit Binary screen memory to 8x8 Matrix Monochrome memory
-void LED_Array_Matrix_Mono_to_Binary(); // convert the contesnt of 8x8 Matrix Monochrome memory to the 64 Bit Binary Screen Memory
+void LED_Array_Matrix_Mono_to_Binary(); // convert the contents of 8x8 Matrix Monochrome memory to the 64 Bit Binary Screen Memory
 
 void LED_Array_Auto_Brightness();	// If ambient light sensor is available, use to adjust LED Array brightness
 void LED_Array_Set_Brightness(uint8_t brightness); // Set brightness directly.
 // TO DO: Clean up the naming convention of these sub-functions
-void WriteColorFontSymbolToLedScreenMemoryMatrixColor(uint8_t SymbolNumber);
+void WriteColorFontSymbolToLedScreenMemoryMatrixHue(uint8_t SymbolNumber);
+void WriteAppPaintSymbol(uint8_t SymbolNumber);
+void WriteAppPaintPalette(bool TopNBottom);         // Top = 1, Bottom = 0
 void WriteGameSnakeSymbol(uint8_t SymbolNumber);
 void WriteGamePongSymbol(uint8_t SymbolNumber);
 

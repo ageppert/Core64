@@ -28,7 +28,7 @@ SETUP:
             MODE_GAME_PONG                          ,                  // TODO: 
             MODE_GAME_END_OF_LIST                   ,             // End of the game list, go back to the beginning.
         MODE_APP_SUB_MENU                           ,                    // TODO: Implement sub-menu
-            MODE_APP_DRAW                           ,                  // Drawing mode, of course!
+            MODE_APP_PAINT                          ,                  // Drawing mode, of course!
             MODE_APP_END_OF_LIST                    ,              // End of the app list, go back to the beginning.
         MODE_UTIL_SUB_MENU                          ,                  // TODO: Implement sub-menu
             MODE_UTIL_FLUX_DETECTOR                 ,                  // Flux detector, shows cores being affected by magnetic flux in real-time

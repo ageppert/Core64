@@ -42,8 +42,8 @@ void SettingsSubMenu() {
     Serial.println("    S = Select Setting To Change");
     Serial.print(PROMPT);
     TopLevelSetSoftButtonGlobalEnableSet(false);
-    WriteColorFontSymbolToLedScreenMemoryMatrixColor(6);
-    LED_Array_Matrix_Color_Display();
+    WriteColorFontSymbolToLedScreenMemoryMatrixHue(6);
+    LED_Array_Matrix_Color_Display(1);
     #if defined  MCU_TYPE_MK20DX256_TEENSY_32
       #ifdef NEON_PIXEL_ARRAY
         CopyColorFontSymbolToNeonPixelArrayMemory(6);
