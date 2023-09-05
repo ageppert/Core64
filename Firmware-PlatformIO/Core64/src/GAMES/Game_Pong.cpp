@@ -405,7 +405,7 @@ void ConvertGameFieldToLEDMatrixScreenMemory() {
       if (GameField[y][x] == GPT_P2R_TOP ) { Color = GPC_P2R_TOP ; }
       if (GameField[y][x] == GPT_P2R_MID ) { Color = GPC_P2R_MID ; }
       if (GameField[y][x] == GPT_P2R_BOT ) { Color = GPC_P2R_BOT ; }
-      LED_Array_Matrix_Color_Write(ScreenY, ScreenX, Color);
+      LED_Array_Matrix_Color_Hue_Write(ScreenY, ScreenX, Color);
       #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_Mono_Write(ScreenY, ScreenX, Color); // Any non-zero color will be an illuminated Neon Pixel.
@@ -428,7 +428,7 @@ void ConvertGameFieldToLEDMatrixScreenMemory() {
 }
 
 void GameScreenRefresh() {
-  LED_Array_Matrix_Color_Display();
+  LED_Array_Color_Display(1);
   #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_Mono_Display();
@@ -462,12 +462,11 @@ void GamePlayPong() {
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure MENU + and - soft buttons are enabled.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGamePongSymbol(0);
-    LED_Array_Matrix_Color_Display();
+    LED_Array_Color_Display(1);
     MenuTimeOutCheckReset();
     GameState = GAME_STATE_INTRO_SCREEN;
     GameUpdatePeriod = 33;
     GameOverTimerAutoReset = 3000;
-    MenuTimeOutCheckReset();
   }
     OLEDTopLevelModeSet(TopLevelModeGet());
     OLEDScreenUpdate();
@@ -488,7 +487,7 @@ void GamePlayPong() {
         // Check for touch of "S" to start the game
         if (ButtonState(4,0) >= 100) { MenuTimeOutCheckReset(); GameState = GAME_STATE_SET_UP; }
         // Timeout to next game option in the sequence
-        if (MenuTimeOutCheck(10000))  { TopLevelModeSetInc(); }
+        if (MenuTimeOutCheck(3000))  { TopLevelModeSetInc(); }
         break;
 
       case GAME_STATE_SET_UP:

@@ -1,11 +1,13 @@
 #include <stdint.h>
-//#include <stdbool.h> // Not required because FastLED library redefines bool.
+// #include <stdbool.h> // Not required because FastLED library redefines bool.
 
 #if (ARDUINO >= 100)
   #include <Arduino.h>
 #else
   #include <WProgram.h>
 #endif
+
+#include "LED_Array_HAL.h"
 
 #include "Config/HardwareIOMap.h"
 
@@ -43,10 +45,12 @@ static uint8_t StartUpSymbolIndex = 0;
 // MATRIX MONOCHROME [2D 8x8 pixel matrix, monochrome]
   // order y,x : 0,0 is upper left, 7,7 is lower right, counting left to right and top to bottom.
   static bool LedScreenMemoryMatrixMono [8][8];      
-// MATRIX COLOR [2D 8x8 pixel matrix, 1 byte HUE in HSV color space]
+// MATRIX COLOR [2D 8x8 pixel matrix, 1 byte HUE and 1 optional SAT in HSV color space]
   // order y,x : 0,0 is upper left, 7,7 is lower right, counting left to right and top to bottom.
-  // Exception for HSV color encoding is 0 is interpreted as off, which will be substituted when displayed.
-  static uint8_t LedScreenMemoryMatrixColor [8][8];
+  // Exception for HSV color encoding is 0 which is interpreted as off, which will be substituted when displayed.
+  // Exception for HSV color encoding is 255 which is interpreted as White, which will be substituted when displayed.
+  static uint8_t LedScreenMemoryMatrixHue [8][8];
+  static uint8_t LedScreenMemoryMatrixSat [8][8];
 
 #if defined USE_FASTLED_LIBRARY
   // nothing to do here
@@ -158,6 +162,15 @@ void LED_Array_Auto_Brightness() {
     // Serial.println(LEDArrayBrightness);
 }
 
+  void LED_Array_Set_Brightness(uint8_t brightness) {
+      #if defined USE_FASTLED_LIBRARY
+        FastLED.setBrightness( brightness );
+      #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+        LEDArrayMonochromeColorHSV [2] = brightness; // Neopixels use VALUE to change brightness through HSV
+        strip.show();
+      #endif
+  }
+
   void LED_Array_Memory_Clear() {
     LedArrayMemoryBinary = 0;
     for( uint8_t i = 0; i < NUM_LEDS; i++) {
@@ -168,9 +181,13 @@ void LED_Array_Auto_Brightness() {
       for( uint8_t x = 0; x < kMatrixWidth; x++) 
       {
         LedScreenMemoryMatrixMono[y][x] = 0;
-        LedScreenMemoryMatrixColor[y][x] = 0;
+        LedScreenMemoryMatrixHue[y][x] = 0;
       }
     }
+  }
+
+  uint8_t LED_Array_Get_Pixel_Value(uint8_t y, uint8_t x) {
+    return LedScreenMemoryMatrixMono[y][x];
   }
 
   void LED_Array_Monochrome_Set_Color(uint8_t hue, uint8_t saturation, uint8_t value) {
@@ -319,12 +336,12 @@ void LED_Array_Auto_Brightness() {
   //
   // Copy Color Font Symbol into Color HSV LED Array memory
   //
-    void WriteColorFontSymbolToLedScreenMemoryMatrixColor(uint8_t SymbolNumber) {
+    void WriteColorFontSymbolToLedScreenMemoryMatrixHue(uint8_t SymbolNumber) {
       for( uint8_t y = 0; y < kMatrixHeight; y++) 
       {
         for( uint8_t x = 0; x < kMatrixWidth; x++) 
         {
-          LedScreenMemoryMatrixColor[y][x] = ColorFontSymbols[SymbolNumber][y][x];
+          LedScreenMemoryMatrixHue[y][x] = ColorFontSymbols[SymbolNumber][y][x];
         }
       }
     }
@@ -337,7 +354,7 @@ void LED_Array_Auto_Brightness() {
       {
         for( uint8_t x = 0; x < kMatrixWidth; x++) 
         {
-          LedScreenMemoryMatrixColor[y][x] = GameSnakeSymbols[SymbolNumber][y][x];
+          LedScreenMemoryMatrixHue[y][x] = GameSnakeSymbols[SymbolNumber][y][x];
         }
       }
     }
@@ -350,7 +367,60 @@ void LED_Array_Auto_Brightness() {
       {
         for( uint8_t x = 0; x < kMatrixWidth; x++) 
         {
-          LedScreenMemoryMatrixColor[y][x] = GamePongSymbols[SymbolNumber][y][x];
+          LedScreenMemoryMatrixHue[y][x] = GamePongSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
+  // Copy Color Symbol into Color HSV LED Array memory
+  //
+    void WriteAppPaintSymbol(uint8_t SymbolNumber){
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[SymbolNumber][y][x];
+          LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
+  // Copy Color Symbol into Color HSV LED Array memory
+  //
+    void WriteUtilFluxSymbol(uint8_t SymbolNumber){
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixHue[y][x] = UtilFluxSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
+  // Write the color Palette into the HSV LED Array Memory
+  //
+    void WriteAppPaintPalette(bool TopNBottom){
+      if (TopNBottom){
+        for( uint8_t y = 0; y < 2; y++) 
+        {
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[2][y][x];
+            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[2][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 6; y < 8; y++) 
+        {
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[1][y][x];
+            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[1][y][x];
+          }
         }
       }
     }
@@ -379,14 +449,31 @@ void LED_Array_Auto_Brightness() {
   }
 
   //
-  // Write one COLOR bit into color LED Array memory using hue only
+  // Write one HUE COLOR bit into color LED Array memory
   //
-  void LED_Array_Matrix_Color_Write(uint8_t y, uint8_t x, uint8_t hue) {
+  void LED_Array_Matrix_Color_Hue_Write(uint8_t y, uint8_t x, uint8_t hue) {
     if ((x<kMatrixWidth)&&(y<kMatrixHeight)) {
-      LedScreenMemoryMatrixColor[y][x] = hue;
+      LedScreenMemoryMatrixHue[y][x] = hue;
     }
     else {
-      Serial.print("LED_Array_Matrix_Color_Write overloaded. Y,X: ");
+      Serial.print("LED_Array_Matrix_Color_Hue_Write overloaded. Y,X: ");
+      Serial.print(y);
+      Serial.print(",");
+      Serial.print(x);
+      Serial.println();
+    }
+  }
+
+  //
+  // Write one HUE and one SAT COLOR bit into color LED Array memory
+  //
+  void LED_Array_Matrix_Color_Hue_Sat_Write(uint8_t y, uint8_t x, uint8_t hue, uint8_t sat) {
+    if ((x<kMatrixWidth)&&(y<kMatrixHeight)) {
+      LedScreenMemoryMatrixHue[y][x] = hue;
+      LedScreenMemoryMatrixSat[y][x] = sat;
+    }
+    else {
+      Serial.print("LED_Array_Matrix_Color_Hue_Sat_Write overloaded. Y,X: ");
       Serial.print(y);
       Serial.print(",");
       Serial.print(x);
@@ -443,7 +530,7 @@ void LED_Array_Auto_Brightness() {
     #endif
   }
 
-  void LED_Array_Matrix_Color_Display() {
+  void LED_Array_Color_Display(bool HuenHueSat) {
     uint8_t LEDPixelPosition = 0;
     for( uint8_t y = 0; y < kMatrixHeight; y++) 
     {
@@ -451,20 +538,25 @@ void LED_Array_Auto_Brightness() {
       {
         LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
         #if defined USE_FASTLED_LIBRARY
-          leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+          leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
           // LED WHITE special case
-          if ((LedScreenMemoryMatrixColor [y][x]) == 255) {
-            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixColor [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
+          if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
           }
         #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixColor [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          if (HuenHueSat) {
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          }
+          else {
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),(LedScreenMemoryMatrixSat [y][x]),LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          }
           // LED WHITE special case
-          if ((LedScreenMemoryMatrixColor [y][x]) == 255) {
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixColor [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
+          if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
           }
         #endif
         // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
-        if(LedScreenMemoryMatrixColor [y][x]==0)
+        if(LedScreenMemoryMatrixHue [y][x]==0)
         {
           #if defined USE_FASTLED_LIBRARY
             leds[LEDPixelPosition] = 0;
@@ -691,8 +783,8 @@ void LED_Array_Auto_Brightness() {
   void LED_Array_Start_Up_Symbol_Loop_Begin() {
       StartUpSymbolIndex = 0;
       LED_Array_Memory_Clear();
-      WriteColorFontSymbolToLedScreenMemoryMatrixColor(SymbolSequenceArray[StartUpSymbolIndex]);
-      LED_Array_Matrix_Color_Display();
+      WriteColorFontSymbolToLedScreenMemoryMatrixHue(SymbolSequenceArray[StartUpSymbolIndex]);
+      LED_Array_Color_Display(1);
   }
 
   // Cycles through symbols dedicated to start-up mode.
@@ -704,8 +796,8 @@ void LED_Array_Auto_Brightness() {
       {
         UpdateTimer = NowTime;
         LED_Array_Memory_Clear();
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(SymbolSequenceArray[StartUpSymbolIndex]);
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(SymbolSequenceArray[StartUpSymbolIndex]);
+        LED_Array_Color_Display(1);
         StartUpSymbolIndex++;
         if(StartUpSymbolIndex >= SymbolSequenceArraySize){StartUpSymbolIndex=0;}
       }
@@ -722,8 +814,8 @@ void LED_Array_Auto_Brightness() {
       {
         UpdateTimer = NowTime;
         LED_Array_Memory_Clear();
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(FontSymbolNumber);
-        LED_Array_Matrix_Color_Display();
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(FontSymbolNumber);
+        LED_Array_Color_Display(1);
         FontSymbolNumber++;
         if(FontSymbolNumber>15){FontSymbolNumber=7;}
       }
@@ -742,5 +834,5 @@ void LED_Array_Auto_Brightness() {
     LED_Array_Memory_Clear();
     delay(25);
     LED_Array_Matrix_Mono_Display();
-    LED_Array_Matrix_Color_Display();
+    LED_Array_Color_Display(1);
   }

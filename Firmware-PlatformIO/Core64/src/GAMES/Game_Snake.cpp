@@ -322,11 +322,11 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
 void ConvertSnakeGameMemoryToScreenMemory() {
   for (uint8_t x=0; x<=7; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
     for (uint8_t y=0; y<=7; y++) {
-      if (SnakeGameMemory[y][x] == 0) { LED_Array_Matrix_Color_Write(y, x, ColorBlank); }
-      if (SnakeGameMemory[y][x] == 1) { LED_Array_Matrix_Color_Write(y, x, ColorSnakeBody); }
-      if (SnakeGameMemory[y][x] == 2) { LED_Array_Matrix_Color_Write(y, x, ColorSnakeHead); }
-      if (SnakeGameMemory[y][x] == -1) { LED_Array_Matrix_Color_Write(y, x, ColorPoison); }
-      if (SnakeGameMemory[y][x] == -2) { LED_Array_Matrix_Color_Write(y, x, ColorFood); }
+      if (SnakeGameMemory[y][x] == 0) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorBlank); }
+      if (SnakeGameMemory[y][x] == 1) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorSnakeBody); }
+      if (SnakeGameMemory[y][x] == 2) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorSnakeHead); }
+      if (SnakeGameMemory[y][x] == -1) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorPoison); }
+      if (SnakeGameMemory[y][x] == -2) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorFood); }
     }
   }
 }
@@ -344,7 +344,7 @@ void GameSnake() {
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGameSnakeSymbol(0);
     MenuTimeOutCheckReset();
-    LED_Array_Matrix_Color_Display();
+    LED_Array_Color_Display(1);
     GameState = 0;
     MenuTimeOutCheckReset();
   }
@@ -402,7 +402,7 @@ void GameSnake() {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        // WriteColorFontSymbolToLedScreenMemoryMatrixColor(14);
+        // WriteColorFontSymbolToLedScreenMemoryMatrixHue(14);
         WriteGameSnakeSymbol(2);
         break;
       case 4: // Winner = Green Screen
@@ -415,13 +415,13 @@ void GameSnake() {
           MenuTimeOutCheckReset();
           GameState = 1;
         }
-        // WriteColorFontSymbolToLedScreenMemoryMatrixColor(13);
+        // WriteColorFontSymbolToLedScreenMemoryMatrixHue(13);
         WriteGameSnakeSymbol(1);
         break;
       default:
         break;
     }
-    LED_Array_Matrix_Color_Display();
+    LED_Array_Color_Display(1);
     SnakeGameUpdateLastRunTime = nowTime;
   }
 

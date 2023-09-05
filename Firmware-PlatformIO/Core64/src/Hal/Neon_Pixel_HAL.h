@@ -21,6 +21,7 @@ void Neon_Pixel_Array_Matrix_Mono_Display();	// Update Neon Pixels from Matrix A
 void Neon_Pixel_Array_Matrix_String_Display();  // Update Neon Pixels from String Array.
 void CopyCoreMemoryToMonochromeNeonPixelArrayMemory(); 
 void CopyColorFontSymbolToNeonPixelArrayMemory(uint8_t SymbolNumber);
+void CopyLedArrayMemoryToNeonPixelArrayMemory();
 void Neon_Pixel_Array_Binary_Write_Default();
 void Neon_Pixel_Array_Binary_To_Matrix_Mono();
 void Neon_Pixel_Array_Matrix_Mono_Write(uint8_t y, uint8_t x, bool value);

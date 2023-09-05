@@ -66,12 +66,14 @@
 	|  0.7.22 | 2022-10-10 | Refine simplistic game of Pong. Works with Neon Pixels too!
 	|  0.7.23 | 2022-12-27 | Core64, add core # to MODE_CORE_TOGGLE_BITS_WITH_3V3_READ analog voltage data stream, add read ANA7 (A12) connected above CAE FET with modified LB. 
 	|  0.7.24 | 2023-02-19 | Core64, add compatibility for Core64 V0.7+ Pico Version, remove unused Detect_Board file.
-	|  0.7.25 | 2023-05-28 | Convert draw app to paint and add airbrush effect with color palette.
+	|  0.7.25 | 2023-07-07 | Add glamor shot display mode in first special menu, set to pong game
+	|  0.7.26 | 2023-07-24 | Enhance App_Drawing to become App_Paint
+	|  0.7.27 | 2023-09-04 | Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Convert draw app to paint and add airbrush effect with color palette."
+	#define FIRMWARE_DESCRIPTION "Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 25 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 27 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
