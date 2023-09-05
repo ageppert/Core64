@@ -428,7 +428,7 @@ void ConvertGameFieldToLEDMatrixScreenMemory() {
 }
 
 void GameScreenRefresh() {
-  LED_Array_Matrix_Color_Display(1);
+  LED_Array_Color_Display(1);
   #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
       Neon_Pixel_Array_Matrix_Mono_Display();
@@ -462,7 +462,7 @@ void GamePlayPong() {
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure MENU + and - soft buttons are enabled.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGamePongSymbol(0);
-    LED_Array_Matrix_Color_Display(1);
+    LED_Array_Color_Display(1);
     MenuTimeOutCheckReset();
     GameState = GAME_STATE_INTRO_SCREEN;
     GameUpdatePeriod = 33;

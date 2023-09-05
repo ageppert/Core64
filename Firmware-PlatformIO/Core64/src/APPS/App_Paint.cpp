@@ -26,14 +26,14 @@
 #include "SubSystems/Command_Line_Handler.h"
 
 // VARIABLES COMMON TO ALL MODES
-static bool      Button1Released         = true;
-static bool      Button2Released         = true;
-static bool      Button3Released         = true;
-static bool      Button4Released         = true;
-static uint32_t  Button1HoldTime         = 0;
-static uint32_t  Button2HoldTime         = 0;
-static uint32_t  Button3HoldTime         = 0;
-static uint32_t  Button4HoldTime         = 0;
+static volatile bool      Button1Released         = true;
+static volatile bool      Button2Released         = true;
+static volatile bool      Button3Released         = true;
+static volatile bool      Button4Released         = true;
+static volatile uint32_t  Button1HoldTime         = 0;
+static volatile uint32_t  Button2HoldTime         = 0;
+static volatile uint32_t  Button3HoldTime         = 0;
+static volatile uint32_t  Button4HoldTime         = 0;
 
 // VARIABLES TO CUSTOMIZE FOR EACH STATE IN THIS MODE
 enum ModeState {
@@ -41,35 +41,35 @@ enum ModeState {
   STATE_SET_UP ,                        // 1
   STATE_PAINT                           // 2
   };
-volatile uint8_t  ModeState;
+static volatile uint8_t  ModeState;
 
 enum PalettePosition {
   PALETTE_NONE,      // 0
   PALETTE_BOTTOM ,   // 1
   PALETTE_TOP        // 2
 };
-volatile uint8_t  PalettePosition;
-uint8_t           BrushHue;
-uint8_t           BrushSat;
+static volatile uint8_t  PalettePosition;
+static volatile uint8_t           BrushHue;
+static volatile uint8_t           BrushSat;
 
-volatile uint32_t nowTimems;
-volatile uint32_t UpdateLastRunTime;
-volatile uint32_t UpdatePeriod            = 33;       // in ms (33ms = 30fps)
-static bool       ModeFirstTimeUsed       = true;     // Keep track of the first time this mode is used.
-static uint8_t    StepHue                 = 2;        // how many hue steps between paint blending updates
-static uint8_t    StepSat                 = 3;        // how many saturation steps between paint blending updates
+static volatile uint32_t nowTimems;
+static volatile uint32_t UpdateLastRunTime;
+static volatile uint32_t UpdatePeriod            = 33;       // in ms (33ms = 30fps)
+static volatile bool       ModeFirstTimeUsed       = true;     // Keep track of the first time this mode is used.
+static volatile uint8_t    StepHue                 = 2;        // how many hue steps between paint blending updates
+static volatile uint8_t    StepSat                 = 3;        // how many saturation steps between paint blending updates
 
 
 // Duplicate of screen image for local use
-static uint8_t LedScreenMemoryLocalArrayHue [8][8];
-static uint8_t LedScreenMemoryLocalArraySat [8][8];
+static volatile uint8_t LedScreenMemoryLocalArrayHue [8][8];
+static volatile uint8_t LedScreenMemoryLocalArraySat [8][8];
 
 // Temporary storage of the screen that is overwritten with the palette displayed
-volatile uint8_t TempHue[2][8] = {
+static volatile uint8_t TempHue[2][8] = {
   {  0,  0,  0,  0,  0,  0,  0,  0},
   {  0,  0,  0,  0,  0,  0,  0,  0}
 };
-volatile uint8_t TempSat[2][8] = {
+static volatile uint8_t TempSat[2][8] = {
   {  0,  0,  0,  0,  0,  0,  0,  0},
   {  0,  0,  0,  0,  0,  0,  0,  0}
 };
@@ -185,7 +185,7 @@ void MoveScreenToBuffer(bool TopNBottom) {
   }
 }
 
-void Paint() {
+void AppPaint() {
   if (TopLevelModeChangedGet()) {                     // Fresh entry into this mode.
     Serial.println();
     Serial.println("  Paint Mode");
@@ -196,7 +196,7 @@ void Paint() {
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure + and - soft buttons are enabled to move to next mode if desired.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used to select.
     WriteAppPaintSymbol(0);
-    LED_Array_Matrix_Color_Display(0);
+    LED_Array_Color_Display(0);
     MenuTimeOutCheckReset();
     ModeState = STATE_INTRO_SCREEN_WAIT_FOR_SELECT;
     PalettePosition = PALETTE_NONE;
@@ -228,7 +228,7 @@ void Paint() {
           CopySymboltoLocal(3);
           LED_Array_Binary_Write_Default();
           LED_Array_Binary_To_Matrix_Mono();
-          LED_Array_Matrix_Color_Display(0);                  // Show the updated LED array.
+          LED_Array_Color_Display(0);                  // Show the updated LED array.
           #ifdef NEON_PIXEL_ARRAY
             Neon_Pixel_Array_Binary_Write_Default();
             Neon_Pixel_Array_Binary_To_Matrix_Mono();
@@ -400,7 +400,7 @@ void Paint() {
         }
 
 
-        LED_Array_Matrix_Color_Display(0);                  // Show the updated LED array.
+        LED_Array_Color_Display(0);                  // Show the updated LED array.
         LED_Array_Matrix_Mono_to_Binary();                // Convert whatever is in the LED Matrix Array to a 64-bit binary value...
         OLEDTopLevelModeSet(TopLevelModeGet());
         // OLEDScreenUpdate();

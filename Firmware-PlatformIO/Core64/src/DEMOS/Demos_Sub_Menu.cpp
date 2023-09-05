@@ -51,7 +51,7 @@ void DemosSubMenu() {
     #elif defined MCU_TYPE_RP2040
       // Nothing here
     #endif
-    LED_Array_Matrix_Color_Display(1);
+    LED_Array_Color_Display(1);
     }
   if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }   // Dwell 5 seconds in Demo Submenu, then move to first demo.
   TopLevelModeManagerCheckButtons();

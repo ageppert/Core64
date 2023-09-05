@@ -13,8 +13,9 @@
 #include "Config/CharacterMap.h"
 
 #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-  #include "Hal/Core_HAL.h"       // ToDo This core_api shouldn't be directly accessed from this files. Interaction should be through higher level application
+  #include "Hal/Core_HAL.h"       // TODO: This core_api shouldn't be directly accessed from this files. Interaction should be through higher level application
   #include "Drivers/NeonPixel_Driver.h"
+  #include "Hal/LED_Array_HAL.h"
 
   #ifdef NEON_PIXEL_ARRAY
     #define NUM_PIXELS 64
@@ -111,6 +112,19 @@
         for( uint8_t x = 0; x < MatrixWidth; x++) 
         {
           NeonPixelScreenMemoryMatrixMono[y][x] = ColorFontSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
+  // Copy Led Array memory into Neon Pixel Array memory
+  //
+    void CopyLedArrayMemoryToNeonPixelArrayMemory() {
+      for( uint8_t y = 0; y < MatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < MatrixWidth; x++) 
+        {
+          NeonPixelScreenMemoryMatrixMono[y][x] = LED_Array_Get_Pixel_Value(y,x);
         }
       }
     }

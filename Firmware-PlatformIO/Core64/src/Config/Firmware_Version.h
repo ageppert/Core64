@@ -68,11 +68,12 @@
 	|  0.7.24 | 2023-02-19 | Core64, add compatibility for Core64 V0.7+ Pico Version, remove unused Detect_Board file.
 	|  0.7.25 | 2023-07-07 | Add glamor shot display mode in first special menu, set to pong game
 	|  0.7.26 | 2023-07-24 | Enhance App_Drawing to become App_Paint
+	|  0.7.27 | 2023-09-04 | Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Enhance App_Drawing to become App_Paint."
+	#define FIRMWARE_DESCRIPTION "Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 26 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 27 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

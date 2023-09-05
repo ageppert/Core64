@@ -1,11 +1,13 @@
 #include <stdint.h>
-//#include <stdbool.h> // Not required because FastLED library redefines bool.
+// #include <stdbool.h> // Not required because FastLED library redefines bool.
 
 #if (ARDUINO >= 100)
   #include <Arduino.h>
 #else
   #include <WProgram.h>
 #endif
+
+#include "LED_Array_HAL.h"
 
 #include "Config/HardwareIOMap.h"
 
@@ -182,6 +184,10 @@ void LED_Array_Auto_Brightness() {
         LedScreenMemoryMatrixHue[y][x] = 0;
       }
     }
+  }
+
+  uint8_t LED_Array_Get_Pixel_Value(uint8_t y, uint8_t x) {
+    return LedScreenMemoryMatrixMono[y][x];
   }
 
   void LED_Array_Monochrome_Set_Color(uint8_t hue, uint8_t saturation, uint8_t value) {
@@ -381,6 +387,19 @@ void LED_Array_Auto_Brightness() {
     }
 
   //
+  // Copy Color Symbol into Color HSV LED Array memory
+  //
+    void WriteUtilFluxSymbol(uint8_t SymbolNumber){
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixHue[y][x] = UtilFluxSymbols[SymbolNumber][y][x];
+        }
+      }
+    }
+
+  //
   // Write the color Palette into the HSV LED Array Memory
   //
     void WriteAppPaintPalette(bool TopNBottom){
@@ -495,7 +514,7 @@ void LED_Array_Auto_Brightness() {
     #endif
   }
 
-  void LED_Array_Matrix_Color_Display(bool HuenHueSat) {
+  void LED_Array_Color_Display(bool HuenHueSat) {
     uint8_t LEDPixelPosition = 0;
     for( uint8_t y = 0; y < kMatrixHeight; y++) 
     {
@@ -749,7 +768,7 @@ void LED_Array_Auto_Brightness() {
       StartUpSymbolIndex = 0;
       LED_Array_Memory_Clear();
       WriteColorFontSymbolToLedScreenMemoryMatrixHue(SymbolSequenceArray[StartUpSymbolIndex]);
-      LED_Array_Matrix_Color_Display(1);
+      LED_Array_Color_Display(1);
   }
 
   // Cycles through symbols dedicated to start-up mode.
@@ -762,7 +781,7 @@ void LED_Array_Auto_Brightness() {
         UpdateTimer = NowTime;
         LED_Array_Memory_Clear();
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(SymbolSequenceArray[StartUpSymbolIndex]);
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         StartUpSymbolIndex++;
         if(StartUpSymbolIndex >= SymbolSequenceArraySize){StartUpSymbolIndex=0;}
       }
@@ -780,7 +799,7 @@ void LED_Array_Auto_Brightness() {
         UpdateTimer = NowTime;
         LED_Array_Memory_Clear();
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(FontSymbolNumber);
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         FontSymbolNumber++;
         if(FontSymbolNumber>15){FontSymbolNumber=7;}
       }
@@ -799,5 +818,5 @@ void LED_Array_Auto_Brightness() {
     LED_Array_Memory_Clear();
     delay(25);
     LED_Array_Matrix_Mono_Display();
-    LED_Array_Matrix_Color_Display(1);
+    LED_Array_Color_Display(1);
   }

@@ -30,11 +30,12 @@ USAGE: Init, Clear, Write to one of the buffers in monochrome or color mode, upd
 // The API for the LED Array HAL
 void LED_Array_Init();				// Called once from Setup. Set up the LED array with the driver using chipset, data pin, color order, correction, brightness from FastLED_Config.h, and clear the array.
 void LED_Array_Memory_Clear(); 		// Clears all of the LED Array memory buffers.
-void LED_Array_Monochrome_Set_Color(uint8_t hue, uint8_t saturation, uint8_t value); // Overide the default monochrome color for next pixel to be written to the any monochrome memory buffer.
+uint8_t LED_Array_Get_Pixel_Value(uint8_t y = 0, uint8_t x = 0); // Return the value of the pixel from the local LED Array memory buffer.
+void LED_Array_Monochrome_Set_Color(uint8_t hue, uint8_t saturation, uint8_t value); // Override the default monochrome color for next pixel to be written to the any monochrome memory buffer.
 void LED_Array_Monochrome_Increment_Color(uint8_t HueIncrement); // Increment the color hue by this amount. 0-255
 
 void LED_Array_Start_Up_Symbol_Loop_Begin();        // Cycles through a specific symbol list for the Start-Up mode. Starts the mode at first index position.
-void LED_Array_Start_Up_Symbol_Loop_Continue();     // Cycles through a specific symbol list for the Start-Up mode. Continues the mode whereever index was.
+void LED_Array_Start_Up_Symbol_Loop_Continue();     // Cycles through a specific symbol list for the Start-Up mode. Continues the mode where ever index was.
 
 void LED_Array_Test_Count_Binary(); // Test all 64 LEDs. Counting from 0 to 2^64 from bottom up.
 void LED_Array_Test_Pixel_String(); // Test all 64 LEDs. Turns on 1 pixel, sequentially, from left to right, top to bottom using 1D string addressing
@@ -56,7 +57,7 @@ void LED_Array_Matrix_Color_Hue_Sat_Write(uint8_t y, uint8_t x, uint8_t hue, uin
 void LED_Array_Binary_Display();
 void LED_Array_String_Display();
 void LED_Array_Matrix_Mono_Display();
-void LED_Array_Matrix_Color_Display(bool HuenHueSat); // Display from Hue only with 1, and Hue and Sat with 0.
+void LED_Array_Color_Display(bool HuenHueSat); // Display from Hue only with 1, and Hue and Sat with 0.
 
 void LED_Array_Binary_Write_Default(); // Set the Binary memory to it's default value
 void LED_Array_Binary_To_Matrix_Mono(); // convert the contents of the 64 Bit Binary screen memory to 8x8 Matrix Monochrome memory
@@ -67,6 +68,7 @@ void LED_Array_Set_Brightness(uint8_t brightness); // Set brightness directly.
 // TO DO: Clean up the naming convention of these sub-functions
 void WriteColorFontSymbolToLedScreenMemoryMatrixHue(uint8_t SymbolNumber);
 void WriteAppPaintSymbol(uint8_t SymbolNumber);
+void WriteUtilFluxSymbol(uint8_t SymbolNumber);
 void WriteAppPaintPalette(bool TopNBottom);         // Top = 1, Bottom = 0
 void WriteGameSnakeSymbol(uint8_t SymbolNumber);
 void WriteGamePongSymbol(uint8_t SymbolNumber);

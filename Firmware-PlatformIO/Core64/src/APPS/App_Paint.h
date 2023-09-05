@@ -8,6 +8,6 @@ SETUP:
 
     #include <stdint.h>
 
-    void Paint();
+    void AppPaint();
 
 #endif // PAINT_H

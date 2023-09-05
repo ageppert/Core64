@@ -16,25 +16,26 @@ SETUP:
         MODE_START_CONFIG_SPECIFIC                  ,                        // 
         MODE_START_SEQUENCE_COMPLETE                ,                        // 
     MODE_DGAUSS_MENU                                ,                        // DGAUSS MENU (TOP LEVEL MENU)
-        MODE_DEMO_SUB_MENU                          ,                  // TODO: Implement sub-menu
+        MODE_DEMO_SUB_MENU                          ,                  // 
             MODE_DEMO_SCROLLING_TEXT                ,             // Scrolling text
             MODE_DEMO_LED_TEST_ONE_MATRIX_MONO      ,             // Testing LED Driver with matrix array and monochrome color
             MODE_DEMO_LED_TEST_ONE_MATRIX_COLOR     ,             // Testing LED Driver with matrix array and multi-color symbols
             //MODE_DEMO_LOW_POWER                   ,             // TODO: Lower power mode
             //MODE_DEMO_SLEEP                       ,             // TODO: Sleep mode 
             MODE_DEMO_END_OF_LIST                   ,             // End of the demo loop, go back to the beginning.
-        MODE_GAME_SUB_MENU                          ,                  // TODO: Implement sub-menu
-            MODE_GAME_SNAKE                         ,                  // TODO: 
-            MODE_GAME_PONG                          ,                  // TODO: 
+        MODE_GAME_SUB_MENU                          ,                  // 
+            MODE_GAME_SNAKE                         ,                  // 
+            MODE_GAME_PONG                          ,                  // 
             MODE_GAME_END_OF_LIST                   ,             // End of the game list, go back to the beginning.
-        MODE_APP_SUB_MENU                           ,                    // TODO: Implement sub-menu
+        MODE_APP_SUB_MENU                           ,                    // 
             MODE_APP_PAINT                          ,                  // Drawing mode, of course!
             MODE_APP_END_OF_LIST                    ,              // End of the app list, go back to the beginning.
-        MODE_UTIL_SUB_MENU                          ,                  // TODO: Implement sub-menu
+        MODE_UTIL_SUB_MENU                          ,                  // 
             MODE_UTIL_FLUX_DETECTOR                 ,                  // Flux detector, shows cores being affected by magnetic flux in real-time
             //MODE_UTIL_64BIT_MEMORY                ,                  // TODO: read/write 64 bit values from serial port
             MODE_UTIL_END_OF_LIST                   ,              // End of the util list, go back to the beginning.
-        MODE_SPECIAL_SUB_MENU                       ,                  // TODO: Implement sub-menu
+        MODE_SPECIAL_SUB_MENU                       ,                  // 
+            MODE_SPECIAL_TEST_ONE_CORE              ,                  // 
             MODE_GLAMOR_SHOT                        ,                  // Display a static image for photo shoot
             MODE_LED_TEST_ALL_BINARY                ,                  // Test LED Driver with binary values
             MODE_LED_TEST_ONE_STRING                ,                  // Testing LED Driver

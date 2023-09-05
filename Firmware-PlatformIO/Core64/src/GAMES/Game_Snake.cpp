@@ -344,7 +344,7 @@ void GameSnake() {
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used in this game as Select.
     WriteGameSnakeSymbol(0);
     MenuTimeOutCheckReset();
-    LED_Array_Matrix_Color_Display(1);
+    LED_Array_Color_Display(1);
     GameState = 0;
     MenuTimeOutCheckReset();
   }
@@ -421,7 +421,7 @@ void GameSnake() {
       default:
         break;
     }
-    LED_Array_Matrix_Color_Display(1);
+    LED_Array_Color_Display(1);
     SnakeGameUpdateLastRunTime = nowTime;
   }
 

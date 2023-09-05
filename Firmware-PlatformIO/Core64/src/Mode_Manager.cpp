@@ -37,7 +37,9 @@
 #include "APPS/Apps_Sub_Menu.h"
 #include "APPS/App_Paint.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
+#include "UTILITIES/Util_Flux_Detector.h"
 #include "SPECIAL/Special_Sub_Menu.h"
+#include "SPECIAL/Special_Test_One_Core.h"
 #include "SETTINGS/Settings_Sub_Menu.h"
 
 #define DebugDelayBetweenStartUpStates 250
@@ -69,6 +71,7 @@
       "   MODE_UTIL_FLUX_DETECTOR            ",
       "   MODE_UTIL_END_OF_LIST              ",
       "  MODE_SPECIAL_SUB_MENU               ",
+      "   MODE_SPECIAL_TEST_ONE_CORE         ",
       "   MODE_GLAMOR_SHOT                   ",
       "   MODE_LED_TEST_ALL_BINARY           ",
       "   MODE_LED_TEST_ONE_STRING           ",
@@ -443,7 +446,7 @@ void TopLevelModeManagerRun() {
         Serial.println("    s = Settings");
         Serial.println("    To access modes directly from serial command line, type 'mode' and press RETURN.");
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(0);
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         #if defined  MCU_TYPE_MK20DX256_TEENSY_32
           #ifdef NEON_PIXEL_ARRAY
             CopyColorFontSymbolToNeonPixelArrayMemory(0);
@@ -550,58 +553,28 @@ void TopLevelModeManagerRun() {
 // ***************************************************** APP ***************************************************************************************** //
 // *************************************************************************************************************************************************** //
     case MODE_APP_SUB_MENU:                     AppsSubMenu();                            break;
-    case MODE_APP_PAINT:                        Paint();                                  break;
+    case MODE_APP_PAINT:                        AppPaint();                               break;
     case MODE_APP_END_OF_LIST:                  TopLevelModeSet(MODE_APP_SUB_MENU);       break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** UTIL **************************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_UTIL_SUB_MENU:  UtilitiesSubMenu();  break;
-
-      case MODE_UTIL_FLUX_DETECTOR:                         // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
-        LED_Array_Monochrome_Set_Color(50,255,255);
-        LED_Array_Memory_Clear();
-//        #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-          for (coreToTest = 0; coreToTest < 64 ; coreToTest++) {   
-            Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
-            if (Core_Mem_Bit_Read(coreToTest)==true) {
-              LED_Array_String_Write(coreToTest, 1);
-              #ifdef NEON_PIXEL_ARRAY
-                Neon_Pixel_Array_String_Write(coreToTest, 1);
-              #endif
-              }
-            else { 
-              LED_Array_String_Write(coreToTest, 0); 
-              #ifdef NEON_PIXEL_ARRAY
-                Neon_Pixel_Array_String_Write(coreToTest, 0);
-              #endif
-              }
-            delayMicroseconds(40); // This 40us delay is required or LED array, first 3-4 pixels in the electronic string, get weird! RF?!??
-          }
-          LED_Array_String_Display();
-          #ifdef NEON_PIXEL_ARRAY
-            Neon_Pixel_Array_Matrix_String_Display();
-          #endif
-//        #elif defined MCU_TYPE_RP2040
-//          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
-//        #endif
-        OLEDTopLevelModeSet(TopLevelModeGet());
-        OLEDScreenUpdate();
-        break;
-
-      case MODE_UTIL_END_OF_LIST: TopLevelModeSet(MODE_UTIL_SUB_MENU);    break;
+    case MODE_UTIL_SUB_MENU:                    UtilitiesSubMenu();                       break;
+    case MODE_UTIL_FLUX_DETECTOR:               UtilFluxDetector();                       break;
+    case MODE_UTIL_END_OF_LIST:                 TopLevelModeSet(MODE_UTIL_SUB_MENU);      break;
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** SPECIAL ************************************************************************************* //
 // *************************************************************************************************************************************************** //
-    case MODE_SPECIAL_SUB_MENU:   SpecialSubMenu();      break;
+  case MODE_SPECIAL_SUB_MENU:                   SpecialSubMenu();                         break;
+  case MODE_SPECIAL_TEST_ONE_CORE:              SpecialTestOneCore();                     break; // toggle upper left core to test with oscilloscope
 
       case MODE_GLAMOR_SHOT: // Static image display, no timeout.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Set_Brightness(255); // Not yet working!
         LED_Array_Memory_Clear();
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(14);
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
@@ -875,7 +848,7 @@ void TopLevelModeManagerRun() {
         Serial.print(PROMPT);
         TopLevelThreeSoftButtonGlobalEnableSet(true);
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         }
       if (MenuTimeOutCheck(3000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
@@ -914,7 +887,7 @@ void TopLevelModeManagerRun() {
 
         TopLevelThreeSoftButtonGlobalEnableSet(true);
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
-        LED_Array_Matrix_Color_Display(1);
+        LED_Array_Color_Display(1);
         }
       if (MenuTimeOutCheck(10000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
