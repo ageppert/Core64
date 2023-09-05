@@ -816,6 +816,12 @@ void TopLevelModeManagerRun() {
       TopLevelModeSet(MODE_SPECIAL_HARD_REBOOT);
       break;
 
+    case MODE_SPECIAL_HI_GLAMOR_SHOT:
+        LED_Array_Memory_Clear();
+        WriteColorFontSymbolToLedScreenMemoryMatrixColor(16);
+        LED_Array_Matrix_Color_Display();
+    break;
+
     case MODE_SPECIAL_HARD_REBOOT:
       LED_Array_Memory_Clear();
       LED_Array_Matrix_Mono_Display();

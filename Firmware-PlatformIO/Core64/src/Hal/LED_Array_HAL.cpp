@@ -481,6 +481,22 @@ void LED_Array_Auto_Brightness() {
     }
   }
 
+  //
+  // Write one COLOR bit into color LED Array memory using hue and saturation
+  //
+  void LED_Array_Matrix_Color_Write(uint8_t y, uint8_t x, uint8_t hue, uint8_t sat) {
+    if ((x<kMatrixWidth)&&(y<kMatrixHeight)) {
+      LedScreenMemoryMatrixColor[y][x] = hue;
+    }
+    else {
+      Serial.print("LED_Array_Matrix_Color_Write overloaded. Y,X: ");
+      Serial.print(y);
+      Serial.print(",");
+      Serial.print(x);
+      Serial.println();
+    }
+  }
+
   void LED_Array_Matrix_Mono_Display() {
     uint8_t LEDPixelPosition = 0;
     for( uint8_t y = 0; y < kMatrixHeight; y++) 

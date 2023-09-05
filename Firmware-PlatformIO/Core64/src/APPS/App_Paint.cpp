@@ -7,6 +7,7 @@
 #else
   #include "WProgram.h"
 #endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "Mode_Manager.h"
@@ -416,4 +417,4 @@ void AppPaint() {
     // Service non-state dependent stuff
     UpdateLastRunTime = nowTimems;
   }
-} // PAINT END
+} // PAINT APP
