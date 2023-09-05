@@ -72,7 +72,7 @@
       "   MODE_UTIL_END_OF_LIST              ",
       "  MODE_SPECIAL_SUB_MENU               ",
       "   MODE_SPECIAL_TEST_ONE_CORE         ",
-      "   MODE_GLAMOR_SHOT                   ",
+      "   MODE_SPECIAL_GLAMOR_SHOT           ",
       "   MODE_LED_TEST_ALL_BINARY           ",
       "   MODE_LED_TEST_ONE_STRING           ",
       "   MODE_TEST_EEPROM                   ",
@@ -569,7 +569,7 @@ void TopLevelModeManagerRun() {
   case MODE_SPECIAL_SUB_MENU:                   SpecialSubMenu();                         break;
   case MODE_SPECIAL_TEST_ONE_CORE:              SpecialTestOneCore();                     break; // toggle upper left core to test with oscilloscope
 
-      case MODE_GLAMOR_SHOT: // Static image display, no timeout.
+      case MODE_SPECIAL_GLAMOR_SHOT: // Static image display, no timeout.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         LED_Array_Set_Brightness(255); // Not yet working!
         LED_Array_Memory_Clear();
@@ -815,12 +815,6 @@ void TopLevelModeManagerRun() {
       delay(5000);
       TopLevelModeSet(MODE_SPECIAL_HARD_REBOOT);
       break;
-
-    case MODE_SPECIAL_HI_GLAMOR_SHOT:
-        LED_Array_Memory_Clear();
-        WriteColorFontSymbolToLedScreenMemoryMatrixColor(16);
-        LED_Array_Matrix_Color_Display();
-    break;
 
     case MODE_SPECIAL_HARD_REBOOT:
       LED_Array_Memory_Clear();

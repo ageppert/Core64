@@ -46,6 +46,7 @@ static uint8_t StartUpSymbolIndex = 0;
   // order y,x : 0,0 is upper left, 7,7 is lower right, counting left to right and top to bottom.
   static bool LedScreenMemoryMatrixMono [8][8];      
 // MATRIX COLOR [2D 8x8 pixel matrix, 1 byte HUE and 1 optional SAT in HSV color space]
+  static bool LedScreenMemoryMatrixColor [8][8];      
   // order y,x : 0,0 is upper left, 7,7 is lower right, counting left to right and top to bottom.
   // Exception for HSV color encoding is 0 which is interpreted as off, which will be substituted when displayed.
   // Exception for HSV color encoding is 255 which is interpreted as White, which will be substituted when displayed.

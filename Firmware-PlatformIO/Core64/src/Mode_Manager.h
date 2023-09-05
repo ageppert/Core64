@@ -36,7 +36,7 @@ SETUP:
             MODE_UTIL_END_OF_LIST                   ,              // End of the util list, go back to the beginning.
         MODE_SPECIAL_SUB_MENU                       ,                  // 
             MODE_SPECIAL_TEST_ONE_CORE              ,                  // 
-            MODE_GLAMOR_SHOT                        ,                  // Display a static image for photo shoot
+            MODE_SPECIAL_GLAMOR_SHOT                ,                  // Display a static image for photo shoot
             MODE_LED_TEST_ALL_BINARY                ,                  // Test LED Driver with binary values
             MODE_LED_TEST_ONE_STRING                ,                  // Testing LED Driver
             MODE_TEST_EEPROM                        ,                  // Read out the raw EEPROM values

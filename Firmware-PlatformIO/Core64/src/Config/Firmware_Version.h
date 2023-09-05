@@ -69,11 +69,12 @@
 	|  0.7.25 | 2023-07-07 | Add glamor shot display mode in first special menu, set to pong game
 	|  0.7.26 | 2023-07-24 | Enhance App_Drawing to become App_Paint
 	|  0.7.27 | 2023-09-04 | Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope.
+	|  0.7.28 | 2023-09-04 | Corrected mistakes when I merged to master. Should now behave like 0.7.27.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope."
+	#define FIRMWARE_DESCRIPTION "Corrected mistakes when I merged to master. Should now behave like 0.7.27."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 7 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 27 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 28 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
