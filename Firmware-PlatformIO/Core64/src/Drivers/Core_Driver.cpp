@@ -50,8 +50,141 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
   };
 #endif
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Beginning of Core16 Pico Core Driver Variables
+// In order to support to support the Core16 with a Pico at runtime, all of these variables will exist all of the time.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Array length starts at 0 and goes all the way up to the highest MCU GPIO PIN # used by the Core Matrix Drive Transistors 
+  // None of these numbers correspond to the external microcontroller carrier board pin numbering.
+  // The array position # corresponds with the Arduino-compatible MCU GPIO #.
+  // The array position will be filled with the Arduino-compatible MCU pin # associated to verbose transistor drive line name.
+  // Example: Array position #2 is set to PIN_MATRIX_DRIVE_Q1P, and #define PIN_MATRIX_DRIVE_Q1P = 2.
+  // Matrix Drive Line array position :         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19
+  // Core16 Pico V0.1.0 MCU PIN #     :       N/A, 1, 2, 3, 4, 5, 6, 7, 8, 9, -, -,12,13,14,15,16, -,18,19
+  // Core16 Pico does not have or use Q2P/N or Q8P/N
+  static uint8_t C16P_MatrixDrivePinNumber[20] = {
+    0,                                // 0
+    C16P_PIN_MATRIX_DRIVE_Q1P ,       // 1
+    C16P_PIN_MATRIX_DRIVE_Q1N ,       // 2
+    C16P_PIN_MATRIX_DRIVE_Q3P ,       // 3
+    C16P_PIN_MATRIX_DRIVE_Q3N ,       // 4
+    C16P_PIN_MATRIX_DRIVE_Q4P ,       // 5
+    C16P_PIN_MATRIX_DRIVE_Q4N ,       // 6
+    C16P_PIN_MATRIX_DRIVE_Q5P ,       // 7
+    C16P_PIN_MATRIX_DRIVE_Q5N ,       // 8
+    C16P_PIN_MATRIX_DRIVE_Q6P ,       // 9
+    0,                                // 10
+    0,                                // 11
+    C16P_PIN_MATRIX_DRIVE_Q6N ,       // 12
+    C16P_PIN_MATRIX_DRIVE_Q7P ,       // 13
+    C16P_PIN_MATRIX_DRIVE_Q7N ,       // 14
+    C16P_PIN_MATRIX_DRIVE_Q9P ,       // 15
+    C16P_PIN_MATRIX_DRIVE_Q9N ,       // 16
+    0,                                // 17
+    C16P_PIN_MATRIX_DRIVE_Q10P,       // 18
+    C16P_PIN_MATRIX_DRIVE_Q10N        // 19
+  };
+
+  // All QxN transistors are Active High.
+  // All QxP transistors are Active Low.
+
+  // V0.4 hardware (direct MCU pin control)
+  // Look up the drive line number by knowing where it is in the array by it's own number.
+  // In other words, the pin # has to be the same as the array position.
+  // Array needs to be as big as the largest used pin number.
+  // Ex:
+  //                                  array position:  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19
+  // Core16 Pico MCU PIN #            usable pins   :  x, 1, 2, 3, 4, 5, 6, 7, 8, 9, x, x,12,13,14,15,16, x,18,19
+  // MCU output pins are set to these states to correspond to activation of the transistor needed to achieve on/off state.
+  const bool C16P_MatrixDrivePinInactiveState[34] =  { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0}; // logic level to turn off transistor
+  const bool C16P_MatrixDrivePinActiveState[34]   =  { 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1}; // logic level to turn on transistor
+
+  // MCU output pin is set to these states to correspond to activation of the transistor needed to achieve active/inactive state.
+  #define C16P_WRITE_ENABLE_ACTIVE   1 // logic level to turn on transistor
+  #define C16P_WRITE_ENABLE_INACTIVE 0 // logic level to turn off transistor
+
+  // Given a Core Memory Matrix Row 0 to 7 the array below specifies which 2 pins connected to transistors are required to set the row.
+  // CMM front (user) view is with Row 0 on top, 7 on bottom.
+  // Each row of the array corresponds to rows 0 to 7 of the CMM.
+  // Each row is sequence of 2 transistors, first one connects to top four rows and second one connects to the bottom four rows.
+  /* 
+  The original assumption of current going left to right in a row does not work because the cores
+  are not all placed in the same orientation. The cores alternate back and forth in a row, and in 
+  columns, to make the circuit simpler. A new row set and clear array are required which take into 
+  account that every other bit needs to have the current direction reversed in order to compensate 
+  if all of the cores are to be physically addressed in an orderly sequence. 
+  */
+  // V0.1.x and V0.2.x and V0.4.x hardware (direct MCU pin control)
+
+  static uint8_t C16P_CMMDSetRowByBit[][2] = {
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  0    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  1    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  2    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  3    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  4    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  5    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  6    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  7    ROW 0
+
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  8    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  9    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 10    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 11    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 12    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 13    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 14    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 15    ROW 1
+  }; 
+
+  static uint8_t C16P_CMMDClearRowByBit[][2] = {
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 0     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 1     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 2     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 3     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 4     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 5     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 6     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 7     ROW 0      
+
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  8    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  9    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 10    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 11    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 12    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 13    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 14    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 15    ROW 1
+  };
+
+  // CMMD = Core Memory Matrix Drive
+  // Given a Core Memory Matrix Column 0 to 7 the array below specifies which 2 pins connected to transistors are required to set the column.
+  // CMM front (user) view is with Column 0 on left, 7 on right.
+  // Each row of the array corresponds to columns 0 to 7 of the CMM.
+  // Each row is sequence of 2 transitors, first one is at the top and second one is at the bottom.
+
+  // Set is given the arbitrary definition of current flow upward in that column.
+  // Top of column connected to VMEM and bottom of column connected to GNDPWR.
+  uint8_t C16P_CMMDSetCol[4][2] = {
+    { C16P_PIN_MATRIX_DRIVE_Q3P, C16P_PIN_MATRIX_DRIVE_Q1N },  // Column 0
+    { C16P_PIN_MATRIX_DRIVE_Q4P, C16P_PIN_MATRIX_DRIVE_Q1N },  // Column 1
+    { C16P_PIN_MATRIX_DRIVE_Q5P, C16P_PIN_MATRIX_DRIVE_Q1N },  // Column 2
+    { C16P_PIN_MATRIX_DRIVE_Q6P, C16P_PIN_MATRIX_DRIVE_Q1N },  // Column 3
+  };
+
+  // Clear is given the arbitrary definition of current flow downward in that column.
+  // Top of column connected to GNDPWR and bottom of column connected to VMEM.
+  uint8_t C16P_CMMDClearCol[4][2] = {
+    { C16P_PIN_MATRIX_DRIVE_Q3N, C16P_PIN_MATRIX_DRIVE_Q1P },  // Column 0
+    { C16P_PIN_MATRIX_DRIVE_Q4N, C16P_PIN_MATRIX_DRIVE_Q1P },  // Column 1
+    { C16P_PIN_MATRIX_DRIVE_Q5N, C16P_PIN_MATRIX_DRIVE_Q1P },  // Column 2
+    { C16P_PIN_MATRIX_DRIVE_Q6N, C16P_PIN_MATRIX_DRIVE_Q1P },  // Column 3
+  };
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// End of Core16 Pico Variables
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-  // Array from 1-20 with MCU pin # associated to verbose transitor drive line name. Ex: PIN_MATRIX_DRIVE_Q1P
+  // Array from 1-20 with MCU pin # associated to verbose transistor drive line name. Ex: PIN_MATRIX_DRIVE_Q1P
   // Array position number 0 is not used in the matrix pin numbering
   // Matrix Drive Line array position :         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33
   // Look out for these!              :                                                               *  *  *
@@ -789,12 +922,39 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
       //  };
 
   void Core_Driver_Setup() {
-      pinMode(Pin_Sense_Pulse  , INPUT_PULLUP);
-      pinMode(Pin_Sense_Reset  , OUTPUT);
-      pinMode(PIN_WRITE_ENABLE , OUTPUT);
-      pinMode(PIN_CMD_SR_LATCH , OUTPUT);
-      pinMode(PIN_CMD_SR_SERIAL, OUTPUT);
-      pinMode(PIN_CMD_SR_CLOCK , OUTPUT);
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        pinMode(C16P_Pin_Sense_Pulse, INPUT_PULLUP);
+        pinMode(C16P_Pin_Sense_Reset, OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q1P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q1N,  OUTPUT);
+        // pinMode(C16P_PIN_MATRIX_DRIVE_Q2P,  OUTPUT); // Not available or needed.
+        // pinMode(C16P_PIN_MATRIX_DRIVE_Q2N,  OUTPUT); // Not available or needed.
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q3P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q3N,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q4P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q4N,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q5P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q5N,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q6P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q6N,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q7P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q7N,  OUTPUT);
+        // pinMode(C16P_PIN_MATRIX_DRIVE_Q8P,  OUTPUT); // Not available or needed.
+        // pinMode(C16P_PIN_MATRIX_DRIVE_Q8N,  OUTPUT); // Not available or needed.
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q9P,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q9N,  OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q10P, OUTPUT);
+        pinMode(C16P_PIN_MATRIX_DRIVE_Q10N, OUTPUT);
+        pinMode(C16P_PIN_WRITE_ENABLE, OUTPUT);
+      }
+      else {
+        pinMode(Pin_Sense_Pulse  , INPUT_PULLUP);
+        pinMode(Pin_Sense_Reset  , OUTPUT);
+        pinMode(PIN_WRITE_ENABLE , OUTPUT);
+        pinMode(PIN_CMD_SR_LATCH , OUTPUT);
+        pinMode(PIN_CMD_SR_SERIAL, OUTPUT);
+        pinMode(PIN_CMD_SR_CLOCK , OUTPUT);        
+      }
 
       Serial.println();
       Serial.println("  Core Pattern Arrangement. 1=Normal. 2=Opposite.");
@@ -806,7 +966,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
       Serial.println(" will be used.");
 
       MatrixDriveTransistorsInactive();
-  
+
       // If the Core Pattern Arrangement is opposite, swap the pin matrix drive values between bits 0-31 with 32-63
       //if(CorePatternArrangement == CORE_ARRANGEMENT_OPPOSITE) {
       //  uint8_t temp[1];
@@ -843,19 +1003,57 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
   }
 
   void MatrixEnableTransistorInactive() { 
-    digitalWrite(PIN_WRITE_ENABLE, WRITE_ENABLE_INACTIVE);
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        digitalWrite(C16P_PIN_WRITE_ENABLE, WRITE_ENABLE_INACTIVE);
+      }
+      else {
+        digitalWrite(PIN_WRITE_ENABLE, WRITE_ENABLE_INACTIVE);
+      }
   }
 
   void MatrixEnableTransistorActive()   { 
-    digitalWrite(PIN_WRITE_ENABLE, WRITE_ENABLE_ACTIVE);
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        digitalWrite(C16P_PIN_WRITE_ENABLE, WRITE_ENABLE_ACTIVE);
+      }
+      else {
+        digitalWrite(PIN_WRITE_ENABLE, WRITE_ENABLE_ACTIVE);
+      }
   }
 
   void MatrixDriveTransistorsInactive() {
-    OutputToSerialShiftRegister(CMMDTransistorInactiveState);
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        // Set all the matrix lines to the safe state, all transistors inactive.
+        for (uint8_t i = 1; i <= 9; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinInactiveState[i]);
+        }
+        for (uint8_t i = 12; i <= 16; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinInactiveState[i]);
+        }
+        for (uint8_t i = 18; i <= 19; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinInactiveState[i]);
+        }
+      }
+      else {
+        OutputToSerialShiftRegister(CMMDTransistorInactiveState);
+      }
   }
 
   void MatrixDriveTransistorsActive() {
-    OutputToSerialShiftRegister(CMMDTransistorActiveState);
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        // FOR TESTING! Set all the matrix lines to the unsafe state, all transistors active.
+        for (uint8_t i = 1; i <= 9; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinActiveState[i]);
+        }
+        for (uint8_t i = 12; i <= 16; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinActiveState[i]);
+        }
+        for (uint8_t i = 18; i <= 19; i++) {
+          digitalWrite(C16P_MatrixDrivePinNumber[i], C16P_MatrixDrivePinActiveState[i]);
+        }        
+      }
+      else {
+        OutputToSerialShiftRegister(CMMDTransistorActiveState);
+      }
   }
 
   // Use row and col to selection the proper place in the array

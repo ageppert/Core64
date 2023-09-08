@@ -467,30 +467,57 @@ void ScrollTextToCoreMemory() {
   static bool ScrollingColorChangeEnable = true;
 
   NowTime = millis();
+  if (LogicBoardTypeGet()==eLBT_CORE16_PICO) { UpdatePeriodms = 160; } // Slow down the scrolling speed for the tiny 4x4 screen!
   // Is it time to scroll again?
   if ((NowTime - UpdateTimer) >= UpdatePeriodms)
   {
     UpdateTimer = NowTime;
-    // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
-      for (uint8_t x=1; x<=7; x++)
-      {
-        for (uint8_t y=0; y<=7; y++)
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      stringLength = NumberOfFontCharactersToScroll16bit; // This message is a different length than the 8x8 message.
+      // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
+        for (uint8_t x=1; x<=3; x++)
         {
-          CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
+          for (uint8_t y=0; y<=3; y++)
+          {
+            CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
+          }
         }
-      }
-    // Bring in a new column on right edge.
-      if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
-    // Out of characters? Go back to the beginning and scroll again.
-      if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; ScrollTextToCoreMemoryCompleteFlag = true; }
-      for (uint8_t y=0; y<=7; y++) // iterate through the rows
-      {
-        newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
-        CoreArrayMemory [y][7] = newBit;
-      }
-      characterColumn++; // prepare for next column
-      if (ScrollingColorChangeEnable) {
-        LED_Array_Monochrome_Increment_Color(4);
-      }
+      // Bring in a new column on right edge.
+        if (characterColumn == 4) {characterColumn = 0; stringPosition++;}
+      // Out of characters? Go back to the beginning and scroll again.
+        if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; ScrollTextToCoreMemoryCompleteFlag = true; }
+        for (uint8_t y=0; y<=3; y++) // iterate through the rows
+        {
+          newBit = pgm_read_byte(&(character_font_wide_16bit[stringPosition][y][characterColumn]));
+          CoreArrayMemory [y][3] = newBit;
+        }
+        characterColumn++; // prepare for next column
+        if (ScrollingColorChangeEnable) {
+          LED_Array_Monochrome_Increment_Color(4);
+        }
+    }
+    else {
+      // Shift existing core memory data to the left. (leftmost column is 0, rightmost is 7)
+        for (uint8_t x=1; x<=7; x++)
+        {
+          for (uint8_t y=0; y<=7; y++)
+          {
+            CoreArrayMemory [y][x-1] = CoreArrayMemory [y][x];
+          }
+        }
+      // Bring in a new column on right edge.
+        if (characterColumn == 8) {characterColumn = 0; stringPosition++;}
+      // Out of characters? Go back to the beginning and scroll again.
+        if (stringPosition == stringLength) { stringPosition = 0; characterColumn = 0; ScrollTextToCoreMemoryCompleteFlag = true; }
+        for (uint8_t y=0; y<=7; y++) // iterate through the rows
+        {
+          newBit = pgm_read_byte(&(character_font_wide[stringPosition][y][characterColumn]));
+          CoreArrayMemory [y][7] = newBit;
+        }
+        characterColumn++; // prepare for next column
+        if (ScrollingColorChangeEnable) {
+          LED_Array_Monochrome_Increment_Color(4);
+        }
+    }
   }
 }

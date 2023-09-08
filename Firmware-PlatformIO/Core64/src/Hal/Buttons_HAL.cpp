@@ -150,6 +150,8 @@ void Buttons_Setup() {
       { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus2_5mm; }  
   if ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) )
       { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus3_0mm; }
+  if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) )
+      { HallSensorFieldStrengthButtonPressThreshold = HallSensorFieldStrengthButtonPressThresholdStylus3_0mm; }
   #endif
   {
     #ifdef HALL_SENSOR_ENABLE

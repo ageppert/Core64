@@ -125,7 +125,8 @@
     #elif defined MCU_TYPE_RP2040
       if (
         ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) ) ||
-        ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) )
+        ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) ) ||
+        ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) )
       )  
         {
           Bus_VBAT_ADC_raw  = analogRead ( Pin_Battery_Voltage   );                      // VBAT_MON at 3:1 reading

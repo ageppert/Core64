@@ -96,7 +96,8 @@
     eLBT_CORE64_T32  = 0    ,   // 0 
     eLBT_CORE64C_PICO     	,   // 1
     eLBT_CORE64_PICO     	,   // 2
-    eLBT_UNKNOWN, // = 255	,   // 255
+	eLBT_CORE16_PICO        ,   // 3
+    eLBT_UNKNOWN    			// TODO: How to make this text associated with 255 in the array?
     };
 
 	uint8_t LogicBoardTypeGet ();
@@ -131,7 +132,7 @@
 		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
 		#endif
-
+#define SCROLLING_TEXT_BYPASS_CORE_MEMORY	// temporary for Core16
 	#if defined  MCU_TYPE_MK20DX256_TEENSY_32
 		// Core64 HARDWARE v0.5.0
 			// PRIMARY AND DEFAULT FUNCTIONALITY
@@ -219,7 +220,7 @@
 						// #define Pin_SPARE_3_Assigned_To_SPI_SD_CD_Input
 
 	#elif defined MCU_TYPE_RP2040
-		// Core64c HARDWARE v0.2.0
+		// Core64c HARDWARE v0.2.0+
 			// PRIMARY AND DEFAULT FUNCTIONALITY
 						#define Pin_Built_In_VBUS_Sense   	24  // BUILT-IN to Pico Board, high if VBUS is present, which means USB power is connected to Pico.
 				// HEART BEAT
@@ -268,6 +269,35 @@
 				#define Pin_SPI_SDO							19  // 
 				#define Pin_SPI_SDI							16  // 
 				#define Pin_SPI_CLK           				18	// 
+
+		// Core16 HARDWARE v0.1.0
+			// MATRIX SENSE
+					#define C16P_Pin_Sense_Reset         	 0	// Same as Core64c
+					#define C16P_Pin_Sense_Pulse         	21	// Same as Core64c
+			// MATRIX DRIVE
+					#define C16P_PIN_WRITE_ENABLE         	20	// Same as Core64c 
+					#define C16P_PIN_MATRIX_DRIVE_Q1P     	 1	// * Shared with GPIO1_SAO1
+					#define C16P_PIN_MATRIX_DRIVE_Q1N     	 2
+					// #define C16P_PIN_MATRIX_DRIVE_Q2P     	// Not available or needed.
+					// #define C16P_PIN_MATRIX_DRIVE_Q2N     	// Not available or needed.
+					#define C16P_PIN_MATRIX_DRIVE_Q3P     	 3
+					#define C16P_PIN_MATRIX_DRIVE_Q3N     	 4
+					#define C16P_PIN_MATRIX_DRIVE_Q4P     	 5
+					#define C16P_PIN_MATRIX_DRIVE_Q4N     	 6
+					#define C16P_PIN_MATRIX_DRIVE_Q5P     	 7
+					#define C16P_PIN_MATRIX_DRIVE_Q5N     	 8
+					#define C16P_PIN_MATRIX_DRIVE_Q6P     	 9
+					#define C16P_PIN_MATRIX_DRIVE_Q6N     	12
+					#define C16P_PIN_MATRIX_DRIVE_Q7P     	13	
+					#define C16P_PIN_MATRIX_DRIVE_Q7N     	14  // * Shared with SPI_CD
+					// #define C16P_PIN_MATRIX_DRIVE_Q8P     	// Not available or needed.   
+					// #define C16P_PIN_MATRIX_DRIVE_Q8N     	// Not available or needed.
+					#define C16P_PIN_MATRIX_DRIVE_Q9P     	15	// * Shared with SPI_RESET
+					#define C16P_PIN_MATRIX_DRIVE_Q9N     	16	// * Shared with SPI_SDI
+					#define C16P_PIN_MATRIX_DRIVE_Q10P    	18 	// * Shared with SPI_CLK
+					#define C16P_PIN_MATRIX_DRIVE_Q10N    	19	// * Shared with SPI_SDO
+
+
 
 	#endif
 

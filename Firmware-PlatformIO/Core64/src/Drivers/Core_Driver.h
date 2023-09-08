@@ -19,21 +19,24 @@ SETUP:
 // Functions coverted to support V0.2 and V0.3 hardware are prefixed with Core_Driver_
 void Core_Driver_Setup();
 void Core_Plane_Select(uint8_t plane);		// Select 1 through 8.
-void ReturnMatrixQ9NtoLowForLEDArray();
+void Core_Plane_Set_Addr(uint8_t plane);
 
 void MatrixEnableTransistorInactive();
 void MatrixEnableTransistorActive();
 void MatrixDriveTransistorsInactive();
-void MatrixDriveTransistorsActive();
+
+void MatrixDriveTransistorsActive(); // TODO: This may be missing and not used?
+void ReturnMatrixQ9NtoLowForLEDArray();
+
 extern void SetRowAndCol (uint8_t row, uint8_t col);
 extern void ClearRowAndCol (uint8_t row, uint8_t col);
-void SetBit (uint8_t bit);
-void ClearBit (uint8_t bit);
+void ClearRowZeroAndColZero (); // temp test function
+void SetRowZeroAndColZero ();   // temp test function
 void CoreSenseReset();
 bool SenseWirePulse();
 
-void ClearRowZeroAndColZero (); // temp test function
-void SetRowZeroAndColZero ();   // temp test function
+void SetBit (uint8_t bit);
+void ClearBit (uint8_t bit);
 
 extern void TracingPulses(uint8_t numberOfPulses);
 void DebugWithReedSwitchOutput();

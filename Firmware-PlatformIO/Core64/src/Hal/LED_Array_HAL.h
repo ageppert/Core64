@@ -56,8 +56,8 @@ void LED_Array_Matrix_Color_Hue_Sat_Write(uint8_t y, uint8_t x, uint8_t hue, uin
 
 void LED_Array_Binary_Display();
 void LED_Array_String_Display();
-void LED_Array_Matrix_Mono_Display();
-void LED_Array_Color_Display(bool HuenHueSat); // Display from Hue only with 1, and Hue and Sat with 0.
+void LED_Array_Matrix_Mono_Display();          // Can be replaced with LED_Array_Color_Display(1)
+void LED_Array_Color_Display(bool HuenHueSat); // Display from Hue only with 1, and Hue and Sat with 0
 
 void LED_Array_Binary_Write_Default(); // Set the Binary memory to it's default value
 void LED_Array_Binary_To_Matrix_Mono(); // convert the contents of the 64 Bit Binary screen memory to 8x8 Matrix Monochrome memory

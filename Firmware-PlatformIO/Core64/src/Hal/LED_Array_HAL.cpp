@@ -39,9 +39,12 @@ static uint8_t StartUpSymbolIndex = 0;
   // 0 is lower right (LSb), 63 is upper left (MSb), counting right to left, then up to the next row. Each row up is a higher Byte.
   static uint64_t LedArrayMemoryBinary = 0;
   static uint64_t LedArrayMemoryBinaryDefault = 0xDEADBEEFC0D3C4FE; // 0x8142241818244281; // "X" //  0xDEADBEEF and 0xC0D3C4FE
+  static uint16_t LedArrayMemoryBinary16bit = 0;
+  static uint16_t LedArrayMemoryBinaryDefault16bit = 0xC0D3C4FE; // 0x8142241818244281; // "X" //  0xDEADBEEF and 0xC0D3C4FE
 // STRING [1D 64 pixel string, monochrome]
   // 0 is upper left, 63 is lower right, counting left to right, then down to next row
-  static bool LedArrayMemoryString [64];  
+  static bool LedArrayMemoryString [64];  // for Core64
+  static bool LedArrayMemoryString16bit [16];  // for Core16  
 // MATRIX MONOCHROME [2D 8x8 pixel matrix, monochrome]
   // order y,x : 0,0 is upper left, 7,7 is lower right, counting left to right and top to bottom.
   static bool LedScreenMemoryMatrixMono [8][8];      
@@ -101,6 +104,25 @@ static uint8_t StartUpSymbolIndex = 0;
     {48,49,50,51,52,53,54,55},
     {56,57,58,59,60,61,62,63}
     };
+  // The following three are for Core16
+  const uint8_t ScreenPixelPositionBinaryLUT16bit [16] = { // Maps Screen Pixel Position to LED Binary Display position.
+    15,14,13,12,
+    11,10, 9, 8,
+     7, 6, 5, 4,
+     3, 2, 1, 0  
+    };
+  const uint8_t ScreenPixelPosition1DLUT16bit [16] = { // Maps Screen Pixel Position to LED 1D array position.
+     0, 1, 2, 3,
+     4, 5, 6, 7,
+     8, 9,10,11,
+     12,13,14,15
+    };
+  const uint8_t ScreenPixelPosition2DLUT16bit [4][4] = { // Maps Screen Pixel Position to LED 2D array position.
+    { 0, 1, 2, 3},
+    { 4, 5, 6, 7},
+    { 8, 9,10,11},
+    {12,13,14,15}
+    };
 #else // For Pimoroni Unicorn Hat layout (serpentine)
   // Look up tables to translate the 1D and 2D user representations of the array to the LED positions used by the LED Array Driver, FastLED.
   const uint8_t ScreenPixelPositionBinaryLUT [64] = { // Maps Screen Pixel Position to LED Binary Display position.
@@ -153,13 +175,19 @@ void LED_Array_Auto_Brightness() {
       else {LEDArrayBrightness = GetAmbientLightLevel8BIT();}
       if(LEDArrayBrightness < BRIGHTNESS_MIN) {LEDArrayBrightness = BRIGHTNESS_MIN;}
       if(LEDArrayBrightness > BRIGHTNESS_MAX) {LEDArrayBrightness = BRIGHTNESS_MAX;}
-      #if defined USE_FASTLED_LIBRARY
-        FastLED.setBrightness( LEDArrayBrightness );
-      #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-        LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
-        strip.show();
-      #endif
     }
+
+    if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) ) {
+      LEDArrayBrightness = 15;
+    }
+
+    #if defined USE_FASTLED_LIBRARY
+      FastLED.setBrightness( LEDArrayBrightness );
+    #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+      LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
+      strip.show();
+    #endif
+
     // Serial.println(LEDArrayBrightness);
 }
 
@@ -176,6 +204,7 @@ void LED_Array_Auto_Brightness() {
     LedArrayMemoryBinary = 0;
     for( uint8_t i = 0; i < NUM_LEDS; i++) {
       LedArrayMemoryString[i] = 0;
+      LedArrayMemoryString16bit[i] = 0;
     }
     for( uint8_t y = 0; y < kMatrixHeight; y++) 
     {
@@ -313,11 +342,21 @@ void LED_Array_Auto_Brightness() {
   // Copy Core Memory Array bits into monochrome LED Array memory
   //
     void CopyCoreMemoryToMonochromeLEDArrayMemory() {
-      for( uint8_t y = 0; y < kMatrixHeight; y++) {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) {
-          LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
-          LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
-        }
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+          for( uint8_t y = 0; y < 4; y++) {
+            for( uint8_t x = 0; x < 4; x++) {
+              LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
+              LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
+            }
+          }
+      }
+      else {
+          for( uint8_t y = 0; y < kMatrixHeight; y++) {
+            for( uint8_t x = 0; x < kMatrixWidth; x++) {
+              LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
+              LedScreenMemoryMatrixMono[y][x] = CoreArrayMemory[y][x];
+            }
+          }
       }
     }
 
@@ -338,11 +377,22 @@ void LED_Array_Auto_Brightness() {
   // Copy Color Font Symbol into Color HSV LED Array memory
   //
     void WriteColorFontSymbolToLedScreenMemoryMatrixHue(uint8_t SymbolNumber) {
-      for( uint8_t y = 0; y < kMatrixHeight; y++) 
-      {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+        for( uint8_t y = 0; y < 4; y++) 
         {
-          LedScreenMemoryMatrixHue[y][x] = ColorFontSymbols[SymbolNumber][y][x];
+          for( uint8_t x = 0; x < 4; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = ColorFontSymbols16bit[SymbolNumber][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 0; y < kMatrixHeight; y++) 
+        {
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = ColorFontSymbols[SymbolNumber][y][x];
+          }
         }
       }
     }
@@ -500,26 +550,53 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Matrix_Mono_Display() {
     uint8_t LEDPixelPosition = 0;
-    for( uint8_t y = 0; y < kMatrixHeight; y++) 
-    {
-      for( uint8_t x = 0; x < kMatrixWidth; x++) 
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      for( uint8_t y = 0; y < 4; y++) 
       {
-        LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
-        // LED HUE COLOR
-        if ( ((LedScreenMemoryMatrixMono [y][x]) >= 1) || ((LedScreenMemoryMatrixMono [y][x]) <= 255) ) {
-          #if defined USE_FASTLED_LIBRARY
-            leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
-          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-          #endif
+        for( uint8_t x = 0; x < 4; x++) 
+        {
+          LEDPixelPosition = ScreenPixelPosition2DLUT16bit [y][x];
+          // LED HUE COLOR
+          if ( ((LedScreenMemoryMatrixMono [y][x]) >= 1) || ((LedScreenMemoryMatrixMono [y][x]) <= 255) ) {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            #endif
+          }
+          // LED OFF
+          if ((LedScreenMemoryMatrixMono [y][x]) == 0) {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = 0;
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.Color( 0, 0, 0) );
+            #endif
+          }
         }
-        // LED OFF
-        if ((LedScreenMemoryMatrixMono [y][x]) == 0) {
-          #if defined USE_FASTLED_LIBRARY
-            leds[LEDPixelPosition] = 0;
-          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-            strip.setPixelColor( LEDPixelPosition, strip.Color( 0, 0, 0) );
-          #endif
+      }
+    }
+    else {
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
+          // LED HUE COLOR
+          if ( ((LedScreenMemoryMatrixMono [y][x]) >= 1) || ((LedScreenMemoryMatrixMono [y][x]) <= 255) ) {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            #endif
+          }
+          // LED OFF
+          if ((LedScreenMemoryMatrixMono [y][x]) == 0) {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = 0;
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.Color( 0, 0, 0) );
+            #endif
+          }
         }
       }
     }
@@ -533,37 +610,75 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Color_Display(bool HuenHueSat) {
     uint8_t LEDPixelPosition = 0;
-    for( uint8_t y = 0; y < kMatrixHeight; y++) 
-    {
-      for( uint8_t x = 0; x < kMatrixWidth; x++) 
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      for( uint8_t y = 0; y < 4; y++) 
       {
-        LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
-        #if defined USE_FASTLED_LIBRARY
-          leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
-          // LED WHITE special case
-          if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
-            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
-          }
-        #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          if (HuenHueSat) {
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-          }
-          else {
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),(LedScreenMemoryMatrixSat [y][x]),LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-          }
-          // LED WHITE special case
-          if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
-          }
-        #endif
-        // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
-        if(LedScreenMemoryMatrixHue [y][x]==0)
+        for( uint8_t x = 0; x < 4; x++) 
         {
+          LEDPixelPosition = ScreenPixelPosition2DLUT16bit [y][x];          
           #if defined USE_FASTLED_LIBRARY
-            leds[LEDPixelPosition] = 0;
+            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+            // LED WHITE special case
+            if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+              leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
+            }
           #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
+            if (HuenHueSat) {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            }
+            else {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),(LedScreenMemoryMatrixSat [y][x]),LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            }
+            // LED WHITE special case
+            if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
+            }
           #endif
+          // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
+          if(LedScreenMemoryMatrixHue [y][x]==0)
+          {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = 0;
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
+            #endif
+          }
+        }
+      }
+    }
+    else {
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LEDPixelPosition = ScreenPixelPosition2DLUT [y][x];
+          #if defined USE_FASTLED_LIBRARY
+            leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);          // leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+            // LED WHITE special case
+            if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+              leds[LEDPixelPosition] = CHSV(LedScreenMemoryMatrixHue [y][x], 0 ,LEDArrayMonochromeColorHSV[2]);
+            }
+          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+            if (HuenHueSat) {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            }
+            else {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),(LedScreenMemoryMatrixSat [y][x]),LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+            }
+            // LED WHITE special case
+            if ((LedScreenMemoryMatrixHue [y][x]) == 255) {
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( ((LedScreenMemoryMatrixHue [y][x])*256),0,LEDArrayMonochromeColorHSV[2]) );
+            }
+          #endif
+          // Exception is color of 0 which is implemented as pixel OFF, and not the 0 color in HSV space.
+          if(LedScreenMemoryMatrixHue [y][x]==0)
+          {
+            #if defined USE_FASTLED_LIBRARY
+              leds[LEDPixelPosition] = 0;
+            #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+              strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
+            #endif
+          }
         }
       }
     }
@@ -586,8 +701,7 @@ void LED_Array_Auto_Brightness() {
         #if defined USE_FASTLED_LIBRARY
           leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
         #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          // strip.setPixelColor( LEDPixelPosition, strip.Color(strip.gamma8(LEDArrayMonochromeColorHSV[0]),strip.gamma8(LEDArrayMonochromeColorHSV[1]),strip.gamma8(LEDArrayMonochromeColorHSV[2])) );
-          strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
         #endif
       }
       else {
@@ -615,32 +729,59 @@ void LED_Array_Auto_Brightness() {
   }
 
   void LED_Array_String_Write(uint8_t bit, bool value) {
-    LedArrayMemoryString [bit] = value;
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      LedArrayMemoryString16bit [bit] = value;
+    }
+    else {
+      LedArrayMemoryString [bit] = value;
+    }
   }
 
   void LED_Array_String_Display() {
     uint8_t LEDPixelPosition = 0;
-    for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS; ScreenPixel++ ) {
-      // Convert from screen position to LED array position 
-      LEDPixelPosition = ScreenPixelPosition1DLUT [ScreenPixel];
-      // Turn on or off the corresponding LED
-      if ( LedArrayMemoryString [ScreenPixel] ) {
-        #if defined USE_FASTLED_LIBRARY
-          leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
-        #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          // strip.setPixelColor( LEDPixelPosition, strip.Color(strip.gamma8(LEDArrayMonochromeColorHSV[0]),strip.gamma8(LEDArrayMonochromeColorHSV[1]),strip.gamma8(LEDArrayMonochromeColorHSV[2])) );
-          strip.setPixelColor( LEDPixelPosition, strip.gamma32(strip.ColorHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2])) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
-        #endif
-      }
-      else {
-        #if defined USE_FASTLED_LIBRARY
-          leds[LEDPixelPosition] = 0;
-        #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-          strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
-        #endif
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      for ( uint8_t ScreenPixel = 0; ScreenPixel < 16; ScreenPixel++ ) {
+        // Convert from screen position to LED array position 
+        LEDPixelPosition = ScreenPixelPosition1DLUT16bit [ScreenPixel];
+        // Turn on or off the corresponding LED
+        if ( LedArrayMemoryString16bit [ScreenPixel] ) {
+          #if defined USE_FASTLED_LIBRARY
+            leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          #endif
+        }
+        else {
+          #if defined USE_FASTLED_LIBRARY
+            leds[LEDPixelPosition] = 0;
+          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
+          #endif
+        }
       }
     }
-    LED_Array_Auto_Brightness();
+    else {
+      for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS; ScreenPixel++ ) {
+        // Convert from screen position to LED array position 
+        LEDPixelPosition = ScreenPixelPosition1DLUT [ScreenPixel];
+        // Turn on or off the corresponding LED
+        if ( LedArrayMemoryString [ScreenPixel] ) {
+          #if defined USE_FASTLED_LIBRARY
+            leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
+          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( (LEDArrayMonochromeColorHSV[0]*256),LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]) );  //  Set pixel's color (in RAM) pixel #, hue, saturation, brightness
+          #endif
+        }
+        else {
+          #if defined USE_FASTLED_LIBRARY
+            leds[LEDPixelPosition] = 0;
+          #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+            strip.setPixelColor( LEDPixelPosition, strip.ColorHSV( 0, 0, 0) );
+          #endif
+        }
+      }
+    }
+    // LED_Array_Auto_Brightness();
     #if defined USE_FASTLED_LIBRARY
       FastLED.show();
     #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
@@ -709,10 +850,13 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Test_Pixel_String() {
       static uint8_t stringPos = 0;
+      static uint8_t stringLength = 0;
       static unsigned long StringUpdatePeriodms = 50;  
       static unsigned long StringNowTime = 0;
       static unsigned long StringUpdateTimer = 0;
       StringNowTime = millis();
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) { stringLength = 16; }
+      else { stringLength = 64; }
       if ((StringNowTime - StringUpdateTimer) >= StringUpdatePeriodms)
       {
         StringUpdateTimer = StringNowTime;
@@ -720,7 +864,7 @@ void LED_Array_Auto_Brightness() {
         LED_Array_String_Write(stringPos, 1);
         LED_Array_String_Display();
         stringPos++;
-        if (stringPos>63) {stringPos=0;}
+        if (stringPos>=stringLength) {stringPos=0;}
         #ifdef MONOCHROMECOLORCHANGER
           static uint8_t MonochromeColorChange = 0;
           LED_Array_Monochrome_Set_Color(MonochromeColorChange, 255, 255);
@@ -834,6 +978,5 @@ void LED_Array_Auto_Brightness() {
     #endif
     LED_Array_Memory_Clear();
     delay(25);
-    LED_Array_Matrix_Mono_Display();
     LED_Array_Color_Display(1);
   }

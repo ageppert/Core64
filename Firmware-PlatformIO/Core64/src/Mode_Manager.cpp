@@ -571,7 +571,7 @@ void TopLevelModeManagerRun() {
 
       case MODE_SPECIAL_GLAMOR_SHOT: // Static image display, no timeout.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        LED_Array_Set_Brightness(255); // Not yet working!
+        LED_Array_Set_Brightness(25); // TODO: Not yet working for Core64. But works in Core16 it seems.
         LED_Array_Memory_Clear();
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(14);
         LED_Array_Color_Display(1);
@@ -692,13 +692,6 @@ void TopLevelModeManagerRun() {
         break;
 
       case MODE_CORE_TEST_ONE:
-        /* 
-        TODO: This code works fine on Teensy with Neon Pixels when it is run under
-        the MODE_UTIL_FLUX_DETECTOR. But it doesn't work down here in MODE_CORE_TEST_ONE.
-        And the code works fine on Pico without Neon Pixels.
-        What in the world is going on??? 
-        */
-
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToTest=0;
         LED_Array_Monochrome_Set_Color(100,255,255);

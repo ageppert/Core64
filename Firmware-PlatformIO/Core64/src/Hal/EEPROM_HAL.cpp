@@ -78,7 +78,7 @@ bool ReadLogicBoardType () {
 	if (I2CDetectExternalEEPROM(0x57))
 	{
 		uint8_t temp =  EEPROMExtReadByte(EEPROM_ADDRESS, 0);
-    if (temp <= 2) { LogicBoardTypeSet(temp);         }
+    if (temp <= 3) { LogicBoardTypeSet(temp);         }
     else           { LogicBoardTypeSet(eLBT_UNKNOWN); }
     return true;
 	}

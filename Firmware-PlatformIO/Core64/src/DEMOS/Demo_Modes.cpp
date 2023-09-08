@@ -59,7 +59,7 @@ void DemoScrollingText() {
     ScrollTextToCoreMemoryCompleteFlagClear();
     CoreClearAll();
     LED_Array_Memory_Clear();
-    LED_Array_Matrix_Mono_Display();
+    LED_Array_Color_Display(1);
   }
   ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
   #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
