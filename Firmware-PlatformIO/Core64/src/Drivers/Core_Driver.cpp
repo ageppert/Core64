@@ -117,19 +117,30 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
   // V0.1.x and V0.2.x and V0.4.x hardware (direct MCU pin control)
 
   static uint8_t C16P_CMMDSetRowByBit[][2] = {
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  0    ROW 0
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  1    ROW 0
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  2    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  0    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  1    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  2    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  3    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  4    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  5    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  6    ROW 0
+  //  { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  7    ROW 0
+
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  1    ROW 0   YL0+ YL1+ YR0- YR3 open 
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  0    ROW 0   
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  3    ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  2    ROW 0   
+
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  9    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  8    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 11    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 10    ROW 1
+
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  4    ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  5    ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit  6    ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit  7    ROW 0
 
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  8    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  9    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 10    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 11    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 12    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 13    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 14    ROW 1
@@ -137,19 +148,21 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
   }; 
 
   static uint8_t C16P_CMMDClearRowByBit[][2] = {
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 0     ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 1     ROW 0
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 2     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 0     ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 3     ROW 0
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 2     ROW 0
+
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  9    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  8    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 11    ROW 1
+    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 10    ROW 1
+
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 4     ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 5     ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q9N  },  // Bit 6     ROW 0
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q9P  },  // Bit 7     ROW 0      
 
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit  8    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit  9    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 10    ROW 1
-    { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 11    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 12    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7P , C16P_PIN_MATRIX_DRIVE_Q10N },  // Bit 13    ROW 1
     { C16P_PIN_MATRIX_DRIVE_Q7N , C16P_PIN_MATRIX_DRIVE_Q10P },  // Bit 14    ROW 1
@@ -923,8 +936,8 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
 
   void Core_Driver_Setup() {
       if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
-        pinMode(C16P_Pin_Sense_Pulse, INPUT_PULLUP);
-        pinMode(C16P_Pin_Sense_Reset, OUTPUT);
+        pinMode(C16P_PIN_SENSE_PULSE, INPUT_PULLUP);
+        pinMode(C16P_PIN_SENSE_RESET, OUTPUT);
         pinMode(C16P_PIN_MATRIX_DRIVE_Q1P,  OUTPUT);
         pinMode(C16P_PIN_MATRIX_DRIVE_Q1N,  OUTPUT);
         // pinMode(C16P_PIN_MATRIX_DRIVE_Q2P,  OUTPUT); // Not available or needed.
@@ -968,24 +981,24 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
       MatrixDriveTransistorsInactive();
 
       // If the Core Pattern Arrangement is opposite, swap the pin matrix drive values between bits 0-31 with 32-63
-      //if(CorePatternArrangement == CORE_ARRANGEMENT_OPPOSITE) {
-      //  uint8_t temp[1];
-      //  for (uint8_t i = 0; i <= 31; i++) {
-      //    temp[0] = CMMDSetRowByBit[i][0];
-      //    temp[1] = CMMDSetRowByBit[i][1];
-      //    CMMDSetRowByBit[i][0] = CMMDSetRowByBit[(32+i)][0];
-      //    CMMDSetRowByBit[i][1] = CMMDSetRowByBit[(32+i)][1];
-      //    CMMDSetRowByBit[(32+i)][0] = temp[0];
-      //    CMMDSetRowByBit[(32+i)][1] = temp[1];
+      // if(CorePatternArrangement == CORE_ARRANGEMENT_OPPOSITE) {
+      // uint8_t temp[1];
+      // for (uint8_t i = 0; i <= 7; i++) {
+      //   temp[0] = C16P_CMMDSetRowByBit[i][0];
+      //   temp[1] = C16P_CMMDSetRowByBit[i][1];
+      //   C16P_CMMDSetRowByBit[i][0] = C16P_CMMDSetRowByBit[(7+i)][0];
+      //   C16P_CMMDSetRowByBit[i][1] = C16P_CMMDSetRowByBit[(7+i)][1];
+      //   C16P_CMMDSetRowByBit[(7+i)][0] = temp[0];
+      //   C16P_CMMDSetRowByBit[(7+i)][1] = temp[1];
       //
-      //    temp[0] = CMMDClearRowByBit[i][0];
-      //    temp[1] = CMMDClearRowByBit[i][1];
-      //    CMMDClearRowByBit[i][0] = CMMDClearRowByBit[(32+i)][0];
-      //    CMMDClearRowByBit[i][1] = CMMDClearRowByBit[(32+i)][1];
-      //    CMMDClearRowByBit[(32+i)][0] = temp[0];
-      //    CMMDClearRowByBit[(32+i)][1] = temp[1];
-      //  }
-      //}
+      //   temp[0] = C16P_CMMDClearRowByBit[i][0];
+      //   temp[1] = C16P_CMMDClearRowByBit[i][1];
+      //   C16P_CMMDClearRowByBit[i][0] = C16P_CMMDClearRowByBit[(7+i)][0];
+      //   C16P_CMMDClearRowByBit[i][1] = C16P_CMMDClearRowByBit[(7+i)][1];
+      //   C16P_CMMDClearRowByBit[(7+i)][0] = temp[0];
+      //   C16P_CMMDClearRowByBit[(7+i)][1] = temp[1];
+      // }
+      // }
   }
 
   void Core_Plane_Select(uint8_t plane) {
@@ -1058,68 +1071,158 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
 
   // Use row and col to selection the proper place in the array
   void SetRowAndCol (uint8_t row, uint8_t col) { 
-    uint8_t bit = col + (row*8);   // decode bit # from row and col data to resolve the correct row drive polarity
-    OutputToSerialShiftRegister(CMMDSetBit[bit] ^ CMMDTransistorInactiveState); 
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      // decode bit # from row and col data to resolve the correct row drive polarity
+      uint8_t bit = col + (row*4);
+        digitalWrite( (C16P_CMMDSetRowByBit[bit] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetRowByBit[bit] [0] ] );
+        delayMicroseconds(1); 
+      //TracingPulses(1);
+        digitalWrite( (C16P_CMMDSetRowByBit[bit] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetRowByBit[bit] [1] ] );
+        // Use col to select the proper place in the look up table
+        // columns are easier to decode with the simpler CMMDSetCol look-up table.
+        delayMicroseconds(1); 
+      //TracingPulses(1);
+        digitalWrite( (C16P_CMMDSetCol[col] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetCol[col] [0] ] );
+        delayMicroseconds(1); 
+      //TracingPulses(1);
+        digitalWrite( (C16P_CMMDSetCol[col] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetCol[col] [1] ] );
+        delayMicroseconds(1); 
+      //TracingPulses(1);      
+    }
+    else {
+      uint8_t bit = col + (row*8);   // decode bit # from row and col data to resolve the correct row drive polarity
+      OutputToSerialShiftRegister(CMMDSetBit[bit] ^ CMMDTransistorInactiveState);
+    } 
   }
 
   // Use row and col to selection the proper place in the array
   void ClearRowAndCol (uint8_t row, uint8_t col) {
-    uint8_t bit = col + (row*8);  // decode bit # from row and col data to resolve the correct row and column drive polarity
-    OutputToSerialShiftRegister(CMMDClearBit[bit] ^ CMMDTransistorInactiveState);    
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      // decode bit # from row and col data to resolve the correct row drive polarity
+      uint8_t bit = col + (row*4);
+        digitalWrite( (C16P_CMMDClearRowByBit[bit] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearRowByBit[bit] [0] ] ); // for bit 0, pin 
+        delayMicroseconds(1); 
+      // TracingPulses(1);
+        digitalWrite( (C16P_CMMDClearRowByBit[bit] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearRowByBit[bit] [1] ] ); // for bit 0, pin 
+        delayMicroseconds(1); 
+      // TracingPulses(1);
+        // columns are easier to decode with the simpler CMMDSetCol look-up table.
+        digitalWrite( (C16P_CMMDClearCol[col] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearCol[col] [0] ] ); // for bit 0, pin 
+        delayMicroseconds(1); 
+      // TracingPulses(1);
+        digitalWrite( (C16P_CMMDClearCol[col] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearCol[col] [1] ] ); // for bit 0, pin    
+        delayMicroseconds(1); 
+      // TracingPulses(1);
+    }
+    else {
+      uint8_t bit = col + (row*8);  // decode bit # from row and col data to resolve the correct row and column drive polarity
+      OutputToSerialShiftRegister(CMMDClearBit[bit] ^ CMMDTransistorInactiveState);    
+    }
   }
 
   // Use row and col to selection the proper place in the array
   void SetBit (uint8_t bit) { 
-    OutputToSerialShiftRegister(CMMDSetBit[bit] ^ CMMDTransistorInactiveState); 
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      // TODO: Remove this hard code and use modular functions.
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7P), 0 ); // for bit 0, row 0 YL0 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9N), 1 ); // for bit 0, row 0 YL4 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3P), 0 ); // for bit 0, col 0 XT0 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1N), 1 ); // for bit 0, col 0 XB0 to GND
+    }
+    else {
+      OutputToSerialShiftRegister(CMMDSetBit[bit] ^ CMMDTransistorInactiveState); 
+    }
   }
 
   // Use row and col to selection the proper place in the array
   void ClearBit (uint8_t bit) {
-    OutputToSerialShiftRegister(CMMDClearBit[bit] ^ CMMDTransistorInactiveState);    
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      // TODO: Remove this hard code and use modular functions.
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7N), 1 ); // for bit 0, row 0 YL0 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9P), 0 ); // for bit 0, row 0 YL4 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3N), 1 ); // for bit 0, col 0 XT0 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1P), 0 ); // for bit 0, col 0 XB0 to VMEM    
+    }
+    else {
+      OutputToSerialShiftRegister(CMMDClearBit[bit] ^ CMMDTransistorInactiveState);    
+    }
   }
+
   void ClearRowZeroAndColZero () {
-    /* Bit manipulation needed to go from FlipField (which transistors to activate) to OutField (the high/low state required to activate transistors).
-      uint32_t FlipField = 0b00000000000000010010000000100001;  // This is a little easier to read. 1s indicate which transistors need to be active.
-      uint32_t Inactive  = 0b00000000000010101010101010101010;  // This is the normal inactive state of each transistor.
-      uint32_t OutField  = 0b00000000000010111000101010011011;  // The XOR operator returns 1 only when the two bits are different.
-      TRUTH TABLE:
-        F I    O  Requires XOR which is F ^ A = O. The XOR operator returns 1 only when the two bits are different.
-        1 0 -> 1  change to opposite
-        1 1 -> 0  change to opposite
-        0 0 -> 0  no change
-        0 1 -> 1  no change
-    */
-    //                                 QQQQQQQQQQQQQQQQQQQQ
-    //                                 11                     
-    //                             HGFE00998877665544332211
-    //                     xxxxxxxx    PNPNPNPNPNPNPNPNPNPN
-    uint32_t FlipField0= 0b00000000000000100001000000010010;  // BIT 0
-    uint32_t FlipField1= 0b00000000000000010010000001000010;  // BIT 1        
-    OutputToSerialShiftRegister(FlipField0 ^ CMMDTransistorInactiveState);
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7N), 1 ); // for bit 0, row 0 YL0 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9P), 0 ); // for bit 0, row 0 YL4 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3N), 1 ); // for bit 0, col 0 XT0 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1P), 0 ); // for bit 0, col 0 XB0 to VMEM    
+    }
+    else {
+      /* Bit manipulation needed to go from FlipField (which transistors to activate) to OutField (the high/low state required to activate transistors).
+        uint32_t FlipField = 0b00000000000000010010000000100001;  // This is a little easier to read. 1s indicate which transistors need to be active.
+        uint32_t Inactive  = 0b00000000000010101010101010101010;  // This is the normal inactive state of each transistor.
+        uint32_t OutField  = 0b00000000000010111000101010011011;  // The XOR operator returns 1 only when the two bits are different.
+        TRUTH TABLE:
+          F I    O  Requires XOR which is F ^ A = O. The XOR operator returns 1 only when the two bits are different.
+          1 0 -> 1  change to opposite
+          1 1 -> 0  change to opposite
+          0 0 -> 0  no change
+          0 1 -> 1  no change
+      */
+      //                                 QQQQQQQQQQQQQQQQQQQQ
+      //                                 11                     
+      //                             HGFE00998877665544332211
+      //                     xxxxxxxx    PNPNPNPNPNPNPNPNPNPN
+      uint32_t FlipField0= 0b00000000000000100001000000010010;  // BIT 0
+      uint32_t FlipField1= 0b00000000000000010010000001000010;  // BIT 1        
+      OutputToSerialShiftRegister(FlipField0 ^ CMMDTransistorInactiveState);
+    }
   }
 
   void SetRowZeroAndColZero () {
-    //                                 QQQQQQQQQQQQQQQQQQQQ
-    //                                 11                     
-    //                             HGFE00998877665544332211
-    //                     xxxxxxxx    PNPNPNPNPNPNPNPNPNPN
-    uint32_t FlipField0= 0b00000000000000010010000000100001;  // BIT 0
-    uint32_t FlipField1= 0b00000000000000100001000010000001;  // BIT 1
-    OutputToSerialShiftRegister(FlipField0 ^ CMMDTransistorInactiveState);
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7P), 0 ); // for bit 0, row 0 YL0 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9N), 1 ); // for bit 0, row 0 YL4 to GND
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3P), 0 ); // for bit 0, col 0 XT0 to VMEM
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1N), 1 ); // for bit 0, col 0 XB0 to GND
+    }
+    else {
+      //                                 QQQQQQQQQQQQQQQQQQQQ
+      //                                 11                     
+      //                             HGFE00998877665544332211
+      //                     xxxxxxxx    PNPNPNPNPNPNPNPNPNPN
+      uint32_t FlipField0= 0b00000000000000010010000000100001;  // BIT 0
+      uint32_t FlipField1= 0b00000000000000100001000010000001;  // BIT 1
+      OutputToSerialShiftRegister(FlipField0 ^ CMMDTransistorInactiveState);
+    }
   }
 
   void CoreSenseReset() {
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      digitalWrite( C16P_PIN_SENSE_RESET, 1);
+      // Teensy 3.2 compiler optimizes out the pulses if this delay is not included.
+      // The delay is also useful to see the pulse on the scope.
+      delayMicroseconds(1); 
+      digitalWrite( C16P_PIN_SENSE_RESET, 0);    
+    }
+    else {
       digitalWrite( Pin_Sense_Reset, 1);
       // Teensy 3.2 compiler optimizes out the pulses if this delay is not included.
       // The delay is also useful to see the pulse on the scope.
       delayMicroseconds(1); 
       digitalWrite( Pin_Sense_Reset, 0);    
+    }
   }
 
   bool SenseWirePulse() {
-    bool temp = 0;
-    temp = digitalRead(Pin_Sense_Pulse);
-    return temp;
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      bool temp = 0;
+      temp = digitalRead(C16P_PIN_SENSE_PULSE);
+      return temp;
+    }
+    else {
+      bool temp = 0;
+      temp = digitalRead(Pin_Sense_Pulse);
+      return temp;
+    }
   }
 
   void OutputToSerialShiftRegister(uint32_t BitField) {

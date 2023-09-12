@@ -70,12 +70,13 @@
 	|  0.7.26 | 2023-07-24 | Enhance App_Drawing to become App_Paint
 	|  0.7.27 | 2023-09-04 | Neon Pixels, add #define to test flux only on bit 0 with Neon Pixels for demo with oscilloscope.
 	|  0.7.28 | 2023-09-04 | Corrected mistakes when I merged to master. Should now behave like 0.7.27.
-	|  0.8.0  | 2023-09-04 | Core16 support introduced
+	|  0.8.0  | 2023-09-04 | Core16 support introduced.
+	|  0.8.1  | 2023-09-12 | Core16 LED and Core Matrix working in most modes.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core16 support introduced."
+	#define FIRMWARE_DESCRIPTION "Core16 LED and Core Matrix working in most modes."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 0 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 1 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

@@ -114,7 +114,8 @@ static uint32_t Button1HoldTime = 0;
 static uint32_t Button2HoldTime = 0;
 static uint32_t Button3HoldTime = 0;
 static uint32_t Button4HoldTime = 0;
-static uint8_t  coreToTest = 0;
+static uint8_t  coreToStartTest = 0;
+static uint8_t  coreToEndTest = 0;
 
 uint8_t EepromByteValue = 0;
 uint8_t Eeprom_Byte_Mem_Address = 0;
@@ -617,11 +618,11 @@ void TopLevelModeManagerRun() {
         
       case MODE_CORE_TOGGLE_BITS_WITH_3V3_READ:     // Just toggle a single bit on and off. Or just pulse on.
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToTest=0;
+        coreToStartTest=0;
         LED_Array_Monochrome_Set_Color(50,255,255);
         #if defined  MCU_TYPE_MK20DX256_TEENSY_32        
           Serial.println();
-          for (uint8_t bit = coreToTest; bit<(coreToTest+64); bit++)
+          for (uint8_t bit = coreToStartTest; bit<(coreToStartTest+64); bit++)
             {
               // IOESpare1_On();
               Serial.print("CLR,Core #,");
@@ -693,21 +694,21 @@ void TopLevelModeManagerRun() {
 
       case MODE_CORE_TEST_ONE:
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToTest=0;
+        coreToStartTest=0;
         LED_Array_Monochrome_Set_Color(100,255,255);
         LED_Array_Memory_Clear();
 
-        Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
-        if (Core_Mem_Bit_Read(coreToTest)==true) {
-          LED_Array_String_Write(coreToTest, 1);
+        Core_Mem_Bit_Write(coreToStartTest,1);                     // default to bit set
+        if (Core_Mem_Bit_Read(coreToStartTest)==true) {
+          LED_Array_String_Write(coreToStartTest, 1);
           #ifdef NEON_PIXEL_ARRAY
-            Neon_Pixel_Array_String_Write(coreToTest, 1);
+            Neon_Pixel_Array_String_Write(coreToStartTest, 1);
           #endif
           }
         else { 
-          LED_Array_String_Write(coreToTest, 0); 
+          LED_Array_String_Write(coreToStartTest, 0); 
           #ifdef NEON_PIXEL_ARRAY
-            Neon_Pixel_Array_String_Write(coreToTest, 0);
+            Neon_Pixel_Array_String_Write(coreToStartTest, 0);
           #endif
           }
         LED_Array_String_Display();
@@ -721,15 +722,19 @@ void TopLevelModeManagerRun() {
 
       case MODE_CORE_TEST_MANY:
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToTest=0;
+        coreToStartTest = 0;
+        coreToEndTest = 64;
+        if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+          coreToEndTest = 32;
+        }
         #if defined  MCU_TYPE_MK20DX256_TEENSY_32     
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
-          for (uint8_t bit = coreToTest; bit<(64); bit++)
+          for (uint8_t bit = coreToStartTest; bit<(coreToEndTest); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
-            //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
+            //LED_Array_String_Write(coreToStartTest,1);               // Default to pixel on
             //  TracingPulses(1);
-            // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
+            // Core_Mem_Bit_Write(coreToStartTest,0);                     // default to bit set
             Core_Mem_Bit_Write(bit,1);                     // default to bit set
             //  TracingPulses(2);
             if (Core_Mem_Bit_Read(bit)==true) {LED_Array_String_Write(bit, 1);}
@@ -740,12 +745,12 @@ void TopLevelModeManagerRun() {
             }
         #elif defined MCU_TYPE_RP2040
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
-          for (uint8_t bit = coreToTest; bit<(64); bit++)
+          for (uint8_t bit = coreToStartTest; bit<(coreToEndTest); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
-            //LED_Array_String_Write(coreToTest,1);               // Default to pixel on
+            //LED_Array_String_Write(coreToStartTest,1);               // Default to pixel on
             //  TracingPulses(1);
-            // Core_Mem_Bit_Write(coreToTest,0);                     // default to bit set
+            // Core_Mem_Bit_Write(coreToStartTest,0);                     // default to bit set
             Core_Mem_Bit_Write(bit,1);                     // default to bit set
             //  TracingPulses(2);
             if (Core_Mem_Bit_Read(bit)==true) {LED_Array_String_Write(bit, 1);}

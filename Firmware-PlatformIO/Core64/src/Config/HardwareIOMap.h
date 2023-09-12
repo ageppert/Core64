@@ -132,7 +132,7 @@
 		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
 		#endif
-#define SCROLLING_TEXT_BYPASS_CORE_MEMORY	// temporary for Core16
+
 	#if defined  MCU_TYPE_MK20DX256_TEENSY_32
 		// Core64 HARDWARE v0.5.0
 			// PRIMARY AND DEFAULT FUNCTIONALITY
@@ -272,8 +272,8 @@
 
 		// Core16 HARDWARE v0.1.0
 			// MATRIX SENSE
-					#define C16P_Pin_Sense_Reset         	 0	// Same as Core64c
-					#define C16P_Pin_Sense_Pulse         	21	// Same as Core64c
+					#define C16P_PIN_SENSE_RESET         	 0	// Same as Core64c
+					#define C16P_PIN_SENSE_PULSE         	21	// Same as Core64c
 			// MATRIX DRIVE
 					#define C16P_PIN_WRITE_ENABLE         	20	// Same as Core64c 
 					#define C16P_PIN_MATRIX_DRIVE_Q1P     	 1	// * Shared with GPIO1_SAO1
