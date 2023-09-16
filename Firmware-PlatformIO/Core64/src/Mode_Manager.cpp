@@ -291,6 +291,13 @@ bool MenuTimeOutCheck (uint32_t MenuTimeoutLimitms) {
 }
 
 void TopLevelModeManagerRun() {
+  // These are configurable on the fly to determine which cores to scan to activate proper menu from DGAUSS menu.
+  volatile uint8_t dgaussMenuXStart;
+  volatile uint8_t dgaussMenuXEnd;
+  volatile uint8_t dgaussMenuYStart;
+  volatile uint8_t dgaussMenuYEnd;
+  volatile uint8_t x;
+  volatile uint8_t y;
   switch(TopLevelMode) {
     // *************************************************************************************************************************************************** //
     case MODE_START_POWER_ON:                    // Perform the bare minimum required to start and support serial status and debugging.
@@ -461,9 +468,21 @@ void TopLevelModeManagerRun() {
       if (MenuTimeOutCheck(30000)) { TopLevelModeSetToDefault(); }
   
       Core_Mem_Scan_For_Magnet();
-      // Was the D touched with magnetic stylus?
-      for (uint8_t y=0; y<5; y++) {
-        for (uint8_t x=0; x<2; x++) {
+      // Was the D (demos) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 0;
+        dgaussMenuXEnd   = 0;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 1;
+      }
+      else { 
+        dgaussMenuXStart = 0;
+        dgaussMenuXEnd   = 1;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 3;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
             Serial.println();
             Serial.println("  Demo sub-menu selected.");   
@@ -471,10 +490,22 @@ void TopLevelModeManagerRun() {
             TopLevelModeSet (MODE_DEMO_SUB_MENU);
           }
         }
-      }      
-      // Was G touched with magnetic stylus?
-      for (uint8_t y=0; y<4; y++) {
-        for (uint8_t x=2; x<5; x++) {
+      }     
+      // Was G (games) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 1;
+        dgaussMenuXEnd   = 2;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 1;
+      }
+      else { 
+        dgaussMenuXStart = 2;
+        dgaussMenuXEnd   = 4;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 3;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if (CoreArrayMemory [y][x]) { 
             Serial.println();
             Serial.println("  Game sub-menu selected.");   
@@ -483,9 +514,21 @@ void TopLevelModeManagerRun() {
           }
         }
       }
-      // Was A touched with magnetic stylus?
-      for (uint8_t y=0; y<4; y++) {
-        for (uint8_t x=5; x<8; x++) {
+      // Was A (apps) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 3;
+        dgaussMenuXEnd   = 3;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 1;
+      }
+      else { 
+        dgaussMenuXStart = 5;
+        dgaussMenuXEnd   = 7;
+        dgaussMenuYStart = 0;
+        dgaussMenuYEnd   = 3;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if (CoreArrayMemory [y][x]) { 
             Serial.println();
             Serial.println("  Application sub-menu selected.");   
@@ -494,9 +537,21 @@ void TopLevelModeManagerRun() {
           }
         }
       }
-      // Was U touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=0; x<4; x++) {
+      // Was U (utilities) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 0;
+        dgaussMenuXEnd   = 1;
+        dgaussMenuYStart = 2;
+        dgaussMenuYEnd   = 3;
+      }
+      else { 
+        dgaussMenuXStart = 0;
+        dgaussMenuXEnd   = 3;
+        dgaussMenuYStart = 5;
+        dgaussMenuYEnd   = 7;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if (CoreArrayMemory [y][x]) { 
             Serial.println();
             Serial.println("  Utilities sub-menu selected.");   
@@ -505,9 +560,21 @@ void TopLevelModeManagerRun() {
           }
         }
       }
-      // Was S(pecial) touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=3; x<5; x++) {
+      // Was S (special) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 2;
+        dgaussMenuXEnd   = 2;
+        dgaussMenuYStart = 2;
+        dgaussMenuYEnd   = 3;
+      }
+      else { 
+        dgaussMenuXStart = 3;
+        dgaussMenuXEnd   = 4;
+        dgaussMenuYStart = 5;
+        dgaussMenuYEnd   = 7;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [5][5]) ) { 
             Serial.println();
             Serial.println("  Special sub-menu selected.");   
@@ -517,9 +584,21 @@ void TopLevelModeManagerRun() {
           }
         }
       }
-      // Was S(settings) touched with magnetic stylus?
-      for (uint8_t y=5; y<8; y++) {
-        for (uint8_t x=6; x<8; x++) {
+      // Was S (settings) touched with magnetic stylus?
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        dgaussMenuXStart = 3;
+        dgaussMenuXEnd   = 3;
+        dgaussMenuYStart = 2;
+        dgaussMenuYEnd   = 3;
+      }
+      else { 
+        dgaussMenuXStart = 6;
+        dgaussMenuXEnd   = 7;
+        dgaussMenuYStart = 5;
+        dgaussMenuYEnd   = 7;
+      }
+      for (y=dgaussMenuYStart; y<=dgaussMenuYEnd; y++) {
+        for (x=dgaussMenuXStart; x<=dgaussMenuXEnd; x++) {
           if ( (CoreArrayMemory [y][x]) || (CoreArrayMemory [7][5]) ) { 
             Serial.println();
             Serial.println("  Settings sub-menu selected.");   

@@ -405,11 +405,22 @@ SETUP:
 
   const static uint8_t NumberOfColorFontSymbols16bit = 18;
   const static uint8_t ColorFontSymbols16bit[NumberOfColorFontSymbols16bit][4][4] PROGMEM = {   // Character, Row, Column
+/*
+    { {  0,  0,  0, 85, 85,  0, 42,  0},     // DGAUSS Menu Symbol
+      {  0,127, 85,  0,  0, 42,  0, 42},     // D for Demos, in blue 127
+      {127,127, 85,  0, 85, 42, 42, 42},     // G for Games, in fun Green 85
+      {127,127,  0, 85, 85, 42,  0, 42},     // A for Applications, in Yellow 42
+      {  0,  0,  0,  0,  0,  0,  0,  0},
+      {170,  0,170,  0,222,222,254,254},     // U for Utilities, in Blue 170
+      {170,  0,170,  0,222,  0,254,  0},     // S for Special, in Purple 220
+      {170,170,170,222,222,254,254,  0} },   // S for Settings, in Red 254 (255 is used as WHITE)
+  */
+
     // 0                  // DGAUSS Menu Symbol
-    { {  0, 65,  0,  0},
-      { 65, 65, 65, 65},
-      {  0,  0,  0, 65}, 
-      {  0,  0, 65, 65} }, 
+    { { 127, 85, 85, 42},
+      { 127, 85, 85, 42},
+      { 170,170,222,254}, 
+      { 170,170,222,254} }, 
     // 1                  // DEMO Sub-Menu Icon  
     { {127,127,  0,  0},
       {127,  0,127,  0},

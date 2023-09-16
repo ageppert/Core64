@@ -72,11 +72,12 @@
 	|  0.7.28 | 2023-09-04 | Corrected mistakes when I merged to master. Should now behave like 0.7.27.
 	|  0.8.0  | 2023-09-04 | Core16 support introduced.
 	|  0.8.1  | 2023-09-12 | Core16 LED and Core Matrix working in most modes.
+	|  0.8.2  | 2023-09-15 | Core16 DGAUSS Menu working.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core16 LED and Core Matrix working in most modes."
+	#define FIRMWARE_DESCRIPTION "Core16 DGAUSS Menu working."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 1 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 2 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

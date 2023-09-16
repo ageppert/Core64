@@ -919,7 +919,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
       0b00000000000010000100000000011000,  // BIT 60    //  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 28    ROW 3  
       0b00000000000001001000000001001000,  // BIT 61    //  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N },  // Bit 29    ROW 3  
       0b00000000000010000100000100001000,  // BIT 62    //  { PIN_MATRIX_DRIVE_Q8N , PIN_MATRIX_DRIVE_Q10P },  // Bit 30    ROW 3  
-      0b00000000000001001000010000001000  // BIT 63    //  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N }   // Bit 31    ROW 3  
+      0b00000000000001001000010000001000   // BIT 63    //  { PIN_MATRIX_DRIVE_Q8P , PIN_MATRIX_DRIVE_Q10N }   // Bit 31    ROW 3  
   };
       // Clear is given the arbitrary definition of current flow downward in that column.
       // Top of column connected to GNDPWR and bottom of column connected to VMEM.
@@ -1069,7 +1069,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
       }
   }
 
-  // Use row and col to selection the proper place in the array
+  // Use row and col to select the proper place in the array
   void SetRowAndCol (uint8_t row, uint8_t col) { 
     if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
       // decode bit # from row and col data to resolve the correct row drive polarity
@@ -1095,7 +1095,7 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     } 
   }
 
-  // Use row and col to selection the proper place in the array
+  // Use row and col to select the proper place in the array
   void ClearRowAndCol (uint8_t row, uint8_t col) {
     if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
       // decode bit # from row and col data to resolve the correct row drive polarity
@@ -1120,28 +1120,69 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     }
   }
 
-  // Use row and col to selection the proper place in the array
+  // Use row and col to select the proper place in the array
   void SetBit (uint8_t bit) { 
     if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
-      // TODO: Remove this hard code and use modular functions.
+      // Convert incoming bit to column value
+      uint8_t col = 0;
+      if      (bit < 4 ) { col = bit   ; }
+      else if (bit < 8 ) { col = bit-4 ; }
+      else if (bit < 12) { col = bit-8 ; }
+      else if (bit < 16) { col = bit-12; }
+      digitalWrite( (C16P_CMMDSetRowByBit[bit] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetRowByBit[bit] [0] ] );
+      delayMicroseconds(1); 
+      //TracingPulses(1);
+      digitalWrite( (C16P_CMMDSetRowByBit[bit] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetRowByBit[bit] [1] ] );
+      // Use col to select the proper place in the look up table
+      // columns are easier to decode with the simpler CMMDSetCol look-up table.
+      delayMicroseconds(1); 
+      //TracingPulses(1);
+      digitalWrite( (C16P_CMMDSetCol[col] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetCol[col] [0] ] );
+      delayMicroseconds(1); 
+      //TracingPulses(1);
+      digitalWrite( (C16P_CMMDSetCol[col] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDSetCol[col] [1] ] );
+      delayMicroseconds(1); 
+      //TracingPulses(1);      
+      /*
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7P), 0 ); // for bit 0, row 0 YL0 to VMEM
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9N), 1 ); // for bit 0, row 0 YL4 to GND
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3P), 0 ); // for bit 0, col 0 XT0 to VMEM
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1N), 1 ); // for bit 0, col 0 XB0 to GND
+      */
     }
     else {
       OutputToSerialShiftRegister(CMMDSetBit[bit] ^ CMMDTransistorInactiveState); 
     }
   }
 
-  // Use row and col to selection the proper place in the array
+  // Use row and col to select the proper place in the array
   void ClearBit (uint8_t bit) {
     if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
-      // TODO: Remove this hard code and use modular functions.
+      // Convert incoming bit to column value
+      uint8_t col = 0;
+      if      (bit < 4 ) { col = bit   ; }
+      else if (bit < 8 ) { col = bit-4 ; }
+      else if (bit < 12) { col = bit-8 ; }
+      else if (bit < 16) { col = bit-12; }
+      digitalWrite( (C16P_CMMDClearRowByBit[bit] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearRowByBit[bit] [0] ] ); // for bit 0, pin 
+      delayMicroseconds(1); 
+      // TracingPulses(1);
+      digitalWrite( (C16P_CMMDClearRowByBit[bit] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearRowByBit[bit] [1] ] ); // for bit 0, pin 
+      delayMicroseconds(1); 
+      // TracingPulses(1);
+      // columns are easier to decode with the simpler CMMDSetCol look-up table.
+      digitalWrite( (C16P_CMMDClearCol[col] [0] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearCol[col] [0] ] ); // for bit 0, pin 
+      delayMicroseconds(1); 
+      // TracingPulses(1);
+      digitalWrite( (C16P_CMMDClearCol[col] [1] ), C16P_MatrixDrivePinActiveState[ C16P_CMMDClearCol[col] [1] ] ); // for bit 0, pin    
+      delayMicroseconds(1); 
+      // TracingPulses(1);
+      /*
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q7N), 1 ); // for bit 0, row 0 YL0 to GND
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q9P), 0 ); // for bit 0, row 0 YL4 to VMEM
       digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q3N), 1 ); // for bit 0, col 0 XT0 to GND
-      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1P), 0 ); // for bit 0, col 0 XB0 to VMEM    
+      digitalWrite( (C16P_PIN_MATRIX_DRIVE_Q1P), 0 ); // for bit 0, col 0 XB0 to VMEM
+      */  
     }
     else {
       OutputToSerialShiftRegister(CMMDClearBit[bit] ^ CMMDTransistorInactiveState);    
