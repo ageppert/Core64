@@ -296,6 +296,10 @@
 					#define C16P_PIN_MATRIX_DRIVE_Q9N     	16	// * Shared with SPI_SDI
 					#define C16P_PIN_MATRIX_DRIVE_Q10P    	18 	// * Shared with SPI_CLK
 					#define C16P_PIN_MATRIX_DRIVE_Q10N    	19	// * Shared with SPI_SDO
+			// SPARE IO
+					#define C16P_HWV0_1_0_PIN_SAO1_G1_OR_CM_Q1N 	 1	// * Shared
+					#define C16P_HWV0_2_0_PIN_SAO1_G1_OR_CM_Q1N 	 2	// * Shared
+					#define C16P_PIN_SAO2_G2_OR_SPI_CS1				17	// * Shared
 
 
 

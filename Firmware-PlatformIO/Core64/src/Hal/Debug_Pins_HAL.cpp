@@ -72,15 +72,34 @@
    }
 
    void Debug_Pin_1(bool High_nLow) {
-      #ifdef Pin_SAO_G1_or_SPARE1_or_CP1
-         digitalWrite(Pin_SAO_G1_or_SPARE1_or_CP1, High_nLow);
-      #endif
+      if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor == 0) && (HardwareVersionMinor == 1) ) {
+         #ifdef C16P_HWV0_1_0_PIN_SAO1_G1_OR_CM_Q1N
+            digitalWrite(C16P_HWV0_1_0_PIN_SAO1_G1_OR_CM_Q1N, High_nLow);
+         #endif         
+      }
+      if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) ) {
+         #ifdef C16P_HWV0_2_0_PIN_SAO1_G1_OR_CM_Q1N
+            digitalWrite(C16P_HWV0_2_0_PIN_SAO1_G1_OR_CM_Q1N, High_nLow);
+         #endif         
+      }
+      else {
+         #ifdef Pin_SAO_G1_or_SPARE1_or_CP1
+            digitalWrite(Pin_SAO_G1_or_SPARE1_or_CP1, High_nLow);
+         #endif
+      }
    }
 
    void Debug_Pin_2(bool High_nLow) {
-      #ifdef Pin_SAO_G2_or_SPARE2_or_CP2
-         digitalWrite(Pin_SAO_G2_or_SPARE2_or_CP2, High_nLow);
-      #endif
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+         #ifdef C16P_PIN_SAO2_G2_OR_SPI_CS1
+            digitalWrite(C16P_PIN_SAO2_G2_OR_SPI_CS1, High_nLow);
+         #endif         
+      }
+      else {
+         #ifdef Pin_SAO_G2_or_SPARE2_or_CP2
+            digitalWrite(Pin_SAO_G2_or_SPARE2_or_CP2, High_nLow);
+         #endif
+      }
    }
 
    void Debug_Pin_3(bool High_nLow) {

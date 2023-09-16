@@ -449,32 +449,56 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
     }
 
     void Core_Mem_Bit_Write_With_V_MON(uint8_t bit, bool value) {
-      // Turn off all of the matrix signals
-      // cli();                                            // Testing for consistent timing.
-      // CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
-      // TracingPulses_Debug_Pin_1(1);
-      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-      // MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
-      // Enable the matrix drive transistors
-      // TracingPulses_Debug_Pin_1(2);
-      // Activate the selected matrix drive transistors according to bit position and the set/clear request
-      // if (value == 1) { AllDriveIoSetBit(bit); } 
-      // else { AllDriveIoClearBit(bit); }
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        // Turn off all of the matrix signals
+        // cli();                                            // Testing for consistent timing.
+        CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+        // TracingPulses(1);
+        MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+        MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+        // Enable the matrix drive transistors
+        // TracingPulses(2);
+        // Activate the selected matrix drive transistors according to bit position and the set/clear request
+        if (value == 1) { AllDriveIoSetBit(bit); } 
+        else { AllDriveIoClearBit(bit); }
+        // TracingPulses(3);
+        MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
+        AnalogUpdateCoresOnly();                        // Testing analog updates only during active core time. All voltages.
+        MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+        // Turn off all of the matrix signals
+        MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+        // TracingPulses(4);
+        CoreSenseReset();
+        // sei();                                            // Testing for consistent timing.
+      }
+      else {
+        // Turn off all of the matrix signals
+        // cli();                                            // Testing for consistent timing.
+        // CoreSenseReset();                                 // Reset sense pulse flip-flop in case this write is called from read.
+        // TracingPulses_Debug_Pin_1(1);
+        MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+        // MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+        // Enable the matrix drive transistors
+        // TracingPulses_Debug_Pin_1(2);
+        // Activate the selected matrix drive transistors according to bit position and the set/clear request
+        // if (value == 1) { AllDriveIoSetBit(bit); } 
+        // else { AllDriveIoClearBit(bit); }
 
-      if (value == 1) { SetBit (bit); }       // This does work for Core64c
-      else { ClearBit (bit); }                // This does work for Core64c
+        if (value == 1) { SetBit (bit); }       // This does work for Core64c
+        else { ClearBit (bit); }                // This does work for Core64c
 
-      // TracingPulses_Debug_Pin_1(3);
-      MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
-      AnalogUpdateCoresOnly();                        // Testing analog updates only during active core time. All voltages.
-      // AnalogUpdateCoresOnly3V3();                     // Serial print only 3V3 voltage.
-      // delayMicroseconds(20);                            // give the core time to change state
-      MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
-      // Turn off all of the matrix signals
-      MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
-      // TracingPulses_Debug_Pin_1(4);
-      // CoreSenseReset();
-      // sei();                                            // Testing for consistent timing.
+        // TracingPulses_Debug_Pin_1(3);
+        MatrixEnableTransistorActive();                   // Enable the matrix drive transistor (V0.3 takes .8ms to do this)
+        AnalogUpdateCoresOnly();                        // Testing analog updates only during active core time. All voltages.
+        // AnalogUpdateCoresOnly3V3();                     // Serial print only 3V3 voltage.
+        // delayMicroseconds(20);                            // give the core time to change state
+        MatrixEnableTransistorInactive();                 // Make sure the whole matrix is off by de-activating the enable transistor
+        // Turn off all of the matrix signals
+        MatrixDriveTransistorsInactive();                 // De-activate all of the individual matrix drive transistors
+        // TracingPulses_Debug_Pin_1(4);
+        // CoreSenseReset();
+        // sei();                                            // Testing for consistent timing.
+      }
     }
 
   bool Core_Mem_Bit_Read(uint8_t bit) {

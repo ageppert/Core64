@@ -178,7 +178,7 @@ void LED_Array_Auto_Brightness() {
     }
 
     if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) ) {
-      LEDArrayBrightness = 15;
+      LEDArrayBrightness = C16P_BRIGHTNESS_DEFAULT;
     }
 
     #if defined USE_FASTLED_LIBRARY
@@ -974,6 +974,10 @@ void LED_Array_Auto_Brightness() {
     #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
       strip.begin();
       strip.setBrightness( 255 ); // Neopixel brightness set to 255 once in set up, and dimming is done via HSV with the VALUE during usage
+      if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) ) {
+        LEDArrayBrightness = C16P_BRIGHTNESS_DEFAULT;
+        LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
+      }
       strip.show();
     #endif
     LED_Array_Memory_Clear();

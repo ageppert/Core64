@@ -298,6 +298,7 @@ void TopLevelModeManagerRun() {
   volatile uint8_t dgaussMenuYEnd;
   volatile uint8_t x;
   volatile uint8_t y;
+
   switch(TopLevelMode) {
     // *************************************************************************************************************************************************** //
     case MODE_START_POWER_ON:                    // Perform the bare minimum required to start and support serial status and debugging.
@@ -335,9 +336,6 @@ void TopLevelModeManagerRun() {
       Serial.println("  Starting default expected hardware:");
       I2CManagerSetup();                                      // Required to scan the I2C Bus.
       I2CManagerBusScan();                                    // Determine hardware available on the I2C bus. Especially the hall sensor buttons.
-      Serial.println("    Starting LED Matrix.");
-      LED_Array_Init();                                       // Assuming this hardware is available... it's a blind output only.
-      LED_Array_Start_Up_Symbol_Loop_Begin();                 // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
       Serial.println("    Starting I2C OLED Display.");
       OLEDScreenSetup();
       TopLevelModePreviousSet (TopLevelModeGet());
@@ -348,7 +346,6 @@ void TopLevelModeManagerRun() {
     // *************************************************************************************************************************************************** //
     case MODE_START_EEPROM:                     // Check the EEPROM for Hardware Version and expected peripherals/configuration/settings.
     // *************************************************************************************************************************************************** //
-      LED_Array_Start_Up_Symbol_Loop_Continue();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       Serial.println("  EEPROM - Attempting to access...");
@@ -370,6 +367,9 @@ void TopLevelModeManagerRun() {
         Serial.println(")");
       }
       Serial.println("  ...completed EEPROM read.");
+      Serial.println("    Starting LED Matrix.");
+      LED_Array_Init();                                       // Assuming this hardware is available... it's a blind output only.
+      LED_Array_Start_Up_Symbol_Loop_Begin();                 // Begin the start-up symbol sequence, manually called in each subsequent step of the start-up sequence.
       Serial.println("  Starting Hall Sensor Buttons");
       Buttons_Setup();
       TopLevelModePreviousSet (TopLevelModeGet());
@@ -401,7 +401,7 @@ void TopLevelModeManagerRun() {
       LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
       OLEDTopLevelModeSet(TopLevelModeGet());
       Serial.println("  Configuration specific setup has begun...");
-      // TODO brightness default set from EEPROM
+      // TODO: brightness default set from EEPROM
       CoreSetup();
       OLEDScreenUpdate();
       SDInfo();

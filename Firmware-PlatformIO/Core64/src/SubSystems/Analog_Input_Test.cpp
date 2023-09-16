@@ -125,7 +125,7 @@
     #elif defined MCU_TYPE_RP2040
       if (
         ( (LogicBoardTypeGet() == eLBT_CORE64_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 7) ) ||
-        ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) ) ||
+        ( (LogicBoardTypeGet() == eLBT_CORE64C_PICO) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 2) ) ||
         ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) )
       )  
         {
@@ -133,8 +133,8 @@
           Bus_3V3_ADC_raw   = analogRead ( Pin_SPARE_ADC1_Assigned_To_Analog_Input );    //  3V3_MON at 1:1 reading
           Core_GMEM_ADC_raw = analogRead ( Pin_SPARE_ADC2_Assigned_To_Analog_Input );    // Voltage just above Core Enable FET Drain
 
-          // TO DO: Move this Pico vs W test to HardwareIOMap.c (needs to be created)
-          // TO DO: Integrate additional Pico W library into this project.
+          // TODO: Move this Pico vs W test to HardwareIOMap.c (needs to be created)
+          // TODO: Integrate additional Pico W library into this project.
 
           // Detect Pico or Pico W by reading VSYS.
           // Pico  : GPIO25 is LED_BUILTIN.

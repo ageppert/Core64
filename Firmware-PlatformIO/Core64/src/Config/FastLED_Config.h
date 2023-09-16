@@ -21,9 +21,10 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 	#else
 		#define CHIPSET     WS2812B			// Used in Pimoroni Unicorn Hat. Limited to a data rate of about 800Kbps, hard coded in FastLED library. 
 	#endif
-	#define BRIGHTNESS       75			// Initial brightness level
-	#define BRIGHTNESS_MIN	  5			// Lowest useable brightness
-	#define BRIGHTNESS_MAX	255			// Highest useable brightness
+	#define C16P_BRIGHTNESS_DEFAULT		15	// Default and only brightness because there is no diffuser or brightness sensor on Core16. 
+	#define BRIGHTNESS       			75	// Initial brightness level
+	#define BRIGHTNESS_MIN	 			 5	// Lowest useable brightness
+	#define BRIGHTNESS_MAX			   255	// Highest useable brightness
 
 	// 100 = GREEN
 	// 135,255,255 = OLED aqua

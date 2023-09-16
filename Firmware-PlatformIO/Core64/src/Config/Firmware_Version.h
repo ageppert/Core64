@@ -73,11 +73,12 @@
 	|  0.8.0  | 2023-09-04 | Core16 support introduced.
 	|  0.8.1  | 2023-09-12 | Core16 LED and Core Matrix working in most modes.
 	|  0.8.2  | 2023-09-15 | Core16 DGAUSS Menu working.
+	|  0.8.3  | 2023-09-16 | Core16 Tested all hardware functions. Add debug pin 1 and 2 for Core16 HWV0.1.0 and HWV0.2.0. Move LED Array Init after EEPROM Board ID read.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core16 DGAUSS Menu working."
+	#define FIRMWARE_DESCRIPTION "Core16 Tested all hardware functions. Add debug pin 1 and 2 for Core16 HWV0.1.0 and HWV0.2.0.  Move LED Array Init after EEPROM Board ID read."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 2 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 3 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
