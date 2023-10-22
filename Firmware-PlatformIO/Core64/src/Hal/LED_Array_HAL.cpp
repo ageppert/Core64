@@ -28,6 +28,7 @@
 
 #define MONOCHROMECOLORCHANGER 1
 
+static volatile bool LedArrayInitialized = false;
 static uint8_t StartUpSymbolIndex = 0;
  const uint8_t SymbolSequenceArraySize = 3;
  const uint8_t SymbolSequenceArray[SymbolSequenceArraySize] = {7,8,9};
@@ -61,7 +62,7 @@ static uint8_t StartUpSymbolIndex = 0;
 #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
   // These parameters are set in Adafruit_Neopizel_Config.h and from HardwareIOMap.h
   // Declare our NeoPixel strip object:
-  Adafruit_NeoPixel strip(NUM_LEDS, Pin_RGB_LED_Array, COLOR_ORDER + NEO_FREQUENCY);
+  Adafruit_NeoPixel strip(NUM_LEDS_C64, Pin_RGB_LED_Array, COLOR_ORDER + NEO_FREQUENCY);
   // Argument 1 = Number of pixels in NeoPixel strip
   // Argument 2 = Arduino pin number (most are valid)
   // Argument 3 = Pixel type flags, add together as needed:
@@ -201,8 +202,12 @@ void LED_Array_Auto_Brightness() {
   }
 
   void LED_Array_Memory_Clear() {
+    uint8_t loopLength = 0;
+    if (LogicBoardTypeGet() == eLBT_CORE16_PICO ) { loopLength = NUM_LEDS_C16; }
+    else { loopLength = NUM_LEDS_C64; }
+
     LedArrayMemoryBinary = 0;
-    for( uint8_t i = 0; i < NUM_LEDS; i++) {
+    for( uint8_t i = 0; i < loopLength; i++) {
       LedArrayMemoryString[i] = 0;
       LedArrayMemoryString16bit[i] = 0;
     }
@@ -336,6 +341,22 @@ void LED_Array_Auto_Brightness() {
       }
       strip.show();
     #endif 
+  }
+
+  void LED_Array_Test_All_RGB(uint8_t color) {
+    LED_Array_Monochrome_Set_Color(color,255,255);
+    LED_Array_Memory_Clear();
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      for( uint8_t i = 0; i <= 15; i++) {
+        LED_Array_String_Write(i,1);
+      }
+    }
+    else {
+      for( uint8_t i = 0; i <= 63; i++) {
+        LED_Array_String_Write(i,1);
+      }
+    }
+    LED_Array_String_Display();
   }
 
   //
@@ -692,7 +713,7 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Binary_Display() {
     uint8_t LEDPixelPosition = 0;
-    for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS; ScreenPixel++ ) {
+    for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS_C64; ScreenPixel++ ) {
       // Convert from screen position to LED array position 
       LEDPixelPosition = ScreenPixelPositionBinaryLUT [ScreenPixel];
       // Turn on or off the corresponding LED
@@ -761,7 +782,7 @@ void LED_Array_Auto_Brightness() {
       }
     }
     else {
-      for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS; ScreenPixel++ ) {
+      for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS_C64; ScreenPixel++ ) {
         // Convert from screen position to LED array position 
         LEDPixelPosition = ScreenPixelPosition1DLUT [ScreenPixel];
         // Turn on or off the corresponding LED
@@ -967,19 +988,22 @@ void LED_Array_Auto_Brightness() {
   }
 
   void LED_Array_Init() {
-    #if defined USE_FASTLED_LIBRARY
-      // These parameters are set in FastLED_Config.h and from HardwareIOMap.h
-      FastLED.addLeds<CHIPSET, Pin_RGB_LED_Array, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
-      FastLED.setBrightness( BRIGHTNESS );
-    #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
-      strip.begin();
-      strip.setBrightness( 255 ); // Neopixel brightness set to 255 once in set up, and dimming is done via HSV with the VALUE during usage
-      if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) ) {
-        LEDArrayBrightness = C16P_BRIGHTNESS_DEFAULT;
-        LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
-      }
-      strip.show();
-    #endif
+    if (LedArrayInitialized == false) {
+      #if defined USE_FASTLED_LIBRARY
+        // These parameters are set in FastLED_Config.h and from HardwareIOMap.h
+        FastLED.addLeds<CHIPSET, Pin_RGB_LED_Array, COLOR_ORDER>(leds, NUM_LEDS_C64).setCorrection(TypicalSMD5050);
+        FastLED.setBrightness( BRIGHTNESS );
+      #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
+        strip.begin();
+        strip.setBrightness( 255 ); // Neopixel brightness set to 255 once in set up, and dimming is done via HSV with the VALUE during usage
+        if ( (LogicBoardTypeGet() == eLBT_CORE16_PICO ) && (HardwareVersionMajor >= 0) && (HardwareVersionMinor >= 1) ) {
+          LEDArrayBrightness = C16P_BRIGHTNESS_DEFAULT;
+          LEDArrayMonochromeColorHSV [2] = LEDArrayBrightness; // Neopixels use VALUE to change brightness through HSV
+        }
+        strip.show();
+      #endif
+      LedArrayInitialized = true;
+    }
     LED_Array_Memory_Clear();
     delay(25);
     LED_Array_Color_Display(1);

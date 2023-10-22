@@ -45,6 +45,7 @@ void LED_Array_Test_Pixel_Matrix_Mono(); // Test all 64 LEDs. Turns on all LEDs 
 void LED_Array_Test_Pixel_Matrix_Color(); // Test all 64 LEDs. Using multi-color symbols.
 // Tests four functions: clear, multi-color symbols, , display 2d buffer
 void LED_Array_Test_Rainbow_Demo();	// Full color demo.
+void LED_Array_Test_All_RGB(uint8_t color);
 
 void LED_Array_Binary_Write(uint64_t BinaryValue);
 uint64_t LED_Array_Binary_Read();

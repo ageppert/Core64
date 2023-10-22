@@ -103,8 +103,8 @@ void SpecialTestOneCore() {
       case STATE_TEST_ONE_CORE:   // Read 64 cores 10ms (110us 3x core write, with 40us delay 64 times), update LEDs 2ms
         LED_Array_Monochrome_Set_Color(35,255,255);
         LED_Array_Memory_Clear();
-        coreMinToTest = 0;
-        coreMaxToTest = 0;
+        coreMinToTest = CoreToStartTestGet();
+        coreMaxToTest = CoreToEndTestGet();
         for (coreToTest = coreMinToTest; coreToTest <= coreMaxToTest ; coreToTest++) {   
           Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
           if (Core_Mem_Bit_Read(coreToTest)==true) {

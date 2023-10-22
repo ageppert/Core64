@@ -45,6 +45,7 @@ SETUP:
             MODE_CORE_TEST_ONE                      ,                  // Testing core #coreToTest and displaying core state
             MODE_CORE_TEST_MANY                     ,                  // Testing multiple cores and displaying core state
             MODE_HALL_TEST                          ,                  // Testing hall switch and sensor response
+            MODE_LED_TEST_ALL_RGB                   ,                  // Test all LEDs through R G B White 
             MODE_GPIO_TEST                          ,                  // Testing all GPIO outputs
             //MODE_SPECIAL_STANDALONE_TEST          ,                  // TODO: For the manufacturing test fixture, test unused IO pins
             MODE_SPECIAL_LOOPBACK_TEST              ,                  // For the manufacturing test fixture, test unused IO pins
@@ -84,6 +85,9 @@ SETUP:
     void TopLevelThreeSoftButtonGlobalEnableSet (bool value);
     bool TopLevelThreeSoftButtonGlobalEnableGet ();
 
+    void TopLevelSetMenuButtonGlobalEnableSet (bool value);
+    bool TopLevelSetMenuButtonGlobalEnableGet ();
+
     void TopLevelSetSoftButtonGlobalEnableSet (bool value);
     bool TopLevelSetSoftButtonGlobalEnableSet ();
 
@@ -91,5 +95,10 @@ SETUP:
 
     void MenuTimeOutCheckReset ();
     bool MenuTimeOutCheck (uint32_t MenuTimeoutLimitms);
+
+    void    CoreToStartTestSet (uint8_t value);
+    uint8_t CoreToStartTestGet              ();
+    void    CoreToEndTestSet   (uint8_t value);
+    uint8_t CoreToEndTestGet                ();
 
 #endif // MODE_MANAGER_H

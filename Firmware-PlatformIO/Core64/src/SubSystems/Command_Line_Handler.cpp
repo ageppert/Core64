@@ -89,12 +89,14 @@ void coreTesting() {
 
 void CommandLineSetup ()
 {
-  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+//  #if defined  MCU_TYPE_MK20DX256_TEENSY_32
   // Pre-defined commands
 
   // On-the-fly commands -- instance is allocated dynamically
   commandLine.add("arrangement", &handleArrangement);
   commandLine.add("coretest", &handleCoreTest);
+  commandLine.add("cs", &handleCoreToStartTest);
+  commandLine.add("ce", &handleCoreToEndTest);
   commandLine.add("debug", &handleDebug);
   commandLine.add("dgauss", &handleDgauss);
   commandLine.add("help", &handleHelp);
@@ -105,16 +107,17 @@ void CommandLineSetup ()
   commandLine.add("splash", &handleSplash);
   commandLine.add("stream", &handleStream);
   commandLine.add("thanks", &handleThanks);
-  #elif defined MCU_TYPE_RP2040
-  // Pre-defined commands
-
-  // On-the-fly commands -- instance is allocated dynamically
-  commandLine.add("debug", &handleDebug);
-  commandLine.add("help", &handleHelp);
-  commandLine.add("info", &handleInfo);
-  commandLine.add("mode", &handleMode);
-  commandLine.add("splash", &handleSplash);
-  #endif
+//  #elif defined MCU_TYPE_RP2040
+//  // Pre-defined commands
+//
+//  // On-the-fly commands -- instance is allocated dynamically
+//  commandLine.add("debug", &handleDebug);
+//  commandLine.add("help", &handleHelp);
+//  commandLine.add("info", &handleInfo);
+//  commandLine.add("mode", &handleMode);
+//  commandLine.add("splash", &handleSplash);
+//  #endif
+  commandLine.add("s", &handleSerialNumber);
   Serial.println("  Command Line Setup complete.");
 }
 
@@ -154,6 +157,44 @@ void  CommandLineUpdate()
   {
     Serial.println("  Core Test");
     coreTesting();
+  }
+
+  void handleCoreToStartTest(char* tokens)
+  {
+    char* token = strtok(NULL, " ");
+    Serial.print("  Core to start test ");
+    if (token == NULL)
+    {
+        Serial.print("is ");
+        Serial.print(CoreToStartTestGet());
+        Serial.println(".");
+    }
+    else
+    {
+      Serial.print("set to ");
+      Serial.print((uint8_t)(atoi(token)));
+      Serial.println(".");
+      CoreToStartTestSet((uint8_t)(atoi(token)));
+    }
+  }
+
+  void handleCoreToEndTest(char* tokens)
+  {
+    char* token = strtok(NULL, " ");
+    Serial.print("  Core to end test ");
+    if (token == NULL)
+    {
+        Serial.print("is ");
+        Serial.print(CoreToEndTestGet());
+        Serial.println(".");
+    }
+    else
+    {
+      Serial.print("set to ");
+      Serial.print((uint8_t)(atoi(token)));
+      Serial.println(".");
+      CoreToEndTestSet((uint8_t)(atoi(token)));
+    }
   }
 
   void handleDebug(char* tokens)
@@ -212,6 +253,8 @@ void  CommandLineUpdate()
     Serial.println("    arrangement normal     -> Set EEPROM for core arrangement normal / \\. Requires power cycle.");
     Serial.println("    arrangement opposite   -> Set EEPROM for core arrangement opposite \\ /.");
     Serial.println("    coretest               -> Test one core.");
+    Serial.println("    cs [#]                 -> Query or optionally set starting core in core test mode.");
+    Serial.println("    ce [#]                 -> Query or optionally set ending core in core test mode.");
     Serial.println("    debug [#]              -> Query or optionally set Debug Level.");
     Serial.println("    dgauss                 -> Enter/exit DGAUSS menu.");
     Serial.println("    help                   -> This help menu.");
@@ -231,6 +274,7 @@ void  CommandLineUpdate()
   {
     ReadHardwareVersion();
     SerialNumber = EEPROMExtReadSerialNumber();
+    Serial.println();
     Serial.println("  ----------------");
     Serial.println("  |     INFO     |");
     Serial.println("  ----------------");
@@ -363,6 +407,20 @@ void  CommandLineUpdate()
     TopLevelModeSetChanged (true); 
   }
 
+  void handleSerialNumber(char* tokens)
+  {  
+    char* token = strtok(NULL, " ");
+
+    if (token != NULL) {
+      EEPROMExtSetLastThree((uint16_t)(atoi(token)));
+      Serial.print("  Set last three of SN to: ");
+      Serial.println(EEPROMExtGetLastThree());
+    } 
+    else {
+      Serial.print("  Current Serial Number: ");
+      Serial.println(EEPROMExtReadSerialNumber());
+    }
+  }
 
   void handleSplash(char* tokens)
   {

@@ -81,6 +81,7 @@
       "   MODE_CORE_TEST_ONE                 ",
       "   MODE_CORE_TEST_MANY                ",
       "   MODE_HALL_TEST                     ",
+      "   MODE_LED_TEST_ALL_RGB              ",
       "   MODE_GPIO_TEST                     ",
       "   MODE_SPECIAL_LOOPBACK_TEST         ",
       "   MODE_SPECIAL_HARD_REBOOT           ",
@@ -102,6 +103,7 @@ static uint16_t TopLevelModePrevious;
 static bool     TopLevelModeChanged = false;
 static bool     TopLevelThreeSoftButtonGlobalEnable = true;
 static bool     TopLevelSetSoftButtonGlobalEnable = true;
+static bool     TopLevelSetMenuButtonGlobalEnable = true;
 
 static uint32_t PowerOnTimems = 0;
 static uint32_t PowerOnSequenceMinimumDurationms = 3500;
@@ -115,7 +117,7 @@ static uint32_t Button2HoldTime = 0;
 static uint32_t Button3HoldTime = 0;
 static uint32_t Button4HoldTime = 0;
 static uint8_t  coreToStartTest = 0;
-static uint8_t  coreToEndTest = 0;
+static uint8_t  coreToEndTest  = 63;
 
 uint8_t EepromByteValue = 0;
 uint8_t Eeprom_Byte_Mem_Address = 0;
@@ -128,7 +130,16 @@ static bool MenuTimeoutFirstTimeRun = 0;
 
 // Every function which sets a new top level mode shall trigger an update through the serial port.
 void TopLevelModeSetToDefault               ()  { TopLevelMode = TopLevelModeDefault; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
-void TopLevelModeSet          (uint16_t value)  { TopLevelMode = value; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
+void TopLevelModeSet          (uint16_t value)  {
+  if (value < MODE_LAST) {
+  TopLevelMode = value; 
+  TopLevelModeSetChanged(false); 
+  TopLevelModeSetChanged(true); 
+  }
+  else {
+    TopLevelMode = MODE_LAST;
+  }
+}
 void TopLevelModeSetInc                     ()  { TopLevelMode++; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }
 void TopLevelModeSetDec                     ()  { TopLevelMode--; TopLevelModeSetChanged(false); TopLevelModeSetChanged(true); }               
 // These functions do not change modes so they don't need the serial port update.
@@ -137,6 +148,27 @@ void TopLevelModeDefaultSet   (uint16_t value)  { TopLevelModeDefault = value; }
 uint16_t TopLevelModePreviousGet            ()  { return (TopLevelModePrevious); }
 uint16_t TopLevelModeDefaultGet             ()  { return (TopLevelModeDefault); }
 uint16_t TopLevelModeGet                    ()  { return (TopLevelMode); }
+
+void    CoreToStartTestSet (uint8_t value) {
+  if (LogicBoardTypeGet()==eLBT_CORE16_PICO)    { if (value > 15) { value = 15; } }
+  else                                          { if (value > 63) { value = 63; } }
+  coreToStartTest = value;  
+}
+uint8_t CoreToStartTestGet              () {
+  if (LogicBoardTypeGet()==eLBT_CORE16_PICO)    { if (coreToStartTest > 15) { coreToStartTest = 15; } }
+  else                                          { if (coreToStartTest > 63) { coreToStartTest = 63; } }
+  return (coreToStartTest); 
+  }
+void    CoreToEndTestSet   (uint8_t value) {
+  if (LogicBoardTypeGet()==eLBT_CORE16_PICO)    { if (value > 15) { value = 15; } }
+  else                                          { if (value > 63) { value = 63; } }
+  coreToEndTest = value;
+}
+uint8_t CoreToEndTestGet                () {
+  if (LogicBoardTypeGet()==eLBT_CORE16_PICO)    { if (coreToEndTest > 15) { coreToEndTest = 15; } }
+  else                                          { if (coreToEndTest > 63) { coreToEndTest = 63; } }
+  return (coreToEndTest);
+}
 
 void TopLevelModeChangeSerialPortDisplay () {
   Serial.println();
@@ -153,7 +185,8 @@ void TopLevelModeChangeSerialPortDisplay () {
 void TopLevelModeSetChanged (bool value) {          // Flag that a mode change has occurred.  User application has one time to use this before it is reset.
   if ( (TopLevelModeChanged == false) && (value == true) ) {
     TopLevelModeChangeSerialPortDisplay();            // Display the change in the serial port.
-    TopLevelThreeSoftButtonGlobalEnableSet (true);    // Ensures this flag set to enabled after a mode change, so modes that need it disabled will need to force it to be disabled. 
+    TopLevelThreeSoftButtonGlobalEnableSet (true);    // Ensures this flag set to enabled after a mode change, so modes that need it disabled will need to force it to be disabled.
+    TopLevelSetMenuButtonGlobalEnableSet (true);      // Ensures this flag set to enabled after a mode change, so modes that need it disabled will need to force it to be disabled.
     CommandLineEnableSet(true);                       // Ensures the CommandLine is activated on mode change.
   }
   TopLevelModeChanged = value;
@@ -178,6 +211,9 @@ bool TopLevelThreeSoftButtonGlobalEnableGet ()           {   return (TopLevelThr
 void TopLevelSetSoftButtonGlobalEnableSet (bool value) {   TopLevelSetSoftButtonGlobalEnable = value; }
 bool TopLevelSetSoftButtonGlobalEnableGet ()           {   return (TopLevelSetSoftButtonGlobalEnable); }
 
+void TopLevelSetMenuButtonGlobalEnableSet (bool value) {   TopLevelSetMenuButtonGlobalEnable = value; }
+bool TopLevelSetMenuButtonGlobalEnableGet ()           {   return (TopLevelSetMenuButtonGlobalEnable); }
+
 void TopLevelModeManagerCheckButtons () {
   // GLOBAL MODE SWITCHING - Check for soft button touch activation.
   // If button is pressed, it must be released and pressed again for subsequent action.
@@ -199,30 +235,31 @@ void TopLevelModeManagerCheckButtons () {
     Button4HoldTime = ButtonState(4,0);
 
   // Checking the "M" soft button to enter or exit the DGAUSS menu to the previous mode before entering.
-  if ( (Button1Released == true) && (Button1HoldTime >= 100) ) {
-    ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
-    Button1Released = false;
-    if (TopLevelModeGet()!=MODE_DGAUSS_MENU) {                // Enter DGAUSS menu
-      TopLevelModePreviousSet(TopLevelModeGet());
-      TopLevelModeSet(MODE_DGAUSS_MENU);
-    }
-    else {                                                    // Exit DGAUSS menu
-      if (TopLevelModePreviousGet() == MODE_DGAUSS_MENU) {    // In this case, if previous was already the DGAUSS menu, 
-        TopLevelModeSet(TopLevelModeDefault);                 // just go to default demo mode. 
+  if (TopLevelSetMenuButtonGlobalEnableGet()) {
+    if ( (Button1Released == true) && (Button1HoldTime >= 100) ) {
+      ButtonState(1,1); // Force a "release" after press by clearing the button hold down timer
+      Button1Released = false;
+      if (TopLevelModeGet()!=MODE_DGAUSS_MENU) {                // Enter DGAUSS menu
+        TopLevelModePreviousSet(TopLevelModeGet());
+        TopLevelModeSet(MODE_DGAUSS_MENU);
       }
-      else {
-        uint32_t temporary = TopLevelModePreviousGet();       // Otherwise, go the previous mode, after storing it temporarily.
-        TopLevelModePreviousSet(MODE_DGAUSS_MENU);            // Set the previous mode to DGAUSS menu.
-        TopLevelModeSet(temporary);                           // Now go to the previous mode.
+      else {                                                    // Exit DGAUSS menu
+        if (TopLevelModePreviousGet() == MODE_DGAUSS_MENU) {    // In this case, if previous was already the DGAUSS menu, 
+          TopLevelModeSet(TopLevelModeDefault);                 // just go to default demo mode. 
+        }
+        else {
+          uint32_t temporary = TopLevelModePreviousGet();       // Otherwise, go the previous mode, after storing it temporarily.
+          TopLevelModePreviousSet(MODE_DGAUSS_MENU);            // Set the previous mode to DGAUSS menu.
+          TopLevelModeSet(temporary);                           // Now go to the previous mode.
+        }
+      }
+    }
+    else {
+      if (Button1HoldTime == 0) {
+        Button1Released = true;
       }
     }
   }
-  else {
-    if (Button1HoldTime == 0) {
-      Button1Released = true;
-    }
-  }
-
   if (TopLevelThreeSoftButtonGlobalEnableGet()) {
     // Checking the "-" soft button.
     if ( (Button2Released == true) && (Button2HoldTime >= 100) ) {
@@ -357,6 +394,11 @@ void TopLevelModeManagerRun() {
         Serial.print(" (");
         Serial.print(LogicBoardTypeArrayText[LogicBoardTypeGet()]);
         Serial.println(")");
+        if (LogicBoardTypeGet() >= 4) {
+          Serial.println("  Automatically going to MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.");
+          TopLevelModeSet(MODE_MANUFACTURING_EEPROM_FACTORY_WRITE);
+          break;     
+        }
       }
       else {
         Serial.println("  EEPROM not found. Default firmware values used.");
@@ -433,7 +475,14 @@ void TopLevelModeManagerRun() {
       if (millis() >= (PowerOnTimems + PowerOnSequenceMinimumDurationms)) {
         TopLevelModePreviousSet (TopLevelModeGet());
         TopLevelModeSet(TopLevelModeDefault);
-      delay(DebugDelayBetweenStartUpStates);
+        delay(DebugDelayBetweenStartUpStates);
+      }
+      if (LogicBoardTypeGet() == 3) {
+        if (EEPROMExtReadSerialNumber() >= 300006 ) {
+          handleInfo("");
+          Serial.println("  Automatically going to MODE_CORE_TEST_MANY.");
+          TopLevelModeSet(MODE_CORE_TEST_MANY);
+        }
       }
       break;
 
@@ -696,17 +745,25 @@ void TopLevelModeManagerRun() {
         break;
         
       case MODE_CORE_TOGGLE_BITS_WITH_3V3_READ:     // Just toggle a single bit on and off. Or just pulse on.
-        TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToStartTest=0;
-        LED_Array_Monochrome_Set_Color(50,255,255);
-        #if defined  MCU_TYPE_MK20DX256_TEENSY_32        
+        {
+          uint8_t column_counter = 0;
+          uint8_t column_limit = 0;
+          if (LogicBoardTypeGet() == eLBT_CORE16_PICO ) {column_limit = 3;}
+          else { column_limit = 7;}
+
+          TopLevelThreeSoftButtonGlobalEnableSet (true);
+          LED_Array_Monochrome_Set_Color(50,255,255);
+          coreToStartTest = CoreToStartTestGet();
+          coreToEndTest = CoreToEndTestGet();
+//        #if defined  MCU_TYPE_MK20DX256_TEENSY_32        
+
           Serial.println();
-          for (uint8_t bit = coreToStartTest; bit<(coreToStartTest+64); bit++)
+          for (uint8_t bit = coreToStartTest; bit<=coreToEndTest; bit++)
             {
               // IOESpare1_On();
               Serial.print("CLR,Core #,");
               Serial.print(bit);
-              Serial.print(",");
+              Serial.print(", ");
               Core_Mem_Bit_Write_With_V_MON(bit,0);
               LED_Array_String_Write(bit,0);
               LED_Array_String_Display();
@@ -714,9 +771,9 @@ void TopLevelModeManagerRun() {
               // delay(5);
 
               // IOESpare1_On();
-              Serial.print(" SET,Core #,");
+              Serial.print("SET,Core #,");
               Serial.print(bit);
-              Serial.print(",");
+              Serial.print(", ");
               Core_Mem_Bit_Write_With_V_MON(bit,1);
               LED_Array_String_Write(bit,1);
               LED_Array_String_Display();
@@ -728,52 +785,56 @@ void TopLevelModeManagerRun() {
           Serial.println();
           // Serial.println("Clear All Cores, showing 3V3 voltage.");
           Serial.println("Clear All Cores, showing CAE FET voltage.");
-          uint8_t column_counter = 0;
-          for (uint8_t bit = 0; bit<64; bit++)
+          column_counter = 0;
+          for (uint8_t bit = 0; bit<=coreToEndTest; bit++)
             {
               Core_Mem_Bit_Write_With_V_MON(bit,0);
               LED_Array_String_Write(bit,0);
               LED_Array_String_Display();
-              if (column_counter==7) {Serial.println(); column_counter=0;}
+              if (column_counter==column_limit) {Serial.println(); column_counter=0;}
               else {Serial.print(", "); column_counter++;}
             }
 
           Serial.println();
           // Serial.println("Set All Cores, showing 3V3 voltage.");
           Serial.println("Set All Cores, showing CAE FET voltage.");
-        column_counter = 0;
-          for (uint8_t bit = 0; bit<64; bit++)
+          column_counter = 0;
+          for (uint8_t bit = 0; bit<=coreToEndTest; bit++)
             {
               Core_Mem_Bit_Write_With_V_MON(bit,1);
               LED_Array_String_Write(bit,1);
               LED_Array_String_Display();
-              if (column_counter==7) {Serial.println(); column_counter=0;}
+              if (column_counter==column_limit) {Serial.println(); column_counter=0;}
               else {Serial.print(", "); column_counter++;}
             }
 
-        #elif defined MCU_TYPE_RP2040
-          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
-              // TODO: Remove this test once shift registers are working. To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
-              Core_Mem_All_Drive_IO_Toggle();
+//        #elif defined MCU_TYPE_RP2040
+//          // TODO: Port Core HAL and Driver to handle Teensy and Pico.
+//              // TODO: Remove this test once shift registers are working. To test if the Shift Registers are working, toggle the matrix drive transistors, with matrix enable OFF.
+//              // Core_Mem_All_Drive_IO_Toggle();
+//              LED_Array_Memory_Clear();
+//              // ClearRowZeroAndColZero ();
+//              Core_Mem_Bit_Write_With_V_MON(coreToStartTest,0);
+//              LED_Array_String_Write(coreToStartTest,0);
+//              LED_Array_String_Display();
+//              delay(5);
+//              // SetRowZeroAndColZero ();
+//              Core_Mem_Bit_Write_With_V_MON(coreToStartTest,1);
+//              LED_Array_String_Write(coreToStartTest,1);
+//              LED_Array_String_Display();
+//        #endif
 
-              // ClearRowZeroAndColZero ();
-              Core_Mem_Bit_Write_With_V_MON(0,0);
-              LED_Array_String_Write(0,0);
-              LED_Array_String_Display();
-              delay(5);
-              // SetRowZeroAndColZero ();
-              Core_Mem_Bit_Write_With_V_MON(0,1);
-              LED_Array_String_Write(0,1);
-              LED_Array_String_Display();
-        #endif
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         delay(100);  // This delay makes it easier to trigger on the first debug pulse consistently.
+        // Return to main menu after running this once.
+        TopLevelModeSet(MODE_DEMO_SCROLLING_TEXT);
         break;
+        }
 
       case MODE_CORE_TEST_ONE:
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToStartTest=0;
+        coreToStartTest = CoreToStartTestGet();
         LED_Array_Monochrome_Set_Color(100,255,255);
         LED_Array_Memory_Clear();
 
@@ -801,14 +862,15 @@ void TopLevelModeManagerRun() {
 
       case MODE_CORE_TEST_MANY:
         TopLevelThreeSoftButtonGlobalEnableSet (true);
-        coreToStartTest = 0;
-        coreToEndTest = 64;
+        coreToStartTest = CoreToStartTestGet();
+        coreToEndTest = CoreToEndTestGet();
         if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
-          coreToEndTest = 32;
+          if (coreToStartTest > 15) { coreToStartTest = 15; }
+          if (coreToEndTest > 15) { coreToEndTest = 15; }
         }
         #if defined  MCU_TYPE_MK20DX256_TEENSY_32     
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
-          for (uint8_t bit = coreToStartTest; bit<(coreToEndTest); bit++)
+          for (uint8_t bit = coreToStartTest; bit<=(coreToEndTest); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
             //LED_Array_String_Write(coreToStartTest,1);               // Default to pixel on
@@ -824,7 +886,7 @@ void TopLevelModeManagerRun() {
             }
         #elif defined MCU_TYPE_RP2040
           if (TopLevelModeChangedGet()) {LED_Array_Memory_Clear();}
-          for (uint8_t bit = coreToStartTest; bit<(coreToEndTest); bit++)
+          for (uint8_t bit = coreToStartTest; bit<=(coreToEndTest); bit++)
             {
             LED_Array_Monochrome_Set_Color(100,255,255);
             //LED_Array_String_Write(coreToStartTest,1);               // Default to pixel on
@@ -845,17 +907,39 @@ void TopLevelModeManagerRun() {
 
     case MODE_HALL_TEST:
       TopLevelThreeSoftButtonGlobalEnableSet (false);
+      TopLevelSetMenuButtonGlobalEnableSet (false);
       LED_Array_Monochrome_Set_Color(25,255,255);
       LED_Array_Memory_Clear();
-      if(Button1HoldTime) { LED_Array_String_Write(56,1); Serial.println(Button1HoldTime); }
-      if(Button2HoldTime) { LED_Array_String_Write(58,1); Serial.println(Button2HoldTime); }
-      if(Button3HoldTime) { LED_Array_String_Write(60,1); Serial.println(Button3HoldTime); }
-      if(Button4HoldTime) { LED_Array_String_Write(62,1); Serial.println(Button4HoldTime); }
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        if(Button1HoldTime) { LED_Array_String_Write(12,1); Serial.println(Button1HoldTime); }
+        if(Button2HoldTime) { LED_Array_String_Write(13,1); Serial.println(Button2HoldTime); }
+        if(Button3HoldTime) { LED_Array_String_Write(14,1); Serial.println(Button3HoldTime); }
+        if(Button4HoldTime) { LED_Array_String_Write(15,1); Serial.println(Button4HoldTime); }
+      }
+      else { 
+        if(Button1HoldTime) { LED_Array_String_Write(56,1); Serial.println(Button1HoldTime); }
+        if(Button2HoldTime) { LED_Array_String_Write(58,1); Serial.println(Button2HoldTime); }
+        if(Button3HoldTime) { LED_Array_String_Write(60,1); Serial.println(Button3HoldTime); }
+        if(Button4HoldTime) { LED_Array_String_Write(62,1); Serial.println(Button4HoldTime); }
+      }
+      // With buttons disabled in this mode, need to manually check them here after long press to take action.
+      if ( (ButtonState(3,0)) >= 2000) {
+        TopLevelModeSet(MODE_LED_TEST_ALL_RGB);
+      }
       LED_Array_String_Display();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
 
+    case MODE_LED_TEST_ALL_RGB: // Cycle through Red, Green, Blue, to ensure all LEDs are functioning.
+      static uint8_t x = 0;
+      TopLevelThreeSoftButtonGlobalEnableSet (false);
+      LED_Array_Test_All_RGB(x);
+      x++;
+      OLEDTopLevelModeSet(TopLevelModeGet());
+      OLEDScreenUpdate();
+      break;
+        
     case MODE_GPIO_TEST:
       TopLevelThreeSoftButtonGlobalEnableSet (true);
       LED_Array_Monochrome_Set_Color(25,255,255);
@@ -935,12 +1019,30 @@ void TopLevelModeManagerRun() {
 
     case MODE_MANUFACTURING_EEPROM_FACTORY_WRITE:
       if (TopLevelModeChangedGet()) {
-        MenuTimeOutCheckReset();
         Serial.println();
         Serial.println("  Entered MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.");   
-        Serial.println("  Commandline Interface Disabled. CLI will be re-enabled after exiting this mode.");
-        Serial.println("  Will time out in 10 seconds, waiting for pre-formatted payload. Enter it now.");
-        CommandLineEnableSet(false);        // Disable Commandline Interface for now.
+        Serial.println("  Ready to write factory defaults for Core16.");
+        Serial.println("  Use 's' command to set last three digits of 300xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+        WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
+        LED_Array_Color_Display(1);
+        EEPROMExtSetLastThree(0);
+        // TODO: Remove writing serial number to 0. Testing only.
+        EEPROMExtWriteSerialNumber (999999);
+        }
+
+        ReadLogicBoardType ();
+        if (LogicBoardTypeGet() == 4) {
+          if (EEPROMExtGetLastThree() != 0) {
+            Serial.println();
+            Serial.println("  Writing Core16 serial number.");
+            EEPROMExtWriteSerialNumber(300000 + EEPROMExtGetLastThree());
+            Serial.println("  Writing Core16 defaults and verifying read back.");
+            EEPROMExtWriteFactoryDefaults();
+            handleInfo("");
+            handleReboot("");
+            // TopLevelModeSet(MODE_START_POWER_ON);
+          }
+        }
         /*
           string 4x128 bytes BoardIDEEPROMDataRawSerialIncoming
           bool               BoardIDEEPROMDataRawSerialIncomingFull
@@ -962,11 +1064,6 @@ void TopLevelModeManagerRun() {
 
         // Pass, write to EEPROM. The read back out to compare and verify.
 
-        TopLevelThreeSoftButtonGlobalEnableSet(true);
-        WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
-        LED_Array_Color_Display(1);
-        }
-      if (MenuTimeOutCheck(10000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();

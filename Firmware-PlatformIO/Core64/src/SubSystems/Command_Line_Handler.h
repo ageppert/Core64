@@ -15,13 +15,7 @@ SETUP:
     #include <stdint.h>
     #include "Config/HardwareIOMap.h"   // Detects board type
 
-    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-        #define PROMPT "Core64> "
-    #elif defined MCU_TYPE_RP2040
-        #define PROMPT "Core64c: "
-    #else
-        #define PROMPT "unknown: "
-    #endif
+    #define PROMPT "Core> "
 
     void StreamTopLevelModeEnableSet (bool value);
     bool StreamTopLevelModeEnableGet ();
@@ -31,6 +25,8 @@ SETUP:
     void CommandLineSetup ();
     void handleArrangement(char* tokens);
     void handleCoreTest(char* tokens);
+    void handleCoreToStartTest(char* tokens);
+    void handleCoreToEndTest(char* tokens);
     void handleDebug(char* tokens);
     void handleDgauss(char* tokens);
     void handleHelp(char* tokens);
@@ -38,6 +34,7 @@ SETUP:
     void handleMode(char* tokens);
     void handleReboot(char* tokens);
     void handleRestart(char* tokens);
+    void handleSerialNumber(char* tokens);
     void handleSplash(char* tokens);
     void handleStream(char* tokens);
     void handleThanks(char* tokens);

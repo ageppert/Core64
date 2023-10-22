@@ -41,6 +41,12 @@ void HeartBeat() {
   #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     digitalWriteFast(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
   #elif defined MCU_TYPE_RP2040
-    digitalWrite(Pin_Built_In_LED, LED_HEARTBEAT_STATE);
+    if (PicoWPresent) { 
+      // cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, LED_HEARTBEAT_STATE);   
+      digitalWrite(LED_BUILTIN, LED_HEARTBEAT_STATE);
+    }
+    else { 
+      digitalWrite(Pin_Built_In_LED, LED_HEARTBEAT_STATE); 
+      }
   #endif
 }

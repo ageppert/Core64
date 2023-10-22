@@ -1,5 +1,5 @@
 /*
-PURPOSE: Test the ANANLOG input pins that are planned for reading battery voltage and/or current with non-blocking code
+PURPOSE: Test the ANALOG input pins that are planned for reading battery voltage and/or current with non-blocking code
 SETUP:
 - Configure in Analog_Input_Test.c
 */

@@ -30,7 +30,8 @@
         pinMode(Pin_SAO_G1_or_SPARE1_or_CP1, OUTPUT);
       #endif
       #ifdef Pin_SAO_G2_or_SPARE2_or_CP2
-        pinMode(Pin_SAO_G2_or_SPARE2_or_CP2, OUTPUT);
+// TEST FIXTURE CONFIG CHANGES!!!
+//        pinMode(Pin_SAO_G2_or_SPARE2_or_CP2, OUTPUT);
       #endif
       #ifdef           Pin_SPARE3_or_CP3
         pinMode(          Pin_SPARE3_or_CP3, OUTPUT);
@@ -52,7 +53,8 @@
       #endif
 
       #ifdef    Pin_SPI_CS1
-        pinMode(   Pin_SPI_CS1, OUTPUT);
+// TEST FIXTURE CONFIG CHANGES!!!
+//        pinMode(   Pin_SPI_CS1, OUTPUT);
       #endif
       #ifdef    Pin_SPI_RST
         pinMode(   Pin_SPI_RST, OUTPUT);

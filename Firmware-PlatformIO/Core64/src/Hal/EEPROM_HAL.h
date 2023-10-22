@@ -23,6 +23,10 @@ uint8_t EEPROMExtReadHardwareVersionMajor();
 uint8_t EEPROMExtReadHardwareVersionMinor();
 uint8_t EEPROMExtReadHardwareVersionPatch();
 uint32_t EEPROMExtReadSerialNumber();
+bool     EEPROMExtWriteSerialNumber(uint32_t number);	// return 0 = success, 1 = fault
+void EEPROMExtWriteFactoryDefaults();					// Write everything else except the S/N
+uint16_t EEPROMExtGetLastThree();
+void     EEPROMExtSetLastThree(uint16_t number);
 uint8_t EEPROMExtReadBornOnYear();
 uint8_t EEPROMExtReadBornOnMonth();
 uint8_t EEPROMExtReadBornOnDay();
