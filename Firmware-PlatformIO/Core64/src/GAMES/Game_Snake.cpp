@@ -73,12 +73,15 @@ uint8_t ColorSnakeHead = 127; // blue
 uint8_t ColorPoison    = 254; // red
 uint8_t ColorFood      =  85; // green
 
+uint8_t SnakeVisibleExtentX = 8;
+uint8_t SnakeVisibleExtentY = 8;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SNAKE GAME FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void RandomStartMap() {
-  for (uint8_t x=0; x<=7; x++) {
-    for (uint8_t y=0; y<=7; y++) {
+  for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {
+    for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
       int RandomPixel = random(0, 6); // wider range than need to get some extra blank space
       if (RandomPixel == 1) { RandomPixel = RandomPixel * (-1); }
       if (RandomPixel == 2) { RandomPixel = RandomPixel * (-1); }
@@ -86,8 +89,8 @@ void RandomStartMap() {
       SnakeGameMemory[y][x] = RandomPixel;
     }
   }
-  SnakeHeadX = random(0, 7);
-  SnakeHeadY = random(0, 7);
+  SnakeHeadX = random(0, (SnakeVisibleExtentX-1));
+  SnakeHeadY = random(0, (SnakeVisibleExtentY-1));
   SnakeGameMemory[SnakeHeadY][SnakeHeadX] = 1; // The snake starts here!
 }
 
@@ -102,8 +105,8 @@ void DecreaseSnakeLength() {
 
 void RemoveSnakeTail() {
   // scan for positive numbers greater than SnakeLength and remove them from screen memory locations
-  for (uint8_t x=0; x<=7; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
-    for (uint8_t y=0; y<=7; y++) {
+  for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+    for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
       if (SnakeGameMemory[y][x] > SnakeLength ) { SnakeGameMemory[y][x] = 0; } // 
     }
   }  
@@ -113,8 +116,8 @@ void AreYouAWinner() {
   // Assume a win
   Winner = true;
   // scan for -2 numbers, if any are found left, you're not a winner yet.
-  for (uint8_t x=0; x<=7; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen
-    for (uint8_t y=0; y<=7; y++) {
+  for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen
+    for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
       if (SnakeGameMemory[y][x] == ((signed int)-2) ) { Winner = false; }
     }
   }  
@@ -140,7 +143,7 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
     MovementDetected = false;
     TestX = SnakeHeadX + 1;
     TestY = SnakeHeadY;
-    if ((TestX < 8) && (TestX >= 0) && (MovementDetected == false))
+    if ((TestX < SnakeVisibleExtentX) && (TestX >= 0) && (MovementDetected == false))
     {
       if (CoreArrayMemory[TestY][TestX] == 1)
       {
@@ -171,7 +174,7 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
   // Test down for movement and a blank pixel
     TestX = SnakeHeadX;
     TestY = SnakeHeadY + 1;
-    if ((TestY < 8) && (TestY >= 0) && (MovementDetected == false))
+    if ((TestY < SnakeVisibleExtentY) && (TestY >= 0) && (MovementDetected == false))
     { 
       if (CoreArrayMemory[TestY][TestX] == 1)
       {
@@ -202,7 +205,7 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
   // Test left for movement and a blank pixel
     TestX = SnakeHeadX - 1;
     TestY = SnakeHeadY;
-    if ((TestX < 8) && (TestX >= 0) && (MovementDetected == false))
+    if ((TestX < SnakeVisibleExtentX) && (TestX >= 0) && (MovementDetected == false))
     { 
       if (CoreArrayMemory[TestY][TestX] == 1)
       {
@@ -233,7 +236,7 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
   // Test UP for movement and a blank pixel
     TestX = SnakeHeadX;
     TestY = SnakeHeadY - 1;
-    if ((TestY < 8) && (TestY >= 0) && (MovementDetected == false))
+    if ((TestY < SnakeVisibleExtentY) && (TestY >= 0) && (MovementDetected == false))
     { 
       if (CoreArrayMemory[TestY][TestX] == 1)
       {
@@ -266,9 +269,9 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
       if (SnakeLength > OldSnakeLength) // snake got longer, no need to remove anything.
       {
           // scan for positive numbers up to SnakeLength and add one to those screen memory locations
-          for (uint8_t x=0; x<=7; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+          for (uint8_t x=0; x<SnakeVisibleExtentX; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
           {
-            for (uint8_t y=0; y<=7; y++)
+            for (uint8_t y=0; y<SnakeVisibleExtentY; y++)
             {
               if (SnakeGameMemory[y][x] > (signed int)0) { SnakeGameMemory[y][x]=SnakeGameMemory[y][x]+(signed int)1; }
             }
@@ -277,17 +280,17 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
       }
       else if (SnakeLength < OldSnakeLength) // snake got shorter, remove any above snake length
       {
-          for (uint8_t x=0; x<=7; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+          for (uint8_t x=0; x<SnakeVisibleExtentX; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
           {
-            for (uint8_t y=0; y<=7; y++)
+            for (uint8_t y=0; y<SnakeVisibleExtentY; y++)
             {
               if (SnakeGameMemory[y][x] >= (signed int)SnakeLength) { SnakeGameMemory[y][x]=0; }
             }
           }
           // scan for positive numbers up to SnakeLength and add one to those screen memory locations
-          for (uint8_t x=0; x<=7; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+          for (uint8_t x=0; x<SnakeVisibleExtentX; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
           {
-            for (uint8_t y=0; y<=7; y++)
+            for (uint8_t y=0; y<SnakeVisibleExtentY; y++)
             {
               if (SnakeGameMemory[y][x] > 0) { SnakeGameMemory[y][x]=SnakeGameMemory[y][x]+(signed int)1; }
             }
@@ -296,17 +299,17 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
       }
       else if (SnakeLength == OldSnakeLength) // no change, just remove the old end, then increment existing body
       {
-          for (uint8_t x=0; x<=7; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+          for (uint8_t x=0; x<SnakeVisibleExtentX; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
           {
-            for (uint8_t y=0; y<=7; y++)
+            for (uint8_t y=0; y<SnakeVisibleExtentY; y++)
             {
               if (SnakeGameMemory[y][x] >= (signed int)SnakeLength) { SnakeGameMemory[y][x]=0; }
             }
           }
           // scan for positive numbers up to SnakeLength and add one to those screen memory locations
-          for (uint8_t x=0; x<=7; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+          for (uint8_t x=0; x<SnakeVisibleExtentX; x++)      // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
           {
-            for (uint8_t y=0; y<=7; y++)
+            for (uint8_t y=0; y<SnakeVisibleExtentY; y++)
             {
               if (SnakeGameMemory[y][x] > 0) { SnakeGameMemory[y][x]=SnakeGameMemory[y][x]+(signed int)1; }
             }
@@ -320,8 +323,8 @@ bool SnakeGameLogic() { // Returns 1 if activity of stylus movement is detected.
 }
 
 void ConvertSnakeGameMemoryToScreenMemory() {
-  for (uint8_t x=0; x<=7; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
-    for (uint8_t y=0; y<=7; y++) {
+  for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+    for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
       if (SnakeGameMemory[y][x] == 0) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorBlank); }
       if (SnakeGameMemory[y][x] == 1) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorSnakeBody); }
       if (SnakeGameMemory[y][x] == 2) { LED_Array_Matrix_Color_Hue_Write(y, x, ColorSnakeHead); }
@@ -347,6 +350,10 @@ void GameSnake() {
     LED_Array_Color_Display(1);
     GameState = 0;
     MenuTimeOutCheckReset();
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+      SnakeVisibleExtentX = 4;
+      SnakeVisibleExtentY = 4;
+    }
   }
     OLEDTopLevelModeSet(TopLevelModeGet());
     OLEDScreenUpdate();
@@ -357,7 +364,7 @@ void GameSnake() {
   nowTime = millis();
   if ((nowTime - SnakeGameUpdateLastRunTime) >= SnakeGameUpdatePeriod)
   {
-    Core_Mem_Scan_For_Magnet(); // Update the position of the stylus in the CoreArrayMemory [8][8]
+    Core_Mem_Scan_For_Magnet(); // Update the position of the stylus in the CoreArrayMemory
     if(DebugLevel==4) { Serial.print("Snake Game State = "); Serial.println(GameState); }
     switch(GameState)
     {
@@ -393,8 +400,8 @@ void GameSnake() {
         }
         break;
       case 3: // Game Over = Red Screen
-        for (uint8_t x=0; x<=7; x++) {
-          for (uint8_t y=0; y<=7; y++) {
+        for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {
+          for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
             SnakeGameMemory[y][x] = -1;
           }
         }
@@ -406,8 +413,8 @@ void GameSnake() {
         WriteGameSnakeSymbol(2);
         break;
       case 4: // Winner = Green Screen
-        for (uint8_t x=0; x<=7; x++) {
-          for (uint8_t y=0; y<=7; y++) {
+        for (uint8_t x=0; x<SnakeVisibleExtentX; x++) {
+          for (uint8_t y=0; y<SnakeVisibleExtentY; y++) {
             SnakeGameMemory[y][x] = -2;
           }
         }

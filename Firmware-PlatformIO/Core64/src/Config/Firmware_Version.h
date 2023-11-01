@@ -76,12 +76,13 @@
 	|  0.8.3  | 2023-09-16 | Core16 Tested all hardware functions. Add debug pin 1 and 2 for Core16 HWV0.1.0 and HWV0.2.0. Move LED Array Init after EEPROM Board ID read.
 	|  0.8.4  | 2023-10-04 | Core16 WIP test fixture mods, can program S/Ns 300006-300105
 	|  0.8.5  | 2023-10-14 | Add commands to set start and end cores to test.
-	|  0.8.6  | 2023-10-21 | Core16 adapt snake game to 4x4, auto-run test >=300056
+	|  0.8.6  | 2023-10-21 | Core16 adapt paint app to 4x4. Changed auto-run test >=300056
+	|  0.8.7  | 2023-11-01 | Core16 adapt snake game to 4x4. 0.8.6 adapted paint app, not snake game.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core16 adapt snake game to 4x4."
+	#define FIRMWARE_DESCRIPTION "Core16 adapt snake game to 4x4. 0.8.6 adapted paint app, not snake game."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 6 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 7 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H
