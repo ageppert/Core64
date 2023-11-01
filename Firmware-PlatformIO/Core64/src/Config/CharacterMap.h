@@ -498,8 +498,56 @@ SETUP:
   };
 
   // Paint mode uses hue and saturation so two tables are used. One for Hue, the other for Saturation.
-  const static uint8_t AppPaintSymbolsHue[4][8][8] PROGMEM = {   // Symbol #, Row, Column
+  const static uint8_t AppPaintSymbols16bitHue[4][4][4] PROGMEM = {   // Symbol #, Row, Column
     // 0
+    { { 10, 20, 30,  0},
+      { 20,  0, 40,  0},
+      { 30, 40, 60,  0},
+      { 50, 60,  0,  0}  },  //  App Paint logo
+    // 1
+    { {  0,  0,  0,  0},
+      {  0,  0,  0,  0},
+      {  0,  1, 75,150},
+      {  0,  1, 75,150}  },  //  App Paint Color Palette Bottom
+    // 2
+    { {  0,  1, 75,150},
+      {  0,  1, 75,150},
+      {  0,  0,  0,  0},
+      {  0,  0,  0,  0}  },   //  App Paint Color Palette Top
+    // 3  Hysteresis Loop
+    { { 25,  1,  1,  1},
+      { 25,  1,  1, 25},
+      { 25,  1,  1, 25}, 
+      {  1,  1,  1, 25} }, 
+  };
+
+  const static uint8_t AppPaintSymbols16bitSat[4][4][4] PROGMEM = {   // Symbol #, Row, Column
+    // 0
+    { {255,255,255,  0},
+      {255,  0,255,  0},
+      {255,255,255,  0},
+      {255,255,  0,  0}, },  //  App Paint logo
+    // 1
+    { {  0,  0,  0,  0},
+      {  0,  0,  0,  0},
+      {  0,255,255,255},
+      {  0,195,195,195}  },  //  App Paint Color Palette Bottom
+    // 2
+    { {  0,255,255,255},
+      {  0,195,195,195},
+      {  0,  0,  0,  0},
+      {  0,  0,  0,  0}  },   //  App Paint Color Palette Top
+    // 3
+    { {255,255,255,255},
+      {255,255,255,255},
+      {255,255,255,255},
+      {255,255,255,255}  }   // Hysteresis Loop
+  };
+
+
+  // Paint mode uses hue and saturation so two tables are used. One for Hue, the other for Saturation.
+  const static uint8_t AppPaintSymbolsHue[4][8][8] PROGMEM = {   // Symbol #, Row, Column
+     // 0
     { { 10, 10, 20, 20, 30, 30,  0,  0},
       { 10, 20, 20, 30, 30, 40,  0,  0},
       { 20, 20,  0,  0, 40, 40,  0,  0},
@@ -575,9 +623,10 @@ SETUP:
       {255,255,255,255,255,255,255,255},
       {255,255,255,255,255,255,255,255}  }   // Hysteresis Loop
   };
+
   const static uint8_t GameSnakeSymbols[3][8][8] PROGMEM = {   // Symbol #, Row, Column
     // 0
-    { {  0,170,170,170,170,170,225,220},
+    { {  0,170,170,170,170,170,220,220},
       {  0,170,170,170,170,170,220,220},
       {  0,170,170,  0,  0,  0,  0,  0},
       {  0,170,170,170,170,170,170,  0},
@@ -603,6 +652,24 @@ SETUP:
       {  0,254,254,  0,  0,  0,  0,  0},
       {  0,254,254,254,254,254,254,  0},
       {  0,  0,  0,  0,  0,  0,  0,  0}  }    //  Snake Game Lose "L" in red
+  };
+
+const static uint8_t GameSnakeSymbols16bit[3][4][4] PROGMEM = {   // Symbol #, Row, Column
+    // 0
+    { {  0,170,170,220},
+      {  0,170,  0,  0},
+      {  0,  0,170,  0},
+      {  0,170,170,  0}  },  //  Snake Game logo
+    // 1
+    { { 85,  0,  0, 85},
+      { 85,  0,  0, 85},
+      {  0, 85, 85,  0},
+      {  0, 85, 85,  0}  },   //  Snake Game Win "W" in green
+    // 2
+    { {  0,254,  0,  0},
+      {  0,254,  0,  0},
+      {  0,254,  0,  0},
+      {  0,254,254,254}  }    //  Snake Game Lose "L" in red
   };
 
   const static uint8_t GamePongSymbols[3][8][8] PROGMEM = {   // Symbol #, Row, Column
@@ -633,6 +700,24 @@ SETUP:
       {  0,  0,  0,  0,  0,  0,  0,  0},
       {  0,  0,  0,  0,  0,  0,  0,  0},
       {  0,  0,  0,  0,  0,  0,  0,  0}  }    //  Pong Game Lose "W2" in green
+  };
+
+  const static uint8_t GamePongSymbols16bit[3][4][4] PROGMEM = {   // Symbol #, Row, Column
+    // 0
+    { {255,  0,  0,  0},
+      {255,  0,  0,255},
+      {  0,255,  0,255},
+      {  0,  0,  0,  0}  },   // Pong Game Intro 
+    // 1
+    { {  0, 85,  0,  0},
+      { 85, 85,  0,  0},
+      {  0, 85,  0,  0},
+      { 85, 85, 85,  0}  },   //  Pong Game Win "W1" in green
+    // 2
+    { {  0,  0, 85,  0},
+      {  0, 85, 85,  0},
+      {  0,  0, 85,  0},
+      {  0, 85, 85, 85}  }    //  Pong Game Lose "W2" in green
   };
 
   const static uint8_t UtilFluxSymbols[2][8][8] PROGMEM = {   // Symbol #, Row, Column

@@ -33,16 +33,16 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 	#define DEFAULTLEDArrayMonochromeColorV 	255
 
 
-	const uint8_t kMatrixWidth = 8;
-	const uint8_t kMatrixHeight = 8;
+	uint8_t kMatrixWidth = 8;
+	uint8_t kMatrixHeight = 8;
 	#ifdef CORE64_LED_MATRIX
 		const bool    kMatrixSerpentineLayout = false;	
 	#else
 		const bool    kMatrixSerpentineLayout = true;
 	#endif
 
-	#define NUM_LEDS_C64 (kMatrixWidth * kMatrixHeight)
-	CRGB leds_plus_safety_pixel[ NUM_LEDS_C64 + 1];
+	uint16_t NumLedsC64 = (kMatrixWidth * kMatrixHeight);
+	CRGB leds_plus_safety_pixel[ NumLedsC64 + 1];
 	CRGB* const leds( leds_plus_safety_pixel + 1);
 
 #endif

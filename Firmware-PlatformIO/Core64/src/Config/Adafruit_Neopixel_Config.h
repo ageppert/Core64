@@ -42,9 +42,9 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 		const bool    kMatrixSerpentineLayout = true;
 	#endif
 
-	#define NUM_LEDS_C64 (kMatrixWidth * kMatrixHeight)
+	#define NumLedsC64 (kMatrixWidth * kMatrixHeight)
 	#define NUM_LEDS_C16 16
-	// CRGB leds_plus_safety_pixel[ NUM_LEDS_C64 + 1];
+	// CRGB leds_plus_safety_pixel[ NumLedsC64 + 1];
 	// CRGB* const leds( leds_plus_safety_pixel + 1);
 
 #endif // ADAFRUIT_NEOPIXEL_CONFIG_H

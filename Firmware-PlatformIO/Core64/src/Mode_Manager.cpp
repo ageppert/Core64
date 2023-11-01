@@ -478,7 +478,7 @@ void TopLevelModeManagerRun() {
         delay(DebugDelayBetweenStartUpStates);
       }
       if (LogicBoardTypeGet() == 3) {
-        if (EEPROMExtReadSerialNumber() >= 300006 ) {
+        if (EEPROMExtReadSerialNumber() >= 300056 ) {
           handleInfo("");
           Serial.println("  Automatically going to MODE_CORE_TEST_MANY.");
           TopLevelModeSet(MODE_CORE_TEST_MANY);

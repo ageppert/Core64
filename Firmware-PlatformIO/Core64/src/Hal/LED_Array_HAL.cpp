@@ -62,7 +62,7 @@ static uint8_t StartUpSymbolIndex = 0;
 #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
   // These parameters are set in Adafruit_Neopizel_Config.h and from HardwareIOMap.h
   // Declare our NeoPixel strip object:
-  Adafruit_NeoPixel strip(NUM_LEDS_C64, Pin_RGB_LED_Array, COLOR_ORDER + NEO_FREQUENCY);
+  Adafruit_NeoPixel strip(NumLedsC64, Pin_RGB_LED_Array, COLOR_ORDER + NEO_FREQUENCY);
   // Argument 1 = Number of pixels in NeoPixel strip
   // Argument 2 = Arduino pin number (most are valid)
   // Argument 3 = Pixel type flags, add together as needed:
@@ -204,7 +204,7 @@ void LED_Array_Auto_Brightness() {
   void LED_Array_Memory_Clear() {
     uint8_t loopLength = 0;
     if (LogicBoardTypeGet() == eLBT_CORE16_PICO ) { loopLength = NUM_LEDS_C16; }
-    else { loopLength = NUM_LEDS_C64; }
+    else { loopLength = NumLedsC64; }
 
     LedArrayMemoryBinary = 0;
     for( uint8_t i = 0; i < loopLength; i++) {
@@ -422,11 +422,18 @@ void LED_Array_Auto_Brightness() {
   // Copy Color Symbol into Color HSV LED Array memory
   //
     void WriteGameSnakeSymbol(uint8_t SymbolNumber){
-      for( uint8_t y = 0; y < kMatrixHeight; y++) 
-      {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) 
-        {
-          LedScreenMemoryMatrixHue[y][x] = GameSnakeSymbols[SymbolNumber][y][x];
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        for( uint8_t y = 0; y < 4; y++) {
+          for( uint8_t x = 0; x < 4; x++) {
+            LedScreenMemoryMatrixHue[y][x] = GameSnakeSymbols16bit[SymbolNumber][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 0; y < kMatrixHeight; y++) {
+          for( uint8_t x = 0; x < kMatrixWidth; x++) {
+            LedScreenMemoryMatrixHue[y][x] = GameSnakeSymbols[SymbolNumber][y][x];
+          }
         }
       }
     }
@@ -435,11 +442,20 @@ void LED_Array_Auto_Brightness() {
   // Copy Color Symbol into Color HSV LED Array memory
   //
     void WriteGamePongSymbol(uint8_t SymbolNumber){
-      for( uint8_t y = 0; y < kMatrixHeight; y++) 
-      {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        for( uint8_t y = 0; y < 4; y++) {
+          for( uint8_t x = 0; x < 4; x++) {
+            LedScreenMemoryMatrixHue[y][x] = GamePongSymbols16bit[SymbolNumber][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 0; y < kMatrixHeight; y++) 
         {
-          LedScreenMemoryMatrixHue[y][x] = GamePongSymbols[SymbolNumber][y][x];
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = GamePongSymbols[SymbolNumber][y][x];
+          }
         }
       }
     }
@@ -448,12 +464,22 @@ void LED_Array_Auto_Brightness() {
   // Copy Color Symbol into Color HSV LED Array memory
   //
     void WriteAppPaintSymbol(uint8_t SymbolNumber){
-      for( uint8_t y = 0; y < kMatrixHeight; y++) 
-      {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        for( uint8_t y = 0; y < 4; y++) {
+          for( uint8_t x = 0; x < 4; x++) {
+            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbols16bitHue[SymbolNumber][y][x];
+            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbols16bitSat[SymbolNumber][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 0; y < kMatrixHeight; y++) 
         {
-          LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[SymbolNumber][y][x];
-          LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[SymbolNumber][y][x];
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[SymbolNumber][y][x];
+            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[SymbolNumber][y][x];
+          }
         }
       }
     }
@@ -475,23 +501,47 @@ void LED_Array_Auto_Brightness() {
   // Write the color Palette into the HSV LED Array Memory
   //
     void WriteAppPaintPalette(bool TopNBottom){
-      if (TopNBottom){
-        for( uint8_t y = 0; y < 2; y++) 
-        {
-          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      if (TopNBottom) { // Top
+        if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+          for( uint8_t y = 0; y < 2; y++) 
           {
-            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[2][y][x];
-            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[2][y][x];
+            for( uint8_t x = 0; x < 4; x++) 
+            {
+              LedScreenMemoryMatrixHue[y][x] = AppPaintSymbols16bitHue[2][y][x];
+              LedScreenMemoryMatrixSat[y][x] = AppPaintSymbols16bitSat[2][y][x];
+            }
+          }
+        }
+        else {
+          for( uint8_t y = 0; y < 2; y++) 
+          {
+            for( uint8_t x = 0; x < 8; x++) 
+            {
+              LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[2][y][x];
+              LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[2][y][x];
+            }
           }
         }
       }
-      else {
-        for( uint8_t y = 6; y < 8; y++) 
-        {
-          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      else { // Bottom
+        if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+          for( uint8_t y = 2; y < 4; y++) 
           {
-            LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[1][y][x];
-            LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[1][y][x];
+            for( uint8_t x = 0; x < 4; x++) 
+            {
+              LedScreenMemoryMatrixHue[y][x] = AppPaintSymbols16bitHue[1][y][x];
+              LedScreenMemoryMatrixSat[y][x] = AppPaintSymbols16bitSat[1][y][x];
+            }
+          }
+        }
+        else {
+          for( uint8_t y = 6; y < 8; y++) 
+          {
+            for( uint8_t x = 0; x < 8; x++) 
+            {
+              LedScreenMemoryMatrixHue[y][x] = AppPaintSymbolsHue[1][y][x];
+              LedScreenMemoryMatrixSat[y][x] = AppPaintSymbolsSat[1][y][x];
+            }
           }
         }
       }
@@ -713,7 +763,7 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Binary_Display() {
     uint8_t LEDPixelPosition = 0;
-    for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS_C64; ScreenPixel++ ) {
+    for ( uint8_t ScreenPixel = 0; ScreenPixel < NumLedsC64; ScreenPixel++ ) {
       // Convert from screen position to LED array position 
       LEDPixelPosition = ScreenPixelPositionBinaryLUT [ScreenPixel];
       // Turn on or off the corresponding LED
@@ -782,7 +832,7 @@ void LED_Array_Auto_Brightness() {
       }
     }
     else {
-      for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS_C64; ScreenPixel++ ) {
+      for ( uint8_t ScreenPixel = 0; ScreenPixel < NumLedsC64; ScreenPixel++ ) {
         // Convert from screen position to LED array position 
         LEDPixelPosition = ScreenPixelPosition1DLUT [ScreenPixel];
         // Turn on or off the corresponding LED
@@ -991,7 +1041,7 @@ void LED_Array_Auto_Brightness() {
     if (LedArrayInitialized == false) {
       #if defined USE_FASTLED_LIBRARY
         // These parameters are set in FastLED_Config.h and from HardwareIOMap.h
-        FastLED.addLeds<CHIPSET, Pin_RGB_LED_Array, COLOR_ORDER>(leds, NUM_LEDS_C64).setCorrection(TypicalSMD5050);
+        FastLED.addLeds<CHIPSET, Pin_RGB_LED_Array, COLOR_ORDER>(leds, NumLedsC64).setCorrection(TypicalSMD5050);
         FastLED.setBrightness( BRIGHTNESS );
       #elif defined USE_ADAFRUIT_NEOPIXEL_LIBRARY
         strip.begin();

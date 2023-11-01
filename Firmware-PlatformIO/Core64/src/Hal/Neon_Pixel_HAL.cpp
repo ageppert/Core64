@@ -168,7 +168,7 @@
   /*
     void Neon_Pixel_Array_Binary_Display() {
       uint8_t LEDPixelPosition = 0;
-      for ( uint8_t ScreenPixel = 0; ScreenPixel < NUM_LEDS_C64; ScreenPixel++ ) {
+      for ( uint8_t ScreenPixel = 0; ScreenPixel < NumLedsC64; ScreenPixel++ ) {
         // Convert from screen position to LED array position 
         LEDPixelPosition = ScreenPixelPositionBinaryLUT [ScreenPixel];
         // Turn on or off the corresponding LED

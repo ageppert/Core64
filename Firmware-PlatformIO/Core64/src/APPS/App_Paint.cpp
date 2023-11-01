@@ -60,7 +60,6 @@ static volatile bool       ModeFirstTimeUsed       = true;     // Keep track of 
 static volatile uint8_t    StepHue                 = 2;        // how many hue steps between paint blending updates
 static volatile uint8_t    StepSat                 = 3;        // how many saturation steps between paint blending updates
 
-
 // Duplicate of screen image for local use
 static volatile uint8_t LedScreenMemoryLocalArrayHue [8][8];
 static volatile uint8_t LedScreenMemoryLocalArraySat [8][8];
@@ -74,6 +73,9 @@ static volatile uint8_t TempSat[2][8] = {
   {  0,  0,  0,  0,  0,  0,  0,  0},
   {  0,  0,  0,  0,  0,  0,  0,  0}
 };
+
+uint8_t VisibleExtentX = 8;
+uint8_t VisibleExtentY = 8;
 
 // discern incoming color and existing color, and how to handle the differences in order to blend the colors if saturation is below 255. 
 void Paint_Color_Mix_Hue_Sat(uint8_t y, uint8_t x, uint8_t InBrushHue, uint8_t InBrushSat){
@@ -148,38 +150,44 @@ void Paint_Color_Mix_Hue_Sat(uint8_t y, uint8_t x, uint8_t InBrushHue, uint8_t I
 
 void MoveBufferToScreen(bool TopNBottom) {
   uint8_t offset = 0;
-  if (TopNBottom) { offset = 0; } // The top part of the screen.
-  else { offset = 6; }            // The bottom part of the screen.
+  if (TopNBottom) { offset = 0; }     // The top part of the screen.
+  else { offset = VisibleExtentY-2; } // The bottom part of the screen.
   for (uint8_t y=0; y<2; y++) {
-    for (uint8_t x=0; x<8; x++)  {
+    for (uint8_t x=0; x<VisibleExtentX; x++)  {
       LED_Array_Matrix_Color_Hue_Sat_Write(y+offset, x, TempHue[y][x], TempSat[y][x]);
     }
   }
 }
 
 void CopyLedLocalToScreen() {
-  for (uint8_t y=0; y<8; y++) {
-    for (uint8_t x=0; x<8; x++)  {
+  for (uint8_t y=0; y<VisibleExtentY; y++) {
+    for (uint8_t x=0; x<VisibleExtentX; x++)  {
       LED_Array_Matrix_Color_Hue_Sat_Write(y, x, LedScreenMemoryLocalArrayHue[y][x], LedScreenMemoryLocalArraySat[y][x]);
     }
   }
 }
 
 void CopySymboltoLocal(uint8_t SymbolNumber) {
-  for (uint8_t y=0; y<8; y++) {
-    for (uint8_t x=0; x<8; x++)  {
-      LedScreenMemoryLocalArrayHue[y][x] = AppPaintSymbolsHue[SymbolNumber][y][x]; 
-      LedScreenMemoryLocalArraySat[y][x] = AppPaintSymbolsSat[SymbolNumber][y][x];
+  for (uint8_t y=0; y<VisibleExtentY; y++) {
+    for (uint8_t x=0; x<VisibleExtentX; x++)  {
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        LedScreenMemoryLocalArrayHue[y][x] = AppPaintSymbols16bitHue[SymbolNumber][y][x]; 
+        LedScreenMemoryLocalArraySat[y][x] = AppPaintSymbols16bitSat[SymbolNumber][y][x];
+      }
+      else {
+        LedScreenMemoryLocalArrayHue[y][x] = AppPaintSymbolsHue[SymbolNumber][y][x]; 
+        LedScreenMemoryLocalArraySat[y][x] = AppPaintSymbolsSat[SymbolNumber][y][x];
+      }
     }
   }
 }
 
 void MoveScreenToBuffer(bool TopNBottom) {
   uint8_t offset = 0;
-  if (TopNBottom) { offset = 0; } // The top part of the screen.
-  else { offset = 6; }            // The bottom part of the screen.
+  if (TopNBottom) { offset = 0; }     // The top part of the screen.
+  else { offset = VisibleExtentY-2; } // The bottom part of the screen.
   for (uint8_t y=0; y<2; y++) {
-    for (uint8_t x=0; x<8; x++)  {
+    for (uint8_t x=0; x<VisibleExtentX; x++)  {
       TempHue[y][x] = LedScreenMemoryLocalArrayHue[y+offset][x];
       TempSat[y][x] = LedScreenMemoryLocalArraySat[y+offset][x];
     }
@@ -190,8 +198,8 @@ void AppPaint() {
   if (TopLevelModeChangedGet()) {                     // Fresh entry into this mode.
     Serial.println();
     Serial.println("  Paint Mode");
-    Serial.println("    + = Show Color Pallette (not yet implemented)");
-    Serial.println("    - = Hide Color Pallette (not yet implemented)");
+    Serial.println("    + = Show Color Pallette");
+    Serial.println("    - = Hide Color Pallette");
     Serial.println("    S = Screen Clear");
     Serial.print(PROMPT);
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure + and - soft buttons are enabled to move to next mode if desired.
@@ -201,6 +209,10 @@ void AppPaint() {
     MenuTimeOutCheckReset();
     ModeState = STATE_INTRO_SCREEN_WAIT_FOR_SELECT;
     PalettePosition = PALETTE_NONE;
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+      VisibleExtentX = 4;
+      VisibleExtentY = 4;
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,8 +262,8 @@ void AppPaint() {
 
         // Depending on the status of the color palette, draw only, or select colors
         if (PalettePosition == PALETTE_NONE) {
-          for (uint8_t y=0; y<8; y++) {
-            for (uint8_t x=0; x<8; x++)  {
+          for (uint8_t y=0; y<VisibleExtentY; y++) {
+            for (uint8_t x=0; x<VisibleExtentX; x++)  {
               if (CoreArrayMemory [y][x]) { 
                 Paint_Color_Mix_Hue_Sat(y, x, BrushHue, BrushSat);
                 #ifdef NEON_PIXEL_ARRAY
@@ -263,8 +275,8 @@ void AppPaint() {
         }
         else if (PalettePosition == PALETTE_BOTTOM) {
           // Draw zone
-          for (uint8_t y=0; y<6; y++) {
-            for (uint8_t x=0; x<8; x++)  {
+          for (uint8_t y=0; y<(VisibleExtentY-2); y++) {
+            for (uint8_t x=0; x<VisibleExtentX; x++)  {
               if (CoreArrayMemory [y][x]) { 
                 Paint_Color_Mix_Hue_Sat(y, x, BrushHue, BrushSat);
                 #ifdef NEON_PIXEL_ARRAY
@@ -274,23 +286,39 @@ void AppPaint() {
             }
           }
           // Color select zone
-          for (uint8_t x=0; x<8; x++)  {
-            if (CoreArrayMemory [6][x]) { 
-              BrushHue = AppPaintSymbolsHue[1][6][x];
-              BrushSat = AppPaintSymbolsSat[1][6][x];
+          for (uint8_t x=0; x<VisibleExtentX; x++)  {
+            if (CoreArrayMemory [(VisibleExtentY-2)][x]) { 
+              if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+                BrushHue = AppPaintSymbols16bitHue[1][(VisibleExtentY-2)][x];
+                BrushSat = AppPaintSymbols16bitSat[1][(VisibleExtentY-2)][x];
+              }
+              else {
+                BrushHue = AppPaintSymbolsHue[1][(VisibleExtentY-2)][x];
+                BrushSat = AppPaintSymbolsSat[1][(VisibleExtentY-2)][x];
+              }
             }
           }
-          for (uint8_t x=1; x<7; x++)  {
-            if (CoreArrayMemory [7][x]) { 
-              BrushHue = AppPaintSymbolsHue[1][7][x];
-              BrushSat = AppPaintSymbolsSat[1][7][x];
+          if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+            for (uint8_t x=1; x<(VisibleExtentX); x++)  {     // Core16 avoid x=0
+              if (CoreArrayMemory [(VisibleExtentY-1)][x]) { 
+                BrushHue = AppPaintSymbols16bitHue[1][(VisibleExtentY-1)][x];
+                BrushSat = AppPaintSymbols16bitSat[1][(VisibleExtentY-1)][x];
+              }
+            }
+          }
+          else {
+            for (uint8_t x=1; x<(VisibleExtentX-1); x++)  { // Core16 avoid x=0 and 7
+              if (CoreArrayMemory [(VisibleExtentY-1)][x]) {
+                BrushHue = AppPaintSymbolsHue[1][(VisibleExtentY-1)][x];
+                BrushSat = AppPaintSymbolsSat[1][(VisibleExtentY-1)][x];
+              }
             }
           }
         }
         else if (PalettePosition == PALETTE_TOP) {
           // Draw zone
-          for (uint8_t y=2; y<8; y++) {
-            for (uint8_t x=0; x<8; x++)  {
+          for (uint8_t y=2; y<VisibleExtentY; y++) {
+            for (uint8_t x=0; x<VisibleExtentX; x++)  {
               if (CoreArrayMemory [y][x]) { 
                 Paint_Color_Mix_Hue_Sat(y, x, BrushHue, BrushSat);
                 #ifdef NEON_PIXEL_ARRAY
@@ -300,20 +328,37 @@ void AppPaint() {
             }
           }
           // Color select zone
-          for (uint8_t x=0; x<8; x++)  {
-            if (CoreArrayMemory [0][x]) { 
-              BrushHue = AppPaintSymbolsHue[2][0][x];
-              BrushSat = AppPaintSymbolsSat[2][0][x];
+          for (uint8_t x=0; x<VisibleExtentX; x++)  {
+            if (CoreArrayMemory [0][x]) {
+              if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+                BrushHue = AppPaintSymbols16bitHue[2][0][x];
+                BrushSat = AppPaintSymbols16bitSat[2][0][x];
+              }
+              else {
+                BrushHue = AppPaintSymbolsHue[2][0][x];
+                BrushSat = AppPaintSymbolsSat[2][0][x];
+              }
             }
           }
-          for (uint8_t x=1; x<7; x++)  {
-            if (CoreArrayMemory [1][x]) { 
-              BrushHue = AppPaintSymbolsHue[2][1][x];
-              BrushSat = AppPaintSymbolsSat[2][1][x];
+
+          if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+            for (uint8_t x=1; x<(VisibleExtentX); x++)  { // Core16 avoid x=0
+              if (CoreArrayMemory [1][x]) { 
+                BrushHue = AppPaintSymbols16bitHue[2][1][x];
+                BrushSat = AppPaintSymbols16bitSat[2][1][x];
+              }
+            }
+          }
+          else {
+            for (uint8_t x=1; x<(VisibleExtentX-1); x++)  { // Core64 avoid X=0 and 7
+              if (CoreArrayMemory [1][x]) { 
+                BrushHue = AppPaintSymbolsHue[2][1][x];
+                BrushSat = AppPaintSymbolsSat[2][1][x];
+              }
             }
           }
         }
-
+        
         // Touch of 'S' clears the screen.
         if ( (Button4Released) && (ButtonState(4,0) > 500 ) ) { 
           #ifdef NEON_PIXEL_ARRAY
@@ -322,8 +367,8 @@ void AppPaint() {
           Button4Released = false;
           LED_Array_Memory_Clear(); // Clear LED Array Memory
           // and clear the local LED array memory
-          for (uint8_t y=0; y<8; y++) {
-            for (uint8_t x=0; x<8; x++)  {
+          for (uint8_t y=0; y<VisibleExtentY; y++) {
+            for (uint8_t x=0; x<VisibleExtentX; x++)  {
               LedScreenMemoryLocalArrayHue[y][x] = 0;
               LedScreenMemoryLocalArraySat[y][x] = 0;
               // and clear the temp LED array memory
@@ -388,8 +433,13 @@ void AppPaint() {
           Serial.println("  Color Palette showing on bottom.");
           WriteAppPaintPalette(0);
           // Overwrite far right two pixels with currently selected color
-          LED_Array_Matrix_Color_Hue_Sat_Write(7, 0, BrushHue, BrushSat);
-          LED_Array_Matrix_Color_Hue_Sat_Write(7, 7, BrushHue, BrushSat);
+          LED_Array_Matrix_Color_Hue_Sat_Write((VisibleExtentY-1), 0, BrushHue, BrushSat);
+          if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+            // Except for Core16, just overwrite the one pixel since there isn't as much room to work with.
+          }
+          else {
+            LED_Array_Matrix_Color_Hue_Sat_Write((VisibleExtentY-1), (VisibleExtentX-1), BrushHue, BrushSat);
+          }
         }
         if (PalettePosition == PALETTE_TOP) {
           // show it on the top
@@ -397,7 +447,12 @@ void AppPaint() {
           WriteAppPaintPalette(1);
           // Overwrite far right two pixels with currently selected color
           LED_Array_Matrix_Color_Hue_Sat_Write(1, 0, BrushHue, BrushSat);
-          LED_Array_Matrix_Color_Hue_Sat_Write(1, 7, BrushHue, BrushSat);
+          if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+            // Except for Core16, just overwrite the one pixel since there isn't as much room to work with.
+          }
+          else {
+           LED_Array_Matrix_Color_Hue_Sat_Write(1, (VisibleExtentX-1), BrushHue, BrushSat);
+          }
         }
 
 
