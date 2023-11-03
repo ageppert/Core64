@@ -1018,18 +1018,23 @@ void TopLevelModeManagerRun() {
       break;
 
     case MODE_MANUFACTURING_EEPROM_FACTORY_WRITE:
+      /*
       if (TopLevelModeChangedGet()) {
+        MenuTimeOutCheckReset();
         Serial.println();
         Serial.println("  Entered MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.");   
         Serial.println("  Ready to write factory defaults for Core16.");
         Serial.println("  Use 's' command to set last three digits of 300xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+        Serial.print(PROMPT);
         WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
         LED_Array_Color_Display(1);
         EEPROMExtSetLastThree(0);
         // TODO: Remove writing serial number to 0. Testing only.
         EEPROMExtWriteSerialNumber (999999);
         }
+      */
 
+      /*
         ReadLogicBoardType ();
         if (LogicBoardTypeGet() == 4) {
           if (EEPROMExtGetLastThree() != 0) {
@@ -1043,6 +1048,8 @@ void TopLevelModeManagerRun() {
             // TopLevelModeSet(MODE_START_POWER_ON);
           }
         }
+        */
+       
         /*
           string 4x128 bytes BoardIDEEPROMDataRawSerialIncoming
           bool               BoardIDEEPROMDataRawSerialIncomingFull
@@ -1064,6 +1071,7 @@ void TopLevelModeManagerRun() {
 
         // Pass, write to EEPROM. The read back out to compare and verify.
 
+      if (MenuTimeOutCheck(3000)) { TopLevelModeSetToDefault(); }
       TopLevelModeManagerCheckButtons();
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();

@@ -47,8 +47,12 @@
   volatile uint8_t  GamePlayerOneScore;
   volatile uint8_t  GamePlayerTwoScore;
 
+  uint8_t PongVisibleExtentX = 8;
+  uint8_t PongVisibleExtentY = 8;
+
+
 // VARIABLES, CUSTOM TO EACH GAME
-  // All arrays are addresssed Y,X to match visual layout in IDE to as-see-on-screen.
+  // All arrays are addressed Y,X to match visual layout in IDE to as-see-on-screen.
   // Majority of these values are set-up in GameStartMap()
   // Game Field Space. Center 8x8 is visible. Top/bottom rows are for bounce wall. Left/Right columnes are for end zone.
   volatile uint8_t  GameField         [10][10]; // Upper left corner is 0,0.
@@ -77,6 +81,15 @@
   volatile int8_t   Stylus2Y                  ; // 1-8
   volatile int8_t   Stylus2X                  ; // 6-8
   bool              StylusMovementDetected    ; // If false, skip the player paddle update.
+  // Core Matrix range where cores will be scanned to find stylii. Depends on viewable area.
+  uint8_t LeftStylusLeftExtent            = 0 ; 
+  uint8_t LeftStylusRightExtent           = 2 ;
+  uint8_t LeftStylusTopExtent             = 0 ; 
+  uint8_t LeftStylusBottomExtent          = 7 ;
+  uint8_t RightStylusLeftExtent           = 5 ; 
+  uint8_t RightStylusRightExtent          = 7 ;
+  uint8_t RightStylusTopExtent            = 0 ; 
+  uint8_t RightStylusBottomExtent         = 7 ;
   // Game Pixel Types
   uint8_t GPT_OPEN      =   0 ;        // blank playable area
   uint8_t GPT_BALL      =   1 ;        // the ball
@@ -138,8 +151,8 @@ void GameDebugPrintPaddlePositions(uint8_t number) {
 void GameDebugSerialPrintMap() {
   Serial.println();
   Serial.println("Game Field Pixel Type:");
-  for (uint8_t y=0; y<=9; y++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
-    for (uint8_t x=0; x<=9; x++) {
+  for (uint8_t y=0; y<=(PongVisibleExtentY+1); y++) {    // The ordering of this update takes an array that is illustrated in the source code in the way it is viewed on screen.
+    for (uint8_t x=0; x<=(PongVisibleExtentX+1); x++) {
       Serial.print(GameField[y][x]);
       Serial.print(" ,");
     }
@@ -148,22 +161,22 @@ void GameDebugSerialPrintMap() {
 }
 
 void GameSetUpBounceWalls() {
-  for (uint8_t x=1; x<=8; x++) {
+  for (uint8_t x=0; x<=PongVisibleExtentX; x++) {
     GameField[0][x] = GPT_WALL;
-    GameField[9][x] = GPT_WALL;
+    GameField[PongVisibleExtentY+1][x] = GPT_WALL;
   }
 }
 
 void GameSetUpEndZones() {
-  for (uint8_t y=0; y<=9; y++) {
+  for (uint8_t y=0; y<=(PongVisibleExtentY+1); y++) {
     GameField[y][0] = GPT_END_ZONE;
-    GameField[y][9] = GPT_END_ZONE;
+    GameField[y][PongVisibleExtentX+1] = GPT_END_ZONE;
   }
 }
 
 void GameSetUpClearPlayingField() {
-  for (uint8_t x=1; x<=8; x++) {
-    for (uint8_t y=1; y<=8; y++) {
+  for (uint8_t x=1; x<=PongVisibleExtentX; x++) {
+    for (uint8_t y=1; y<=PongVisibleExtentY; y++) {
       GameField[y][x] = GPT_OPEN;
     }
   }
@@ -172,26 +185,26 @@ void GameSetUpClearPlayingField() {
 bool StylusFind() {
   bool StylusFound = false;
   // Look for stylus on left 3 columns of game play area
-  for (uint8_t x=0; x<=2; x++){
-    for (uint8_t y=0; y<=7; y++){
+  for (uint8_t x=LeftStylusLeftExtent; x<=LeftStylusRightExtent; x++){
+    for (uint8_t y=LeftStylusTopExtent; y<=LeftStylusBottomExtent; y++){
       if (CoreArrayMemory[y][x]){
         StylusFound = true;
         Paddle1CenterXNext = x+GameViewOffsetX; // converts Core Array position to gamefield position
         Paddle1CenterYNext = y+GameViewOffsetY; // converts Core Array position to gamefield position
-        x = 8;
-        y = 8; // Force exit from loop as soon as a stylus is sensed on this side.
+        x = PongVisibleExtentX;
+        y = PongVisibleExtentY; // Force exit from loop as soon as a stylus is sensed on this side.
       }
     }
   }
   // Look for stylus on right 3 columns of game play area
-  for (uint8_t x=5; x<=7; x++){
-    for (uint8_t y=0; y<=7; y++){
+  for (uint8_t x=RightStylusLeftExtent; x<=RightStylusRightExtent; x++){
+    for (uint8_t y=RightStylusTopExtent; y<=RightStylusBottomExtent; y++){
       if (CoreArrayMemory[y][x]){
         StylusFound = true;
         Paddle2CenterXNext = x+GameViewOffsetX; // converts Core Array position to gamefield position
         Paddle2CenterYNext = y+GameViewOffsetY; // converts Core Array position to gamefield position
-        x = 8;
-        y = 8; // Force exit from loop as soon as a stylus is sensed on this side.
+        x = PongVisibleExtentX;
+        y = PongVisibleExtentY; // Force exit from loop as soon as a stylus is sensed on this side.
       }
     }
   }
@@ -199,24 +212,41 @@ bool StylusFind() {
 }
 
 void Paddle1Update() {
-  // Did the paddle move? If yes, update paddle position.
+  // Did the paddle move? If yes, update gamefield paddle position
   if ( (Paddle1CenterXNext != Paddle1CenterXNow) || (Paddle1CenterYNext != Paddle1CenterYNow) ) {
     // Erase old paddle position
     GameField [Paddle1CenterYNow-1][Paddle1CenterXNow] = GPC_OPEN;
     GameField [Paddle1CenterYNow  ][Paddle1CenterXNow] = GPC_OPEN;
     GameField [Paddle1CenterYNow+1][Paddle1CenterXNow] = GPC_OPEN;
-    // Constrain paddle center position to stay fully on screen, in the 3 leftmost columns.
-    if (Paddle1CenterXNext<1) {Paddle1CenterXNext=1;}
-    if (Paddle1CenterXNext>3) {Paddle1CenterXNext=3;}
-    if (Paddle1CenterYNext<2) {Paddle1CenterYNext=2;}
-    if (Paddle1CenterYNext>7) {Paddle1CenterYNext=7;}
-    // Update paddle to new position
+    // Constrain paddle center position to stay fully on screen...
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+    // ...anywhere in the leftmost column for Core16
+      if (Paddle1CenterXNext<1) {Paddle1CenterXNext=1;}
+      if (Paddle1CenterXNext>1) {Paddle1CenterXNext=1;}
+      if (Paddle1CenterYNext<1) {Paddle1CenterYNext=1;}
+      if (Paddle1CenterYNext>3) {Paddle1CenterYNext=3;}
+    }
+    else {
+      // ...in the 3 leftmost columns, but not at the top and bottom edges for Core64
+      if (Paddle1CenterXNext<1) {Paddle1CenterXNext=1;}
+      if (Paddle1CenterXNext>3) {Paddle1CenterXNext=3;}
+      if (Paddle1CenterYNext<2) {Paddle1CenterYNext=2;}
+      if (Paddle1CenterYNext>7) {Paddle1CenterYNext=7;}
+    }
+    // Update paddle to gamefield paddle position
     Paddle1CenterXNow = Paddle1CenterXNext;
     Paddle1CenterYNow = Paddle1CenterYNext;
   }
-  GameField [Paddle1CenterYNow-1][Paddle1CenterXNow] = GPT_P1L_TOP;
+  // Plot the middle and bottom pixel of the paddle for both Core16 and Core64
   GameField [Paddle1CenterYNow  ][Paddle1CenterXNow] = GPT_P1L_MID;
   GameField [Paddle1CenterYNow+1][Paddle1CenterXNow] = GPT_P1L_BOT;
+  if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+    // No more paddle pixels to plot
+  }
+  else {
+    // Plot the top pixel of the paddle for Core64
+    GameField [Paddle1CenterYNow-1][Paddle1CenterXNow] = GPT_P1L_TOP;
+  }
 }
 
 void Paddle2Update(){
@@ -226,18 +256,35 @@ void Paddle2Update(){
     GameField [Paddle2CenterYNow-1][Paddle2CenterXNow] = GPC_OPEN;
     GameField [Paddle2CenterYNow  ][Paddle2CenterXNow] = GPC_OPEN;
     GameField [Paddle2CenterYNow+1][Paddle2CenterXNow] = GPC_OPEN;
-    // Constrain paddle center position to stay fully on screen, in the 3 rightmost columns.
-    if (Paddle2CenterXNext<6) {Paddle2CenterXNext=6;}
-    if (Paddle2CenterXNext>8) {Paddle2CenterXNext=8;}
-    if (Paddle2CenterYNext<2) {Paddle2CenterYNext=2;}
-    if (Paddle2CenterYNext>7) {Paddle2CenterYNext=7;}
+    // Constrain paddle center position to stay fully on screen...
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+      // ...anywhere in the rightmost column for Core16
+      if (Paddle2CenterXNext<4) {Paddle2CenterXNext=4;}
+      if (Paddle2CenterXNext>4) {Paddle2CenterXNext=4;}
+      if (Paddle2CenterYNext<1) {Paddle2CenterYNext=1;}
+      if (Paddle2CenterYNext>3) {Paddle2CenterYNext=3;}
+    }
+    else {
+      // ...in the 3 rightmost columns, but not at the top and bottom edges for Core64
+      if (Paddle2CenterXNext<6) {Paddle2CenterXNext=6;}
+      if (Paddle2CenterXNext>8) {Paddle2CenterXNext=8;}
+      if (Paddle2CenterYNext<2) {Paddle2CenterYNext=2;}
+      if (Paddle2CenterYNext>7) {Paddle2CenterYNext=7;}
+    }
     // Update paddle to new position
     Paddle2CenterXNow = Paddle2CenterXNext;
     Paddle2CenterYNow = Paddle2CenterYNext;
   }
-  GameField [Paddle2CenterYNow-1][Paddle2CenterXNow] = GPT_P2R_TOP;
+  // Plot the middle and bottom pixel of the paddle for both Core16 and Core64
   GameField [Paddle2CenterYNow  ][Paddle2CenterXNow] = GPT_P2R_MID;
   GameField [Paddle2CenterYNow+1][Paddle2CenterXNow] = GPT_P2R_BOT;
+  if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+    // No more paddle pixels to plot
+  }
+  else {
+    // Plot the top pixel of the paddle for Core64
+    GameField [Paddle2CenterYNow-1][Paddle2CenterXNow] = GPT_P2R_TOP;
+  }
 }
 
 void BallUpdate() {
@@ -256,13 +303,13 @@ void BallUpdate() {
     // Test: Is ball entering the end zone for a point?
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_END_ZONE) {
       if (BallPositionXNext == 0) { Winner = 2; }       // Collision with left end zone?
-      if (BallPositionXNext == 9) { Winner = 1; }       // Collision with right end zone?
+      if (BallPositionXNext == (PongVisibleExtentX+1)) { Winner = 1; }       // Collision with right end zone?
     } 
 
     // Test: Is ball colliding with wall and needs to bounce?
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_WALL) {
       if (BallPositionYNext == 0) { BallDirectionY =  1; }      // Collision with top wall?
-      if (BallPositionYNext == 9) { BallDirectionY = -1; }      // Collision with bottom wall?
+      if (BallPositionYNext == (PongVisibleExtentX+1)) { BallDirectionY = -1; }      // Collision with bottom wall?
       BallPositionYNext = BallPositionYNow + BallDirectionY;
     }
 
@@ -274,7 +321,14 @@ void BallUpdate() {
       BallPositionXNext = BallPositionXNow + BallDirectionX;
     }
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_P1L_MID) {
-      BallDirectionY =  0;
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+        // Core64 mid and only pixel bounces in one of three directions
+        BallDirectionY =  random(-1, 1);
+      }
+      else {
+        // Core64 mid bounces horizontal
+        BallDirectionY =  0;
+      }
       BallDirectionX =  1;
       BallPositionYNext = BallPositionYNow + BallDirectionY;
       BallPositionXNext = BallPositionXNow + BallDirectionX;
@@ -293,7 +347,14 @@ void BallUpdate() {
       BallPositionXNext = BallPositionXNow + BallDirectionX;
     }
     if ( GameField [BallPositionYNext][BallPositionXNext] == GPT_P2R_MID) {
-      BallDirectionY =  0;
+      if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+        // Core64 mid and only pixel bounces in one of three directions
+        BallDirectionY =  random(-1, 1);
+      }
+      else {
+        // Core64 mid bounces horizontal
+        BallDirectionY =  0;
+      }
       BallDirectionX = -1;
       BallPositionYNext = BallPositionYNow + BallDirectionY;
       BallPositionXNext = BallPositionXNow + BallDirectionX;
@@ -341,9 +402,9 @@ void BallUpdate() {
     // Update and plot new ball position
     // Test: Is ball out of game field? Don't let that happen and don't over-write boundaries.
     if (BallPositionYNext==0) {BallPositionYNext = 1;}
-    if (BallPositionYNext >8) {BallPositionYNext = 8;}
+    if (BallPositionYNext >PongVisibleExtentY) {BallPositionYNext = PongVisibleExtentY;}
     if (BallPositionXNext==0) {BallPositionYNext = 1;}
-    if (BallPositionXNext >8) {BallPositionXNext = 8;}
+    if (BallPositionXNext >PongVisibleExtentX) {BallPositionXNext = PongVisibleExtentX;}
     GameField [BallPositionYNext][BallPositionXNext] = GPT_BALL;
     BallPositionYNow = BallPositionYNext ;
     BallPositionXNow = BallPositionXNext ;
@@ -355,25 +416,44 @@ void GameStartMap() {
   GameViewOffsetX   = 1;  // 1 = normal view of playing field
   GameViewOffsetY   = 1;  // 1 = normal view of playing field
   // Paddles and ball inline to give players time to react after the game starts.
-  Paddle1CenterYNow = 4;
+  Paddle1CenterYNow = 3;
   Paddle1CenterXNow = 1;
-  Paddle2CenterYNow = 4;
-  Paddle2CenterXNow = 8;
+  if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+    Paddle2CenterYNow = 3;
+    Paddle2CenterXNow = 4;
+  }
+  else {
+    Paddle2CenterYNow = 3;
+    Paddle2CenterXNow = 8;
+  }
   Paddle1CenterYNext = Paddle1CenterYNow;
   Paddle1CenterXNext = Paddle1CenterXNow;
   Paddle2CenterYNext = Paddle2CenterYNow;
   Paddle2CenterXNext = Paddle2CenterXNow;
+
   // Assume side 1 serving
-  BallPositionYNow  = 4;
+  BallPositionYNow  = 3;
   BallPositionXNow  = 2;
   BallDirectionY    = 0;
   BallDirectionX    = 1;
   // Unless winner was side 2
   if (Winner == 2) {
-    BallPositionXNow  =  7;
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+      BallPositionXNow  =  3;
+    }
+    else {
+      BallPositionXNow  =  7;
+    }
     BallDirectionX    = -1;
   }
-  BallVelocity      = 300; // ms between movements, lower number is faster movement, down to the game refresh rate.              
+  if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+    // Slower for Core16
+    BallVelocity      = 800; // ms between movements, lower number is faster movement, down to the game refresh rate.              
+  }
+  else {
+    // Faster for Core64
+    BallVelocity      = 300; // ms between movements, lower number is faster movement, down to the game refresh rate.              
+  }
   GameSetUpBounceWalls();
   GameSetUpEndZones();
   GameSetUpClearPlayingField();
@@ -467,6 +547,18 @@ void GamePlayPong() {
     GameState = GAME_STATE_INTRO_SCREEN;
     GameUpdatePeriod = 33;
     GameOverTimerAutoReset = 3000;
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { 
+      PongVisibleExtentX = 4;
+      PongVisibleExtentY = 4;
+      LeftStylusLeftExtent    = 0 ; 
+      LeftStylusRightExtent   = 0 ;
+      LeftStylusTopExtent     = 0 ; 
+      LeftStylusBottomExtent  = 3 ;
+      RightStylusLeftExtent   = 3 ; 
+      RightStylusRightExtent  = 3 ;
+      RightStylusTopExtent    = 0 ; 
+      RightStylusBottomExtent = 3 ;
+    }
   }
     OLEDTopLevelModeSet(TopLevelModeGet());
     OLEDScreenUpdate();
