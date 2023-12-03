@@ -351,13 +351,9 @@ void TopLevelModeManagerRun() {
       Serial.println(".");
       Serial.println("  Power-on sequence has begun.");
       CommandLineSetup();
-      #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-        #ifdef NEON_PIXEL_ARRAY
-          // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
-        #else
-          HeartBeatSetup();
-        #endif
-      #elif defined MCU_TYPE_RP2040
+      #ifdef NEON_PIXEL_ARRAY
+        // Don't perform a heart beat because it will mess up the Neon Pixels since the Heart Beat LED is shared with the SPI CLK pin.
+      #else
         HeartBeatSetup();
       #endif
       Serial.println("  Heartbeat started.");
@@ -833,6 +829,7 @@ void TopLevelModeManagerRun() {
         }
 
       case MODE_CORE_TEST_ONE:
+        {
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToStartTest = CoreToStartTestGet();
         LED_Array_Monochrome_Set_Color(100,255,255);
@@ -859,8 +856,10 @@ void TopLevelModeManagerRun() {
         OLEDScreenUpdate();
         delay(100);  // This delay makes it easier to trigger on the first debug pulse consistently.
         break;
+        }
 
       case MODE_CORE_TEST_MANY:
+        {
         TopLevelThreeSoftButtonGlobalEnableSet (true);
         coreToStartTest = CoreToStartTestGet();
         coreToEndTest = CoreToEndTestGet();
@@ -904,8 +903,10 @@ void TopLevelModeManagerRun() {
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
         break;
+        }
 
     case MODE_HALL_TEST:
+      {
       TopLevelThreeSoftButtonGlobalEnableSet (false);
       TopLevelSetMenuButtonGlobalEnableSet (false);
       LED_Array_Monochrome_Set_Color(25,255,255);
@@ -930,8 +931,10 @@ void TopLevelModeManagerRun() {
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
+      }
 
     case MODE_LED_TEST_ALL_RGB: // Cycle through Red, Green, Blue, to ensure all LEDs are functioning.
+      {
       static uint8_t x = 0;
       TopLevelThreeSoftButtonGlobalEnableSet (false);
       LED_Array_Test_All_RGB(x);
@@ -939,8 +942,10 @@ void TopLevelModeManagerRun() {
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
-        
+      }
+
     case MODE_GPIO_TEST:
+      {
       TopLevelThreeSoftButtonGlobalEnableSet (true);
       LED_Array_Monochrome_Set_Color(25,255,255);
       LED_Array_Memory_Clear();
@@ -949,8 +954,10 @@ void TopLevelModeManagerRun() {
       OLEDScreenUpdate();
       DebugAllGpioToggleTest();
       break;
+      }
 
     case MODE_SPECIAL_LOOPBACK_TEST:
+      {
       TopLevelThreeSoftButtonGlobalEnableSet (true);
       LED_Array_Monochrome_Set_Color(125,255,255);
       LED_Array_Memory_Clear();
@@ -976,8 +983,10 @@ void TopLevelModeManagerRun() {
       delay(5000);
       TopLevelModeSet(MODE_SPECIAL_HARD_REBOOT);
       break;
+      }
 
     case MODE_SPECIAL_HARD_REBOOT:
+      {
       LED_Array_Memory_Clear();
       LED_Array_Matrix_Mono_Display();
       LED_Array_Monochrome_Set_Color(125,255,255);
@@ -988,19 +997,21 @@ void TopLevelModeManagerRun() {
       delay(3000);
       handleReboot(" ");
       break;
+      }
 
-    case MODE_SPECIAL_END_OF_LIST:      TopLevelModeSet(MODE_SPECIAL_SUB_MENU);       break;
+    case MODE_SPECIAL_END_OF_LIST:      {TopLevelModeSet(MODE_SPECIAL_SUB_MENU);       break;}
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** SETTINGS ************************************************************************************ //
 // *************************************************************************************************************************************************** //
-    case MODE_SETTINGS_SUB_MENU:        SettingsSubMenu();                            break;
-    case MODE_SETTINGS_END_OF_LIST:     TopLevelModeSet(MODE_SETTINGS_SUB_MENU);      break;
+    case MODE_SETTINGS_SUB_MENU:        {SettingsSubMenu();                            break;}
+    case MODE_SETTINGS_END_OF_LIST:     {TopLevelModeSet(MODE_SETTINGS_SUB_MENU);      break;}
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** MANUFACTURING ******************************************************************************* //
 // *************************************************************************************************************************************************** //
     case MODE_MANUFACTURING_MENU:
+      {
       if (TopLevelModeChangedGet()) {
         MenuTimeOutCheckReset();
         Serial.println();
@@ -1016,8 +1027,9 @@ void TopLevelModeManagerRun() {
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
+      }
 
-    case MODE_MANUFACTURING_EEPROM_FACTORY_WRITE:
+    case MODE_MANUFACTURING_EEPROM_FACTORY_WRITE: {
       /*
       if (TopLevelModeChangedGet()) {
         MenuTimeOutCheckReset();
@@ -1076,13 +1088,14 @@ void TopLevelModeManagerRun() {
       OLEDTopLevelModeSet(TopLevelModeGet());
       OLEDScreenUpdate();
       break;
+    }
 
-    case MODE_MANUFACTURING_END_OF_LIST: TopLevelModeSet(MODE_MANUFACTURING_MENU);      break;
+    case MODE_MANUFACTURING_END_OF_LIST: {TopLevelModeSet(MODE_MANUFACTURING_MENU);      break;}
 
 // *************************************************************************************************************************************************** //
 // ***************************************************** LAST AND DEFAULT **************************************************************************** //
 // *************************************************************************************************************************************************** //
-    case MODE_LAST:
+    case MODE_LAST: {
       LED_Array_Memory_Clear();
       LED_Array_Matrix_Mono_Display();
       LED_Array_Monochrome_Set_Color(125,255,255);
@@ -1092,14 +1105,17 @@ void TopLevelModeManagerRun() {
       Serial.println("  TopLevelMode reached the end of the mode list. Soft restart back to MODE_START_POWER_ON.");      
       TopLevelModeSetToDefault();   
       break;
+    }
 
-    default:
+    default: {
       Serial.println();
       Serial.print("  ");      
       Serial.print(TopLevelModeGet());
       Serial.println(" is an undefined or unimplemented TopLevelMode. Soft restart back to MODE_START_POWER_ON.");
       TopLevelMode = MODE_START_POWER_ON;   
       break;
+    }
+  
   } // Closure of switch(TopLevelMode)
 
 // *************************************************************************************************************************************************** //
@@ -1111,6 +1127,5 @@ void TopLevelModeManagerRun() {
 // *****************************************************                               CHECK FOR SOFT BUTTON PRESSES ********************************* //
 // *************************************************************************************************************************************************** //
   TopLevelModeManagerCheckButtons();
-
 } // Closure of TopLevelModeManagerRun ()
 

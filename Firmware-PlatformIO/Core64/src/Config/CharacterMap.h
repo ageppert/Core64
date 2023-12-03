@@ -490,7 +490,7 @@ SETUP:
       { 20,  0, 20,  0},
       { 20, 20, 20,  0}, 
       { 20,  0, 20,  0} }, 
-    // 17                               // Smiley face
+    // 17                 // Smiley face
     { {  0, 15, 15,  0},
       {  0,  0,  0,  0},
       { 15,  0,  0, 15}, 
@@ -739,6 +739,19 @@ const static uint8_t GameSnakeSymbols16bit[3][4][4] PROGMEM = {   // Symbol #, R
       {  0,  0,  0,255,  0,  0,  0,  0},
       {  0,255,255,  0,  0,  0,  0,  0},
       {  0,  0,  0,  0,  0,  0,  0,  0}  }   // Flux Detector Symbol, testing upper left core only
+  };
+
+  const static uint8_t UtilFluxSymbols16bit[2][4][4] PROGMEM = {   // Symbol #, Row, Column
+    // 0
+    { {  0,  0,  0,255},
+      {  0,  0,255,  0},
+      {  0,255,255,255},
+      {  0,  0,255,  0}  },   // Flux Detector Symbol
+    // 1
+    { { 96,  0,  0,255},
+      {  0,  0,255,  0},
+      {  0,255,255,255},
+      {  0,  0,255,  0}  },   // Flux Detector Symbol, testing upper left core only
   };
 
 #endif // CHARACTER_MAP_H

@@ -22,7 +22,7 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 		#define CHIPSET     WS2812B			// Used in Pimoroni Unicorn Hat. Limited to a data rate of about 800Kbps, hard coded in FastLED library. 
 	#endif
 	#define C16P_BRIGHTNESS_DEFAULT		15	// Default and only brightness because there is no diffuser or brightness sensor on Core16. 
-	#define BRIGHTNESS       			75	// Initial brightness level
+	#define BRIGHTNESS       		   185	// Initial brightness level
 	#define BRIGHTNESS_MIN	 			 5	// Lowest useable brightness
 	#define BRIGHTNESS_MAX			   255	// Highest useable brightness
 
@@ -42,7 +42,9 @@ Pimoroni Unicorn Hat: https://shop.pimoroni.com/products/unicorn-hat
 	#endif
 
 	uint16_t NumLedsC64 = (kMatrixWidth * kMatrixHeight);
-	CRGB leds_plus_safety_pixel[ NumLedsC64 + 1];
+	#define NUM_LEDS_C16 16														// Needed here because it is referenced even when using FastLED with Teensy-based Core64.
+	#define NUM_LEDS_C64 64
+	CRGB leds_plus_safety_pixel[ NUM_LEDS_C64 + 1];
 	CRGB* const leds( leds_plus_safety_pixel + 1);
 
 #endif

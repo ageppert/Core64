@@ -79,11 +79,12 @@
 	|  0.8.6  | 2023-10-21 | Core16 adapt paint app to 4x4. Changed auto-run test >=300056
 	|  0.8.7  | 2023-11-01 | Core16 adapt snake game to 4x4. 0.8.6 adapted paint app, not snake game.
 	|  0.8.8  | 2023-11-01 | Core16 adapt pong game to 4x4. Disable factory programming.
+	|  0.8.9  | 2023-11-01 | All Core Boards, display flux detection menu symbol, disable all hall sensors in flux detector mode. Update to work with Teensy-based Core64s.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Core16 adapt pong game to 4x4. Disable factory programming."
+	#define FIRMWARE_DESCRIPTION "All Core Boards, display flux detection menu symbol, disable all hall sensors in flux detector mode. Update to work with Teensy-based Core64s."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 8 ;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 9 ;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

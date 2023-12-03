@@ -54,16 +54,15 @@ void UtilFluxDetector() {
 
   if (TopLevelModeChangedGet()) {                     // Fresh entry into this mode.
     Serial.println();
-    Serial.println("  Flux Detector Mode");
-    Serial.println("    + = nothing");
-    Serial.println("    - = nothing");
-    Serial.println("    S = nothing");
+    Serial.println("  Util, Flux Detector Mode");
+    Serial.println("    + = Next sub-menu");
+    Serial.println("    - = Previous sub-menu");
+    Serial.println("    S = Select this mode");    
     Serial.print(PROMPT);
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure + and - soft buttons are enabled to move to next mode if desired.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used to select.
     WriteUtilFluxSymbol(0);
     LED_Array_Color_Display(1);
-    LED_Array_String_Display();
     #ifdef NEON_PIXEL_ARRAY
       CopyLedArrayMemoryToNeonPixelArrayMemory();
       Neon_Pixel_Array_Matrix_String_Display();
@@ -77,24 +76,34 @@ void UtilFluxDetector() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
   nowTimems = millis();
   if ((nowTimems - UpdateLastRunTime) >= UpdatePeriod) {
-    if (DebugLevel == 4) { Serial.print("App Flux Detector State = "); Serial.println(e_ModeState); }
+    if (DebugLevel == 4) { Serial.print("Util, Flux Detector State = "); Serial.println(e_ModeState); }
     // Service the mode state.
     switch(e_ModeState)
     {  
       case STATE_INTRO_SCREEN_WAIT_FOR_SELECT:
-        // Check for touch of "S" to select paint mode and stay here
+        // Check for touch of "S" to select this mode and stay here
         if (ButtonState(4,0) >= 100) { MenuTimeOutCheckReset(); Button4Released = false; e_ModeState = STATE_SET_UP; }
         // Timeout to next sub-menu option in the sequence
         if (MenuTimeOutCheck(3000))  { TopLevelModeSetInc(); }
         break;
 
       case STATE_SET_UP:
+        Serial.println();
+        Serial.println("  Util, Flux Detector Mode Selected");
+        Serial.println("    M = Disabled");
+        Serial.println("    + = Disabled");
+        Serial.println("    - = Disabled");
+        Serial.println("    S = Disabled");
+        Serial.print(PROMPT);
+        TopLevelThreeSoftButtonGlobalEnableSet(false); // Disable + and - soft buttons from global mode switching use. Prevents accidental mode change when waving magnets around.
+        TopLevelSetMenuButtonGlobalEnableSet(false); // Disable Menu to prevent accidental triggering in flux detector mode.
         LED_Array_Monochrome_Set_Color(35,255,255);      // Hue 0 RED, 35 peach orange, 96 green, 135 aqua, 160 blue
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Memory_Clear();
         #endif
         LED_Array_Memory_Clear(); // Clear LED Array Memory
-        TopLevelThreeSoftButtonGlobalEnableSet(false); // Disable + and - soft buttons from global mode switching use. Prevents accidental mode change when waving magnets around.
+        CoreToStartTestSet(0);
+        CoreToEndTestSet(63);
         e_ModeState = STATE_FLUX_DETECT;
         break;
 

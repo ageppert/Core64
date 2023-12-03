@@ -54,16 +54,10 @@ void SpecialTestOneCore() {
 
   if (TopLevelModeChangedGet()) {                     // Fresh entry into this mode.
     Serial.println();
-    Serial.println("  Special Test One Pixel Mode");
-    Serial.println("    + = nothing");
-    Serial.println("    - = nothing");
-    Serial.println("    S = nothing");
-    Serial.println("  Used for demo with oscilloscope connected as follows:");
-    Serial.println("  Analog Channel 1 = Sense Wire A end");
-    Serial.println("  Analog Channel 2 = Sense Wire B end");
-    Serial.println("  Digital Channel 1 = Core Matrix Enable");
-    Serial.println("  Digital Channel 2 = Sense Output A");
-    Serial.println("  Digital Channel 3 = Sense Output B");
+    Serial.println("  Special, Test One Pixel Mode");
+    Serial.println("    + = Next sub-menu");
+    Serial.println("    - = Previous sub-menu");
+    Serial.println("    S = Select this mode");
     Serial.print(PROMPT);
     TopLevelThreeSoftButtonGlobalEnableSet(true); // Make sure + and - soft buttons are enabled to move to next mode if desired.
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used to select.
@@ -78,7 +72,7 @@ void SpecialTestOneCore() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
   nowTimems = millis();
   if ((nowTimems - UpdateLastRunTime) >= UpdatePeriod) {
-    if (DebugLevel == 4) { Serial.print("Special Test One Pixel State = "); Serial.println(ModeState); }
+    if (DebugLevel == 4) { Serial.print("Special, Test One Pixel State = "); Serial.println(ModeState); }
     // Service the mode state.
     switch(ModeState)
     {  
@@ -86,11 +80,22 @@ void SpecialTestOneCore() {
         // Check for touch of "S" to select paint mode and stay here
         if (ButtonState(4,0) >= 100) { MenuTimeOutCheckReset(); Button4Released = false; ModeState = STATE_SET_UP; }
         // Timeout to next sub-menu option in the sequence
-        // DO NOT TIME OUT
-        // if (MenuTimeOutCheck(3000))  { TopLevelModeSetInc(); }
+        if (MenuTimeOutCheck(3000))  { TopLevelModeSetInc(); }
         break;
 
       case STATE_SET_UP:
+        Serial.println();
+        Serial.println("  Special, Test One Pixel Mode Selected");
+        Serial.println("    + = next pixel");
+        Serial.println("    - = previous pixel");
+        Serial.println("    S = Disabled");
+        Serial.println("  Used for demo with oscilloscope connected as follows:");
+        Serial.println("  Analog Channel 1 = Sense Wire A end");
+        Serial.println("  Analog Channel 2 = Sense Wire B end");
+        Serial.println("  Digital Channel 1 = Core Matrix Enable");
+        Serial.println("  Digital Channel 2 = Sense Output A");
+        Serial.println("  Digital Channel 3 = Sense Output B");
+        Serial.print(PROMPT);
         LED_Array_Monochrome_Set_Color(35,255,255);      // Hue 0 RED, 35 peach orange, 96 green, 135 aqua, 160 blue
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Memory_Clear();
@@ -104,8 +109,10 @@ void SpecialTestOneCore() {
         LED_Array_Monochrome_Set_Color(35,255,255);
         LED_Array_Memory_Clear();
         coreMinToTest = CoreToStartTestGet();
-        coreMaxToTest = CoreToEndTestGet();
-        for (coreToTest = coreMinToTest; coreToTest <= coreMaxToTest ; coreToTest++) {   
+        // coreMaxToTest = CoreToEndTestGet();
+        // for (coreToTest = coreMinToTest; coreToTest <= coreMaxToTest ; coreToTest++) {   
+        // Only testing the first one. If you want to test all of them or a subset, use Flux Detector mode.
+        for (coreToTest = coreMinToTest; coreToTest < (coreMinToTest+1) ; coreToTest++) {   
           Core_Mem_Bit_Write(coreToTest,1);                     // default to bit set
           if (Core_Mem_Bit_Read(coreToTest)==true) {
             LED_Array_String_Write(coreToTest, 1);
@@ -121,21 +128,37 @@ void SpecialTestOneCore() {
             }
           delayMicroseconds(40); // This 40us delay is required or LED array, first 3-4 pixels in the electronic string, get weird! RF?!??
         }
+
+        // Touch of '-' increments to testing the previous pixel
+        if ( (Button2Released) && (ButtonState(2,0) > 200 ) ) { 
+          Button2Released = false;
+          CoreToStartTestSet(coreMinToTest-1);
+          Serial.println();
+          Serial.print("  Core to test: ");
+          Serial.println(CoreToStartTestGet());
+        }
+        if (ButtonState(2,0) == 0) {
+          Button2Released = true;
+        }
+
+        // Touch of '+' increments to testing the next pixel
+        if ( (Button3Released) && (ButtonState(3,0) > 200 ) ) { 
+          Button3Released = false;
+          CoreToStartTestSet(coreMinToTest+1);
+          Serial.println();
+          Serial.print("  Core to test: ");
+          Serial.println(CoreToStartTestGet());
+        }
+        if (ButtonState(3,0) == 0) {
+          Button3Released = true;
+        }
+
         LED_Array_String_Display();
+        OLEDTopLevelModeSet(TopLevelModeGet());
+        OLEDScreenUpdate();
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_String_Display();
         #endif
-        OLEDTopLevelModeSet(TopLevelModeGet());
-        OLEDScreenUpdate();
-
-/*
-        LED_Array_Color_Display(0);                  // Show the updated LED array.
-        LED_Array_Matrix_Mono_to_Binary();                // Convert whatever is in the LED Matrix Array to a 64-bit binary value...
-        OLEDTopLevelModeSet(TopLevelModeGet());
-        #ifdef NEON_PIXEL_ARRAY
-          Neon_Pixel_Array_Matrix_Mono_Display();
-        #endif
-*/
         break;
 
       default:

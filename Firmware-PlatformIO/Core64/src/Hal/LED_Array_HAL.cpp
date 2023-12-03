@@ -209,7 +209,7 @@ void LED_Array_Auto_Brightness() {
     LedArrayMemoryBinary = 0;
     for( uint8_t i = 0; i < loopLength; i++) {
       LedArrayMemoryString[i] = 0;
-      LedArrayMemoryString16bit[i] = 0;
+      if (i<16) { LedArrayMemoryString16bit[i] = 0; }
     }
     for( uint8_t y = 0; y < kMatrixHeight; y++) 
     {
@@ -488,11 +488,20 @@ void LED_Array_Auto_Brightness() {
   // Copy Color Symbol into Color HSV LED Array memory
   //
     void WriteUtilFluxSymbol(uint8_t SymbolNumber){
-      for( uint8_t y = 0; y < kMatrixHeight; y++) 
-      {
-        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        for( uint8_t y = 0; y < 4; y++) {
+          for( uint8_t x = 0; x < 4; x++) {
+            LedScreenMemoryMatrixHue[y][x] = UtilFluxSymbols16bit[SymbolNumber][y][x];
+          }
+        }
+      }
+      else {
+        for( uint8_t y = 0; y < kMatrixHeight; y++) 
         {
-          LedScreenMemoryMatrixHue[y][x] = UtilFluxSymbols[SymbolNumber][y][x];
+          for( uint8_t x = 0; x < kMatrixWidth; x++) 
+          {
+            LedScreenMemoryMatrixHue[y][x] = UtilFluxSymbols[SymbolNumber][y][x];
+          }
         }
       }
     }
@@ -763,11 +772,26 @@ void LED_Array_Auto_Brightness() {
 
   void LED_Array_Binary_Display() {
     uint8_t LEDPixelPosition = 0;
-    for ( uint8_t ScreenPixel = 0; ScreenPixel < NumLedsC64; ScreenPixel++ ) {
+    uint8_t NumLedsActive = 0;
+    bool bitval = 0;
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) { NumLedsActive = 16; }
+    else { NumLedsActive = 64; }
+
+    for ( uint8_t ScreenPixel = 0; ScreenPixel < NumLedsActive; ScreenPixel++ ) {
       // Convert from screen position to LED array position 
-      LEDPixelPosition = ScreenPixelPositionBinaryLUT [ScreenPixel];
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        LEDPixelPosition = ScreenPixelPositionBinaryLUT16bit [ScreenPixel];
+      }
+      else {
+        LEDPixelPosition = ScreenPixelPositionBinaryLUT [ScreenPixel];
+      }
       // Turn on or off the corresponding LED
-      bool bitval = (LedArrayMemoryBinary >> ScreenPixel) & 0x0000000000000001 ;
+      if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+        bitval = (LedArrayMemoryBinary16bit >> ScreenPixel) & 0x0001 ;
+      }
+      else {
+        bitval = (LedArrayMemoryBinary >> ScreenPixel) & 0x0000000000000001 ;
+      }
       if ( bitval ) {
         #if defined USE_FASTLED_LIBRARY
           leds[LEDPixelPosition] = CHSV(LEDArrayMonochromeColorHSV[0],LEDArrayMonochromeColorHSV[1],LEDArrayMonochromeColorHSV[2]);
@@ -783,6 +807,7 @@ void LED_Array_Auto_Brightness() {
         #endif
       }
     }
+
     LED_Array_Auto_Brightness();
     #if defined USE_FASTLED_LIBRARY
       FastLED.show();
@@ -792,11 +817,21 @@ void LED_Array_Auto_Brightness() {
   }
 
   void LED_Array_Binary_Write(uint64_t BinaryValue){
-    LedArrayMemoryBinary = BinaryValue;
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      LedArrayMemoryBinary16bit = BinaryValue;
+    }
+    else {
+      LedArrayMemoryBinary = BinaryValue;
+    }
   }
 
   uint64_t LED_Array_Binary_Read(){
-    return (LedArrayMemoryBinary);
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      return (LedArrayMemoryBinary16bit);
+    }
+    else {
+      return (LedArrayMemoryBinary);
+    }
   }
 
   void LED_Array_String_Write(uint8_t bit, bool value) {
