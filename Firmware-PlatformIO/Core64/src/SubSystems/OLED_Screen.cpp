@@ -22,7 +22,8 @@
   #include "Hal/LED_Array_HAL.h"
 
   #include <Adafruit_GFX.h>
-  #include <Fonts/FreeMono9pt7b.h>  // https://learn.adafruit.com/adafruit-gfx-graphics-library/using-fonts
+  //#include <Fonts/FreeMono9pt7b.h>  // https://learn.adafruit.com/adafruit-gfx-graphics-library/using-fonts
+  //#include <Fonts/FreeMonoBold7pt7b.h>
 
   // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
   #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
@@ -76,30 +77,33 @@
   // Long
     display.setTextSize(1);
     display.clearDisplay();
-    display.setCursor(0, 10);     // Start at top-left corner
-    display.println(F(" Core64.io"));
-    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-      display.print(F("tHV:"));
-    #elif defined MCU_TYPE_RP2040
-      display.print(F("pHV:"));    
-    #endif
+    display.setCursor(0, 0);     // Start at top-left corner
+    if(LogicBoardTypeGet()==eLBT_CORE16_PICO) { display.println(F("   www.Core16.io")); }
+    else { display.println(F("   www.Core64.io")); }
+    display.print(F("HWV: "));
     display.print(HardwareVersionMajor);
     display.print(F("."));
     display.print(HardwareVersionMinor);
     display.print(F("."));
-    display.println(HardwareVersionPatch);
-    display.print(F("FWV:"));
+    display.print(HardwareVersionPatch);
+    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
+      display.println(F(" (Teensy)"));
+    #elif defined MCU_TYPE_RP2040
+      display.println(F(" (Pico)"));    
+    #endif
+    display.print(F("FWV: "));
     display.print(FirmwareVersionMajor);
     display.print(".");
     display.print(FirmwareVersionMinor);
     display.print(".");
     display.println(FirmwareVersionPatch);
-    display.setCursor(0, 63);
-    display.print(F("M:"));
-    display.print(TopLevelModeLocal,DEC);  
-    display.print(F(" "));
-    display.print(F("V:"));
+    display.print(F("Volts: "));
     display.println(GetBatteryVoltageV(),2);
+    display.print("");
+    display.print(F("  Mode: "));
+    display.println(TopLevelModeLocal,DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeLocal]);
+
     OLED_Display_Stability_Work_Around();
   }
 
@@ -149,7 +153,8 @@
       display.setTextSize(1);      // Normal 1:1 pixel scale
       display.setCursor(0, 0);     // Start at top-left corner
       display.cp437(true);         // Use full 256 char 'Code Page 437' font
-      display.setFont(&FreeMono9pt7b);
+      //display.setFont(&FreeMono9pt7b);
+      display.setFont(NULL);
     /*  
       display.clearDisplay();
       display.setTextSize(2);      // Normal 1:1 pixel scale

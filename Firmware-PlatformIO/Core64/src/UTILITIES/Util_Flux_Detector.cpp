@@ -54,7 +54,7 @@ void UtilFluxDetector() {
 
   if (TopLevelModeChangedGet()) {                     // Fresh entry into this mode.
     Serial.println();
-    Serial.println("  Util, Flux Detector Mode");
+    Serial.println("  Util / Flux Detector");
     Serial.println("    + = Next sub-menu");
     Serial.println("    - = Previous sub-menu");
     Serial.println("    S = Select this mode");    
@@ -67,6 +67,18 @@ void UtilFluxDetector() {
       CopyLedArrayMemoryToNeonPixelArrayMemory();
       Neon_Pixel_Array_Matrix_String_Display();
     #endif
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
+
     MenuTimeOutCheckReset();
     e_ModeState = STATE_INTRO_SCREEN_WAIT_FOR_SELECT;
   }
@@ -90,10 +102,7 @@ void UtilFluxDetector() {
       case STATE_SET_UP:
         Serial.println();
         Serial.println("  Util, Flux Detector Mode Selected");
-        Serial.println("    M = Disabled");
-        Serial.println("    + = Disabled");
-        Serial.println("    - = Disabled");
-        Serial.println("    S = Disabled");
+        Serial.println("    All buttons disabled.");
         Serial.print(PROMPT);
         TopLevelThreeSoftButtonGlobalEnableSet(false); // Disable + and - soft buttons from global mode switching use. Prevents accidental mode change when waving magnets around.
         TopLevelSetMenuButtonGlobalEnableSet(false); // Disable Menu to prevent accidental triggering in flux detector mode.
@@ -104,6 +113,17 @@ void UtilFluxDetector() {
         LED_Array_Memory_Clear(); // Clear LED Array Memory
         CoreToStartTestSet(0);
         CoreToEndTestSet(63);
+        display.clearDisplay();
+        display.setTextSize(1);      // Normal 1:1 pixel scale
+        display.setCursor(0,0);     // Start at top-left corner
+        display.print(F("Mode: "));
+        display.println(TopLevelModeGet(),DEC);
+        display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+        display.println(F(""));
+        display.println(F("All buttons disabled."));
+        display.println(F("Power cycle to exit"));
+        display.println(F("flux detector mode."));
+        OLED_Display_Stability_Work_Around();
         e_ModeState = STATE_FLUX_DETECT;
         break;
 
@@ -132,9 +152,9 @@ void UtilFluxDetector() {
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_String_Display();
         #endif
-        OLEDTopLevelModeSet(TopLevelModeGet());
+        // OLEDTopLevelModeSet(TopLevelModeGet());
         // OLEDScreenUpdate();
-        OLED_Show_Matrix_Mono_Hex();                      // ...and display it on the OLED.
+        // OLED_Show_Matrix_Mono_Hex();                      // ...and display it on the OLED.
 
 /*
         LED_Array_Color_Display(0);                  // Show the updated LED array.

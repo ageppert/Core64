@@ -213,6 +213,17 @@ void AppPaint() {
       VisibleExtentX = 4;
       VisibleExtentY = 4;
     }
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +263,18 @@ void AppPaint() {
         else {
           CopyLedLocalToScreen();
         }
+        display.clearDisplay();
+        display.setTextSize(1);      // Normal 1:1 pixel scale
+        display.setCursor(0,0);     // Start at top-left corner
+        display.print(F("Mode: "));
+        display.println(TopLevelModeGet(),DEC);
+        display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+        display.println(F(""));
+        display.println(F("M   = Menu"));
+        display.println(F("-/+ = Hide/Show"));
+        display.println(F("       Color Pallette"));
+        display.println(F("S   = Screen Clear"));
+        OLED_Display_Stability_Work_Around();
         TopLevelThreeSoftButtonGlobalEnableSet(false); // Disable + and - soft buttons from global mode switching use.
         ModeState = STATE_PAINT;
         break;
@@ -458,9 +481,9 @@ void AppPaint() {
 
         LED_Array_Color_Display(0);                  // Show the updated LED array.
         LED_Array_Matrix_Mono_to_Binary();                // Convert whatever is in the LED Matrix Array to a 64-bit binary value...
-        OLEDTopLevelModeSet(TopLevelModeGet());
+        // OLEDTopLevelModeSet(TopLevelModeGet());
         // OLEDScreenUpdate();
-        OLED_Show_Matrix_Mono_Hex();                      // ...and display it on the OLED.
+        // OLED_Show_Matrix_Mono_Hex();                      // ...and display it on the OLED.
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_Mono_Display();
         #endif

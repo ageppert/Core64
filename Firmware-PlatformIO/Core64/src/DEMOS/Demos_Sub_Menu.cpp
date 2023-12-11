@@ -52,10 +52,19 @@ void DemosSubMenu() {
       // Nothing here
     #endif
     LED_Array_Color_Display(1);
-    }
+    // OLEDTopLevelModeSet(TopLevelModeGet());
+    // OLEDScreenUpdate();
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    OLED_Display_Stability_Work_Around();
+  }
   if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }   // Dwell 5 seconds in Demo Submenu, then move to first demo.
   TopLevelModeManagerCheckButtons();
-  OLEDTopLevelModeSet(TopLevelModeGet());
-  OLEDScreenUpdate();
-  // TODO: List the items in the sub-menu.
 }

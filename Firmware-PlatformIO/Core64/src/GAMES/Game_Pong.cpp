@@ -559,9 +559,20 @@ void GamePlayPong() {
       RightStylusTopExtent    = 0 ; 
       RightStylusBottomExtent = 3 ;
     }
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
   }
-    OLEDTopLevelModeSet(TopLevelModeGet());
-    OLEDScreenUpdate();
+    // OLEDTopLevelModeSet(TopLevelModeGet());
+    // OLEDScreenUpdate();
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // PONG GAME STATE MACHINE

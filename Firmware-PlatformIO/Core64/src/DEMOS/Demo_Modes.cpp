@@ -32,14 +32,14 @@
 
 volatile uint32_t DemoTimeoutDeltams = 0;
 volatile uint32_t DemoTimeoutFirstTimeRun = true;
-volatile uint32_t DemoTimeoutLimitms = 13500;         // How long to run the demo mode in ms, default value.
+// volatile uint32_t DemoTimeoutLimitms = 13500;         // How long to run the demo mode in ms, default value.
 
 void DemoTimeOutCheckReset () {
   DemoTimeoutDeltams = 0;
   DemoTimeoutFirstTimeRun = true;
 }
 
-void DemoTimeOutCheckAndMoveToNext () {
+void DemoTimeOutCheckAndMoveToNext (uint32_t DemoTimeoutLimitms) {
   static uint32_t NowTimems;
   static uint32_t StartTimems;
   NowTimems = millis();
@@ -60,6 +60,19 @@ void DemoScrollingText() {
     CoreClearAll();
     LED_Array_Memory_Clear();
     LED_Array_Color_Display(1);
+    // OLEDTopLevelModeSet(TopLevelModeGet());
+    // OLEDScreenUpdate();
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    //display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
   }
   ScrollTextToCoreMemory();   // This writes directly to the RAM core memory array and bypasses reading it.
   #if defined SCROLLING_TEXT_BYPASS_CORE_MEMORY
@@ -70,8 +83,6 @@ void DemoScrollingText() {
   #endif
   CopyCoreMemoryToMonochromeLEDArrayMemory();
   LED_Array_Matrix_Mono_Display();
-  OLEDTopLevelModeSet(TopLevelModeGet());
-  OLEDScreenUpdate();
   #if defined  MCU_TYPE_MK20DX256_TEENSY_32
     #ifdef NEON_PIXEL_ARRAY
       CopyCoreMemoryToMonochromeNeonPixelArrayMemory();
@@ -88,26 +99,49 @@ void DemoScrollingText() {
 
 // Addressing rows and columns sequentially, 2-D Knight Rider Style
 void DemoLedTestOneMatrixMono() {
-  if (TopLevelModeChangedGet()) { DemoTimeOutCheckReset(); }
+  if (TopLevelModeChangedGet()) { 
+    DemoTimeOutCheckReset(); 
+    // OLEDTopLevelModeSet(TopLevelModeGet());
+    // OLEDScreenUpdate();
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    OLED_Display_Stability_Work_Around();
+  }
   LED_Array_Test_Pixel_Matrix_Mono();
-  OLEDTopLevelModeSet(TopLevelModeGet());
-  OLEDScreenUpdate();
-  DemoTimeOutCheckAndMoveToNext();
-  Serial.println("  This one isn't very interesting, so skip it.");
-  TopLevelModeSetInc();
+  DemoTimeOutCheckAndMoveToNext(3000);
 }
 
 // Multi-color symbols
 void DemoLedTestOneMatrixColor() {
-  if (TopLevelModeChangedGet()) { DemoTimeOutCheckReset(); }
+  if (TopLevelModeChangedGet()) { 
+    DemoTimeOutCheckReset(); 
+    // OLEDTopLevelModeSet(TopLevelModeGet());
+    // OLEDScreenUpdate();
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    OLED_Display_Stability_Work_Around();
+  }
   LED_Array_Test_Pixel_Matrix_Color();
-  OLEDTopLevelModeSet(TopLevelModeGet());
-  OLEDScreenUpdate();
-  DemoTimeOutCheckAndMoveToNext();
+  DemoTimeOutCheckAndMoveToNext(13500);
 }
 
 // End of Demos, go back to the beginning (default) demo mode
 void DemoEndofList() {
+  if (TopLevelModeChangedGet()) { DemoTimeOutCheckReset(); }
   TopLevelModeSetToDefault();
   OLEDTopLevelModeSet(TopLevelModeGet());
   OLEDScreenUpdate();

@@ -52,10 +52,20 @@ void GamesSubMenu() {
     #elif defined MCU_TYPE_RP2040
       // Nothing here
     #endif
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
     }
   if (MenuTimeOutCheck(3000)) { TopLevelModeSetInc(); }
   TopLevelModeManagerCheckButtons();
-  OLEDTopLevelModeSet(TopLevelModeGet());
-  OLEDScreenUpdate();
-  // TODO: List the items in the sub-menu.
+  // OLEDTopLevelModeSet(TopLevelModeGet());
+  // OLEDScreenUpdate();
 }

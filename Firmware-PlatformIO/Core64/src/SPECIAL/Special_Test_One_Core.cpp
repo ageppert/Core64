@@ -63,6 +63,17 @@ void SpecialTestOneCore() {
     TopLevelSetSoftButtonGlobalEnableSet(false);  // Disable the S button as SET, so it can be used to select.
     WriteUtilFluxSymbol(1);
     LED_Array_Color_Display(1);
+    display.clearDisplay();
+    display.setTextSize(1);      // Normal 1:1 pixel scale
+    display.setCursor(0,0);     // Start at top-left corner
+    display.print(F("Mode: "));
+    display.println(TopLevelModeGet(),DEC);
+    display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+    display.println(F(""));
+    display.println(F("M   = Menu"));
+    display.println(F("-/+ = Previous/Next"));
+    display.println(F("S   = Select"));
+    OLED_Display_Stability_Work_Around();
     MenuTimeOutCheckReset();
     ModeState = STATE_INTRO_SCREEN_WAIT_FOR_SELECT;
   }
@@ -102,6 +113,20 @@ void SpecialTestOneCore() {
         #endif
         LED_Array_Memory_Clear(); // Clear LED Array Memory
         TopLevelThreeSoftButtonGlobalEnableSet(false); // Disable + and - soft buttons from global mode switching use. Prevents accidental mode change when waving magnets around.
+        display.clearDisplay();
+        display.setTextSize(1);      // Normal 1:1 pixel scale
+        display.setCursor(0,0);     // Start at top-left corner
+        display.print(F("Mode: "));
+        display.println(TopLevelModeGet(),DEC);
+        display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+        display.println(F(""));
+        display.println(F("M   = Menu"));
+        display.println(F("-/+ = Pixel to test"));
+        display.println(F("S   = Select"));
+        display.println(F(""));
+        display.print(F("Pixel: "));
+        display.println(CoreToStartTestGet(),DEC);
+        OLED_Display_Stability_Work_Around();
         ModeState = STATE_TEST_ONE_CORE;
         break;
 
@@ -136,6 +161,20 @@ void SpecialTestOneCore() {
           Serial.println();
           Serial.print("  Core to test: ");
           Serial.println(CoreToStartTestGet());
+          display.clearDisplay();
+          display.setTextSize(1);      // Normal 1:1 pixel scale
+          display.setCursor(0,0);     // Start at top-left corner
+          display.print(F("Mode: "));
+          display.println(TopLevelModeGet(),DEC);
+          display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+          display.println(F(""));
+          display.println(F("M   = Menu"));
+          display.println(F("-/+ = Pixel to test"));
+          display.println(F("S   = Select"));
+          display.println(F(""));
+          display.print(F("Pixel: "));
+          display.println(CoreToStartTestGet(),DEC);
+          OLED_Display_Stability_Work_Around();
         }
         if (ButtonState(2,0) == 0) {
           Button2Released = true;
@@ -148,14 +187,28 @@ void SpecialTestOneCore() {
           Serial.println();
           Serial.print("  Core to test: ");
           Serial.println(CoreToStartTestGet());
+          display.clearDisplay();
+          display.setTextSize(1);      // Normal 1:1 pixel scale
+          display.setCursor(0,0);     // Start at top-left corner
+          display.print(F("Mode: "));
+          display.println(TopLevelModeGet(),DEC);
+          display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
+          display.println(F(""));
+          display.println(F("M   = Menu"));
+          display.println(F("-/+ = Pixel to test"));
+          display.println(F("S   = Select"));
+          display.println(F(""));
+          display.print(F("Pixel: "));
+          display.println(CoreToStartTestGet(),DEC);
+          OLED_Display_Stability_Work_Around();
         }
         if (ButtonState(3,0) == 0) {
           Button3Released = true;
         }
 
         LED_Array_String_Display();
-        OLEDTopLevelModeSet(TopLevelModeGet());
-        OLEDScreenUpdate();
+        // OLEDTopLevelModeSet(TopLevelModeGet());
+        // OLEDScreenUpdate();
         #ifdef NEON_PIXEL_ARRAY
           Neon_Pixel_Array_Matrix_String_Display();
         #endif
