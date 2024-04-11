@@ -80,12 +80,12 @@
 	|  0.8.7  | 2023-11-01 | Core16 adapt snake game to 4x4. 0.8.6 adapted paint app, not snake game.
 	|  0.8.8  | 2023-11-01 | Core16 adapt pong game to 4x4. Disable factory programming.
 	|  0.8.9  | 2023-11-01 | All Core Boards, display flux detection menu symbol, disable all hall sensors in flux detector mode. Update to work with Teensy-based Core64s.
-	|  0.8.10 | 2023-12-08 | All ICM (Interactive Core Memory) Kits, display the present mode and instructions on I2C SAO OLED.
+	|  0.8.10 | 2023-12-08 | All ICM (Interactive Core Memory) Kits, display voltage on OLED in all modes, update factory setting mode, extend OutputToSerialShiftRegister, enable and test Pico Spare SR EFGH.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "All ICM (Interactive Core Memory) Kits, display the present mode and instructions on I2C SAO OLED."
+	#define FIRMWARE_DESCRIPTION "All ICM (Interactive Core Memory) Kits, display voltage on OLED in all modes, update factory setting mode, extend OutputToSerialShiftRegister, enable and test Pico Spare SR EFGH."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 10;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 11;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

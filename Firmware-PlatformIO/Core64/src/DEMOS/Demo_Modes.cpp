@@ -66,7 +66,11 @@ void DemoScrollingText() {
     display.setTextSize(1);      // Normal 1:1 pixel scale
     display.setCursor(0,0);     // Start at top-left corner
     display.print(F("Mode: "));
-    display.println(TopLevelModeGet(),DEC);
+    display.print(TopLevelModeGet(),DEC);
+    if(TopLevelModeGet()<10){display.print(F(" "));}
+    display.print(F("       "));
+    display.print(GetBatteryVoltageV(),2);
+    display.println(F(" V"));
     display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
     display.println(F(""));
     display.println(F("M   = Menu"));
@@ -107,7 +111,11 @@ void DemoLedTestOneMatrixMono() {
     display.setTextSize(1);      // Normal 1:1 pixel scale
     display.setCursor(0,0);     // Start at top-left corner
     display.print(F("Mode: "));
-    display.println(TopLevelModeGet(),DEC);
+    display.print(TopLevelModeGet(),DEC);
+    if(TopLevelModeGet()<10){display.print(F(" "));}
+    display.print(F("       "));
+    display.print(GetBatteryVoltageV(),2);
+    display.println(F(" V"));
     display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
     display.println(F(""));
     display.println(F("M   = Menu"));
@@ -128,7 +136,11 @@ void DemoLedTestOneMatrixColor() {
     display.setTextSize(1);      // Normal 1:1 pixel scale
     display.setCursor(0,0);     // Start at top-left corner
     display.print(F("Mode: "));
-    display.println(TopLevelModeGet(),DEC);
+    display.print(TopLevelModeGet(),DEC);
+    if(TopLevelModeGet()<10){display.print(F(" "));}
+    display.print(F("       "));
+    display.print(GetBatteryVoltageV(),2);
+    display.println(F(" V"));
     display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeGet()]);
     display.println(F(""));
     display.println(F("M   = Menu"));

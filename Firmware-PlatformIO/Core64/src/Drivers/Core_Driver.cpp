@@ -1287,9 +1287,8 @@ static uint8_t CorePlane = 1;           // Default Core Plane if it is not speci
     //                     3      22      11         
     //                     1------43------65------87------0
 //  for (uint32_t mask = 0b00000000100000000000000000000000; mask>0; mask >>= 1) { // Iterate through bit mask
-// TODO: Temporarily only shifting out the 20 bits needs, and ignoring HGFE.
 // TODO: This code is a great candidate for Programmable IO functionality instead of running in the code.
-    for (uint32_t mask = 0b00000000000010000000000000000000; mask>0; mask >>= 1) { // Iterate through bit mask
+    for (uint32_t mask = 0b00000000100000000000000000000000; mask>0; mask >>= 1) { // Iterate through bit mask
       uint32_t testResult = BitField & mask;
       if(testResult){ digitalWrite(PIN_CMD_SR_SERIAL,1); }
       else { digitalWrite(PIN_CMD_SR_SERIAL,0); }

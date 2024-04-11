@@ -9,6 +9,7 @@
 
 #include "Hal/Debug_Pins_HAL.h"
 #include "Config/HardwareIOMap.h"
+#include "Drivers/Core_Driver.h"
 
 #if defined  MCU_TYPE_MK20DX256_TEENSY_32
    extern void Debug_Pins_Setup() {
@@ -205,6 +206,14 @@
       Debug_Pin_6(0);
       Debug_Pin_7(0);
       Debug_Pin_8(0);
+
+      #if defined MCU_TYPE_RP2040
+         OutputToSerialShiftRegister(0b00000000000100000000000000000000);  // Spare SR GPO E on
+         OutputToSerialShiftRegister(0b00000000001000000000000000000000);  // Spare SR GPO F on
+         OutputToSerialShiftRegister(0b00000000010000000000000000000000);  // Spare SR GPO G on
+         OutputToSerialShiftRegister(0b00000000100000000000000000000000);  // Spare SR GPO H on
+         OutputToSerialShiftRegister(0b00000000000000000000000000000000);  // Spare SR GPO EFGH off
+      #endif
 
       Debug_Pin_SPI_CS1(1);
       Debug_Pin_SPI_RST(1); 

@@ -124,6 +124,10 @@
 		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 		// #define SDCARD_ENABLE
 
+		// #define FACTORY_RESET_CORE64C_PICO_ENABLE
+		// #define FACTORY_RESET_CORE64_PICO_ENABLE
+		// #define FACTORY_RESET_CORE16_PICO_ENABLE
+
 	    #if defined  MCU_TYPE_MK20DX256_TEENSY_32 
 	    	#define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
 			// #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)

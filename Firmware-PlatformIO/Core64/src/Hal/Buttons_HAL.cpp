@@ -361,17 +361,17 @@ uint32_t ButtonState(uint8_t button_number, uint32_t clear_duration) // send a 1
           break;
         }
       }
-//   #if defined DEBUG_HALL_SENSORS  
-//     Serial.print("HALL SENSOR 1,2,3,4: ");
-//     Serial.print(duration_b1);
-//     Serial.print(", ");
-//     Serial.print(duration_b2);
-//     Serial.print(", ");
-//     Serial.print(duration_b3);
-//     Serial.print(", ");
-//     Serial.print(duration_b4);
-//     Serial.println("");
-//   #endif
+   #if defined DEBUG_HALL_SENSORS  
+     Serial.print("HALL SENSOR 1,2,3,4: ");
+     Serial.print(duration_b1);
+     Serial.print(", ");
+     Serial.print(duration_b2);
+     Serial.print(", ");
+     Serial.print(duration_b3);
+     Serial.print(", ");
+     Serial.print(duration_b4);
+     Serial.println("");
+   #endif
 
   #if defined DEBUG_HALL_SWITCHES  
     Serial.print("HALL SWITCH 1,2,3,4: ");

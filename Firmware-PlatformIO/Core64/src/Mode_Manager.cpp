@@ -1071,38 +1071,59 @@ void TopLevelModeManagerRun() {
       {
         OLEDTopLevelModeSet(TopLevelModeGet());
         OLEDScreenUpdate();
-        /*
+        
         if (TopLevelModeChangedGet()) {
           MenuTimeOutCheckReset();
           Serial.println();
           Serial.println("  Entered MODE_MANUFACTURING_EEPROM_FACTORY_WRITE.");   
-          Serial.println("  Ready to write factory defaults for Core16.");
-          Serial.println("  Use 's' command to set last three digits of 300xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+            #if defined FACTORY_RESET_CORE64C_PICO_ENABLE
+              Serial.println("  Ready to write factory defaults for Core64c.");
+              Serial.println("  Use 's' command to set last three digits of 100xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+              EEPROMExtSetLastThree(0);
+            #elif defined FACTORY_RESET_CORE64_PICO_ENABLE
+              Serial.println("  Ready to write factory defaults for Core64.");
+              Serial.println("  Use 's' command to set last three digits of 200xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+              EEPROMExtSetLastThree(0);
+            #elif defined FACTORY_RESET_CORE16_PICO_ENABLE
+              Serial.println("  Ready to write factory defaults for Core16.");
+              Serial.println("  Use 's' command to set last three digits of 300xxx serial number. Examples: s 6<ENTER> or s 105<ENTER>");
+              EEPROMExtSetLastThree(0);
+            #else
+              Serial.println("  Factory reset mode not enabled with #define.");
+            #endif
           Serial.print(PROMPT);
           WriteColorFontSymbolToLedScreenMemoryMatrixHue(11);   // TODO: Change to a mfg symbol.
           LED_Array_Color_Display(1);
-          EEPROMExtSetLastThree(0);
-          // TODO: Remove writing serial number to 0. Testing only.
-          EEPROMExtWriteSerialNumber (999999);
+          // Use this to force back to blank serial number.
+          // EEPROMExtWriteSerialNumber(0);
           }
-        */
 
-        /*
           ReadLogicBoardType ();
-          if (LogicBoardTypeGet() == 4) {
-            if (EEPROMExtGetLastThree() != 0) {
-              Serial.println();
+          if (EEPROMExtGetLastThree() != 0) {
+            Serial.println();
+            #if defined FACTORY_RESET_CORE64C_PICO_ENABLE
+              Serial.println("  Writing Core64c serial number.");
+              EEPROMExtWriteSerialNumber(100000 + EEPROMExtGetLastThree());
+              Serial.println("  Writing Core64c defaults and verifying read back.");            
+              EEPROMExtWriteFactoryDefaults();
+            #elif defined FACTORY_RESET_CORE64_PICO_ENABLE
+              Serial.println("  Writing Core64 serial number.");
+              EEPROMExtWriteSerialNumber(200000 + EEPROMExtGetLastThree());
+              Serial.println("  Writing Core64 defaults and verifying read back.");
+              EEPROMExtWriteFactoryDefaults();
+            #elif defined FACTORY_RESET_CORE16_PICO_ENABLE
               Serial.println("  Writing Core16 serial number.");
               EEPROMExtWriteSerialNumber(300000 + EEPROMExtGetLastThree());
               Serial.println("  Writing Core16 defaults and verifying read back.");
               EEPROMExtWriteFactoryDefaults();
-              handleInfo("");
-              handleReboot("");
-              // TopLevelModeSet(MODE_START_POWER_ON);
-            }
+            #else
+              Serial.println("  Factory reset mode not enabled with #define.");
+            #endif
+            handleInfo("");
+            handleReboot("");
+            // TopLevelModeSet(MODE_START_POWER_ON);
           }
-          */
-        
+                  
           /*
             string 4x128 bytes BoardIDEEPROMDataRawSerialIncoming
             bool               BoardIDEEPROMDataRawSerialIncomingFull

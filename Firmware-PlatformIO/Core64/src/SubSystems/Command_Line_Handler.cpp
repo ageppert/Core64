@@ -286,17 +286,33 @@ void  CommandLineUpdate()
     Serial.print(LogicBoardTypeArrayText[LogicBoardTypeGet()]);
     Serial.println(")");
 
-    #if defined  MCU_TYPE_MK20DX256_TEENSY_32
-      Serial.print("  Core64 Logic Board with ");
-      Serial.print(CARRIER_BOARD);
+    switch (LogicBoardTypeGet()) {
+      case eLBT_CORE64_T32: {
+        Serial.print("  Core64 Logic Board with ");
+        Serial.print(CARRIER_BOARD);
+        break;
+      }
+      case eLBT_CORE64C_PICO: {
+        Serial.print("  Core64c Logic Board with ");
+        Serial.print(CARRIER_BOARD);
+        break;
+        }
+      case eLBT_CORE64_PICO: {
+        Serial.print("  Core64 Logic Board with ");
+        Serial.print(CARRIER_BOARD);
+        break;
+        }
+      case eLBT_CORE16_PICO: {
+        Serial.print("  Core16 Logic Board with ");
+        Serial.print(CARRIER_BOARD);
+        break;
+        }
+      default: {
+        Serial.print("  Unknown Logic Board with unknown Microcontroller Board");
+        break;
+        }
+    }
       Serial.println(". Hardware configuration in HardwareIOMap.h");
-    #elif defined MCU_TYPE_RP2040
-      Serial.print("  Core64c Logic Board with ");
-      Serial.print(CARRIER_BOARD);
-      Serial.println(". Hardware configuration in HardwareIOMap.h");
-    #else
-      Serial.println("  Unknown Logic Board with unknown Microcontroller Board.");
-    #endif
 
     Serial.print("  Hardware Version: ");
     Serial.print(HardwareVersionMajor);
