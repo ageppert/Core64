@@ -419,7 +419,7 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
     /****************************************************************************************************************************
       ReadWrite.ino
       
-      For all RP2040 boads using Arduimo-mbed or arduino-pico core
+      For all RP2040 boards using Arduimo-mbed or arduino-pico core
       
       RP2040_SD is a library enable the usage of SD on RP2040-based boards
       
@@ -448,10 +448,11 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
       The circuit:
       SD card attached to SPI bus as follows:
       // Arduino-pico core
-      ** MISO - pin 16
-      ** MOSI - pin 19
-      ** CS   - pin 17
-      ** SCK  - pin 18
+      // SPI
+      #define PIN_SPI_MISO  (16u)
+      #define PIN_SPI_MOSI  (19u)
+      #define PIN_SPI_SCK   (18u)
+      #define PIN_SPI_SS    (17u)
 
       // Arduino-mbed core
       ** MISO - pin 4
@@ -467,10 +468,10 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
 
     #if defined(ARDUINO_ARCH_MBED)
       
-      #define PIN_SD_MOSI       PIN_SPI_MOSI
-      #define PIN_SD_MISO       PIN_SPI_MISO
-      #define PIN_SD_SCK        PIN_SPI_SCK
-      #define PIN_SD_SS         PIN_SPI_SS
+      #define PIN_SD_MOSI       Pin_SPI_SDI  // PIN_SPI_MOSI
+      #define PIN_SD_MISO       Pin_SPI_SDO  // PIN_SPI_MISO
+      #define PIN_SD_SCK        Pin_SPI_CLK  // PIN_SPI_SCK
+      #define PIN_SD_SS         Pin_SPI_CS1  // PIN_SPI_SS
 
     #else
 
@@ -486,26 +487,19 @@ bool SDCardPresent = false;     // Keep track of whether the card is present or 
     #include <SPI.h>
     #include <RP2040_SD.h>
 
+    // set up variables using the SD utility library functions:
     File myFile;
-
-// #define RP2040_SOFT_SPI    /// It should be OK to remove this line but I haven't tried it with an SD Card yet.
-// set up variables using the SD utility library functions:
-Sd2Card card;
-SdVolume volume;
-File root;
-const int chipSelect = PIN_SD_SS;
+    Sd2Card card;
+    SdVolume volume;
+    File root;
+    const int chipSelect = Pin_SPI_CS1;
 
     void SDCardSetup() 
     {
-      // Open serial communications and wait for port to open:
-      // Serial.begin(115200);
-      // while (!Serial);
-      // delay(1000);
-
     #if defined(ARDUINO_ARCH_MBED)
       Serial.print("Starting SD Card ReadWrite on MBED ");
     #else
-      Serial.print("Starting SD Card ReadWrite on ");
+      Serial.print("Starting SD Card ReadWrite on ???");
     #endif
       
       Serial.println(BOARD_NAME);

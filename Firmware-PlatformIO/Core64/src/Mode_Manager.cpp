@@ -444,9 +444,9 @@ void TopLevelModeManagerRun() {
       OLEDTopLevelModeSet(TopLevelModeGet());
       Serial.println("  Configuration specific setup has begun...");
       // TODO: brightness default set from EEPROM
-      CoreSetup();
       OLEDScreenUpdate();
       SDInfo();
+      CoreSetup();
       #if defined  MCU_TYPE_MK20DX256_TEENSY_32
         AmbientLightSetup();
         Neon_Pixel_Array_Init();

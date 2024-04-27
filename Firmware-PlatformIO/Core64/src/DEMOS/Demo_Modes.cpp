@@ -97,7 +97,11 @@ void DemoScrollingText() {
   #endif
   if (ScrollTextToCoreMemoryCompleteFlagCheck()) { 
     Serial.println("  Text scroll complete. Moving to next demo.");
-    TopLevelModeSetInc();
+    #ifdef NEON_PIXEL_ARRAY
+      Serial.println("  Just kidding. Staying in this mode with Neon Pixels!");
+    #else
+      TopLevelModeSetInc();
+    #endif
   }
 }
 

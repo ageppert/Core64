@@ -116,13 +116,14 @@
 		#define CORE64_LED_MATRIX							// Row Major, Progressive layout. Just like an array in C.
 		#define OLED_64X128
 		// #define OLED_128X128
+		// #define OLED_SPI_128x128_COLOR 						// Conflicts with Core64 Teensy Neon Pixels which uses SPI lines, bit-banged. Unfinished for standard implementation.
 		// #define CORE_PLANE_SELECT_ACTIVE
 		// #define MULTIPLE_CORE_PLANES_ENABLED
 		#define HALL_SENSOR_ENABLE
 		// #define HALL_SWITCH_ENABLE
 		#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
-		// #define SDCARD_ENABLE
+		// #define SDCARD_ENABLE								// Partially works Core64 Teensy, unfinished for standard implementation.
 
 		// #define FACTORY_RESET_CORE64C_PICO_ENABLE
 		// #define FACTORY_RESET_CORE64_PICO_ENABLE
@@ -197,6 +198,9 @@
 						#define Pin_SPI_SD_CS     		 			6	// * Shared, digital output
 				    #define Pin_SPI_LCD_CS				 			8	// * Shared, digital output
 				    #define Pin_SPI_LCD_DC				 			9	// * Shared, digital output
+					#define Pin_SPI_DC								9   //
+					#define Pin_SPI_CS2							    2   //
+					#define Pin_SPI_RST    		 				   15   // 
 				    // #define Pin_SPI_TeensyView_CS			10	// * Shared, digital output
 				    #define Pin_SPI_SDO									11  // Default Teensy
 				    #define Pin_SPI_SDI									12  // Default Teensy
@@ -234,7 +238,7 @@
 						#define Pin_I2C_Bus_Clock          p11  // Raspi Pico I2C1_SCL GP11 is Pico pin 15. See notes in I2C_Manager.cpp
 				// LED ARRAY
 						#define Pin_RGB_LED_Array         	22	// 
-			  // HALL SWITCHES, AUTOMATICALLY USED IF I2C HALL SENSORS ARE NOT DETECTED
+			  	// HALL SWITCHES, AUTOMATICALLY USED IF I2C HALL SENSORS ARE NOT DETECTED
 				    #ifdef HALL_SWITCH_ENABLE
 							#define PIN_HALL_SWITCH_1		 5	// * Shared
 							#define PIN_HALL_SWITCH_2		 6	// * Shared
@@ -249,7 +253,7 @@
 						#define PIN_CMD_SR_LATCH         	 9	// GPO Digital to Core Matrix Drive Shift Registers Latch Pin
 						#define PIN_CMD_SR_SERIAL         	12	// GPO Digital to Core Matrix Drive Shift Registers Serial Pin
 						#define PIN_CMD_SR_CLOCK         	13	// GPO Digital to Core Matrix Drive Shift Registers Clock Pin
-			  // DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
+			  	// DIAGNOSTIC VOLTAGE MONITORING, DEFAULT LOGIC BOARD CONFIGURATION, AS MANUFACTURED.
 						#ifdef DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 							#define Pin_Battery_Voltage     				   A0  // Battery voltage 3:1 (AKA Digital pin 26)
 							#define Pin_SPARE_ADC1_Assigned_To_Analog_Input    A1  // 3V3 voltage 1:1 (AKA Digital pin 27)
@@ -267,12 +271,14 @@
 			#define    Pin_HS4_or_SPARE8_or_CP8 			 8	// * Shared
 			// OPTIONAL FEATURES, REQUIRES CAREFUL INTEGRATION AROUND PRIMARY PIN USAGE LISTED ABOVE
 				// SPI
-				#define Pin_SPI_CS1    		 				17  // 
-				#define Pin_SPI_RST    		 				15  // 
+				#define Pin_SPI_DC							 3  //
+				#define Pin_SPI_CS2							 4  //
 				#define Pin_SPI_CD     		  				14	// 
-				#define Pin_SPI_SDO							19  // 
+				#define Pin_SPI_RST    		 				15  // 
 				#define Pin_SPI_SDI							16  // 
+				#define Pin_SPI_CS1    		 				17  // 
 				#define Pin_SPI_CLK           				18	// 
+				#define Pin_SPI_SDO							19  // 
 
 		// Core16 HARDWARE v0.1.0
 			// MATRIX SENSE
@@ -291,8 +297,8 @@
 					#define C16P_PIN_MATRIX_DRIVE_Q5P     	 7
 					#define C16P_PIN_MATRIX_DRIVE_Q5N     	 8
 					#define C16P_PIN_MATRIX_DRIVE_Q6P     	 9
-					#define C16P_PIN_MATRIX_DRIVE_Q6N     	12
-					#define C16P_PIN_MATRIX_DRIVE_Q7P     	13	
+					#define C16P_PIN_MATRIX_DRIVE_Q6N     	12	// * Shared with SPI_DC
+					#define C16P_PIN_MATRIX_DRIVE_Q7P     	13	// * Shared with SPI_CS2
 					#define C16P_PIN_MATRIX_DRIVE_Q7N     	14  // * Shared with SPI_CD
 					// #define C16P_PIN_MATRIX_DRIVE_Q8P     	// Not available or needed.   
 					// #define C16P_PIN_MATRIX_DRIVE_Q8N     	// Not available or needed.

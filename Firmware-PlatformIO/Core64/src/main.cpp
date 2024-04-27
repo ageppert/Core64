@@ -114,7 +114,6 @@ void loop() {
   */
   if(DebugLevel==1) { Serial.println("DEBUG: START OF USER INTERACTION"); }
   MainLoopDurationModeID = TopLevelModeGet();
-  // TopLevelModeManagerRun();
   if(DebugLevel==1) { Serial.println("DEBUG: END OF USER INTERACTION"); }
 
   if(DebugLevel==1) { Serial.println("DEBUG: END OF TOP LEVEL MODE FUNCTIONS"); }

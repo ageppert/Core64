@@ -53,6 +53,30 @@
     Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, CLK_DURING, CLK_AFTER);
   #endif
 
+  #if defined OLED_SPI_128x128_COLOR
+    #include <Adafruit_GFX.h>
+    #include <Adafruit_SSD1351.h>
+    // #include <SPI.h>
+    // Screen dimensions
+    #define OLED_SPI_COLOR_SCREEN_WIDTH  128
+    #define OLED_SPI_COLOR_SCREEN_HEIGHT 128 // Change this to 96 for 1.27" OLED.
+    // Color definitions
+    #define	OLED_SPI_COLOR_BLACK           0x0000
+    #define	OLED_SPI_COLOR_BLUE            0x001F
+    #define	OLED_SPI_COLOR_RED             0xF800
+    #define	OLED_SPI_COLOR_GREEN           0x07E0
+    #define OLED_SPI_COLOR_CYAN            0x07FF
+    #define OLED_SPI_COLOR_MAGENTA         0xF81F
+    #define OLED_SPI_COLOR_YELLOW          0xFFE0  
+    #define OLED_SPI_COLOR_WHITE           0xFFFF
+    // Option 1: use any pins but a little slower
+    Adafruit_SSD1351 SpiOledColor = Adafruit_SSD1351(OLED_SPI_COLOR_SCREEN_WIDTH, OLED_SPI_COLOR_SCREEN_HEIGHT, Pin_SPI_CS2, Pin_SPI_DC, Pin_SPI_SDO, Pin_SPI_CLK, Pin_SPI_RST);  
+    // Option 2: must use the hardware SPI pins 
+    // This is much faster - also required if you want
+    // to use the microSD card (see the image drawing example)
+    // Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
+  #endif
+
   static uint8_t TopLevelModeLocal = 0;
   static bool OledScreenSetupComplete = false;
 
@@ -62,6 +86,30 @@
     display.invertDisplay(true);        // Inverting and
     display.invertDisplay(false);       // Reverting the screen memory seems to be a good workaround.
     display.display();
+  }
+
+  void OLED_SPI_COLOR_SPLASH() {
+    #if defined OLED_SPI_128x128_COLOR
+      SpiOledColor.fillRect(0, 0, 128, 128, OLED_SPI_COLOR_BLACK);
+      SpiOledColor.setCursor(0,0);
+      SpiOledColor.setTextSize(1);
+      SpiOledColor.println();
+      SpiOledColor.print(" ");
+      SpiOledColor.setTextSize(4);
+      SpiOledColor.setTextColor(OLED_SPI_COLOR_GREEN);
+      SpiOledColor.println(" VCF");
+      SpiOledColor.setTextSize(2);
+      SpiOledColor.println();
+      SpiOledColor.setTextColor(OLED_SPI_COLOR_YELLOW);
+      SpiOledColor.println(" Make Core");
+      SpiOledColor.println();
+      SpiOledColor.println(" Memories!");
+      SpiOledColor.setTextSize(1);
+      SpiOledColor.setTextColor(OLED_SPI_COLOR_WHITE);
+      SpiOledColor.println();
+      SpiOledColor.println();
+      SpiOledColor.println("    www.Core64.io");
+    #endif
   }
 
   void OLEDScreenSplash() {
@@ -103,7 +151,6 @@
     display.print(F("  Mode: "));
     display.println(TopLevelModeLocal,DEC);
     display.println(TOP_LEVEL_MODE_NAME_ARRAY[TopLevelModeLocal]);
-
     OLED_Display_Stability_Work_Around();
   }
 
@@ -146,6 +193,11 @@
           Serial.println(F("    SSD1306 allocation did not fail."));
         }
         display.setTextColor(WHITE); // Draw white text
+      #endif
+      
+      #if defined OLED_SPI_128x128_COLOR
+        SpiOledColor.begin();
+        OLED_SPI_COLOR_SPLASH();
       #endif
 
       display.clearDisplay();
