@@ -82,11 +82,12 @@
 	|  0.8.9  | 2023-11-01 | All Core Boards, display flux detection menu symbol, disable all hall sensors in flux detector mode. Update to work with Teensy-based Core64s.
 	|  0.8.10 | 2023-12-08 | All ICM (Interactive Core Memory) Kits, display voltage on OLED in all modes, update factory setting mode, extend OutputToSerialShiftRegister, enable and test Pico Spare SR EFGH.
 	|  0.8.11 | 2024-04-11 | All ICM (Interactive Core Memory) Kits, add option to drive SPI Color OLED 1.5 inch from https://www.adafruit.com/product/1431. Stay in scrolling demo if Neon Pixels enabled. Core64 Teensy SPI Color OLED and SD Card not fully implemented.
+	|  0.8.12 | 2024-08-24 | Core64 and Core64c default brightness reduced with the Led Matrix V1.3 being too bright (200->125). Update to latest versions of platform, SSD1306, BusIO and manually include pgmspace.h in SSD1306 for MBP M1 fresh install compatibility. Update factory reset config details for fresh batches of Core64 and Core64c.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "All ICM (Interactive Core Memory) Kits, add option to drive SPI Color OLED 1.5 inch from https://www.adafruit.com/product/1431. Stay in scrolling demo if Neon Pixels enabled. Core64 Teensy SPI Color OLED and SD Card not fully implemented."
+	#define FIRMWARE_DESCRIPTION "Core64 and Core64c default brightness reduced with the Led Matrix V1.3 being too bright (200->125). Update to latest versions of platform, SSD1306, BusIO and manually include pgmspace.h in SSD1306 for MBP M1 fresh install compatibility. Update factory reset config details for fresh batches of Core64 and Core64c."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 11;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 12;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

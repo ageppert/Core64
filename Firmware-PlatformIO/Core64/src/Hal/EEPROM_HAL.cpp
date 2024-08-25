@@ -84,9 +84,9 @@ void EEPROMExtWriteFactoryDefaults() {
                                       1XXXXX = Core64c Logic Boards (Pico)
                                       2XXXXX = Core64 Logic Boards (Pico)
                                       3XXXXX = Core16 Logic Boards (Pico) */
-                  24,4,4,                                             
+                  24,7,18,                                             
     /*  006  ( 3) Born on Date:       Year, Month, Day */
-                  0, 5, 0,                                              
+                  0, 7, 0,                                              
     /*  009  ( 3) Born Version PCBA:  Major.Minor.Revision */
                   3,                                                    
     /*  012  ( 1) Manufacturer ID:    Manufacturer of the Logic Board
@@ -103,7 +103,7 @@ void EEPROMExtWriteFactoryDefaults() {
     // PAGE 3&4 (32 BYTES) HARDWARE CONFIGURATION
     // Hardware Configuration use is intended to specify the as-shipped hardware configuration so the firmware can operate accordingly.
     // Memory Location #, configuration # is 8-bit value. Value 0 = not applicable/present. Value 255 = undefined (blank EEPROM value). 
-                  136,
+                  138,
     /*  032,      MODEL:            1 = Core64 HWV0.5.0 T32 Beta Kit (batch of 15)
                                     2 = Core64 HWV0.6.0 T32 Pre-Production (batch of 30)                                             
                                     3 = Core64 HWV0.7.0 and 0.7.1 PICO reworked Prototypes (batch of 5)                                             
@@ -116,7 +116,9 @@ void EEPROMExtWriteFactoryDefaults() {
                                   133 = Core64c prototype, HWV0.4.0, without modification, prototype (4th batch of 30)
                                   134 = Core64c prototype, HWV0.4.0, without modification, prototype (5th batch of 30)
                                   135 = Core64c prototype, HWV0.4.0, without modification, prototype (6th batch of 30)
-                                  136 => Core64c prototype, HWV0.5.0, without modification, prototype (7th batch of 10) */
+                                  136 = Core64c prototype, HWV0.5.0, without modification, prototype (7th batch of 10)
+                                  137 = ?? Core64c prototype, HWV0.6.0, without modification, prototype
+                                  138 => Core64c prototype, HWV0.7.0, without modification, prototype (batch of 25) */
                   2,
     /*  033,      LB EEPROM:        1 = M24C01, 128 Bytes
                                     2 => M24C02, 256 BYTES */
@@ -168,7 +170,7 @@ void EEPROMExtWriteFactoryDefaults() {
                                     2 = color SPI ??? */
                   0,
     /*  046,      OLED Display:     1 = monochrome I2C 128x64
-                                    2 = color SPI
+                                    2 = color SPI 128x128
                                     3 = TeensyView 128x32 */
                   0,
     /*  047,      SD CARD:          1 = Connected to Dedicated SD Card Expansion Header
@@ -217,9 +219,9 @@ void EEPROMExtWriteFactoryDefaults() {
                                       1XXXXX = Core64c Logic Boards (Pico)
                                       2XXXXX = Core64 Logic Boards (Pico)
                                       3XXXXX = Core16 Logic Boards (Pico) */
-                  24,03,28,                                             
+                  24,8,24,                                             
     /*  006  ( 3) Born on Date:       Year, Month, Day */
-                  0, 8, 0,                                              
+                  0, 8, 2,                                              
     /*  009  ( 3) Born Version PCBA:  Major.Minor.Revision */
                   3,                                                    
     /*  012  ( 1) Manufacturer ID:    Manufacturer of the Logic Board
@@ -240,7 +242,7 @@ void EEPROMExtWriteFactoryDefaults() {
     /*  032,      MODEL:            1 = Core64 HWV0.5.0 T32 Beta Kit (batch of 15)
                                     2 = Core64 HWV0.6.0 T32 Pre-Production (batch of 30)                                             
                                     3 = Core64 HWV0.7.0 and 0.7.1 PICO reworked Prototypes (batch of 5)                                             
-                                    4 => Core64 HWV0.8.0 PICO Pre-Production (batch of 25, 25, 10, 25)                                             
+                                    4 => Core64 HWV0.8.x PICO Pre-Production (batch of 25, 25, 10, 25...)                                             
                                   128 = Core64c prototype, HWV0.2.0, without modification, prototype (batch of 5)
                                   129 = Core64c prototype, HWV0.2.1, reworked HWV0.2.0 shift register wiring, prototype (batch of 5)
                                   130 = Core64c prototype, HWV0.3.0, without modification, prototype (batch of 5)
@@ -294,7 +296,7 @@ void EEPROMExtWriteFactoryDefaults() {
     /*  043,      LED Array:        1 = Pimoroni Unicorn Hat 8x8 "NeoPixels"
                                     2 = Core64 LED MATRIX WS2813B-B
                                     3 = Core64 LED MATRIX WS2813C
-                                    4 => Core64 LED MATRIX V1.3 WS2813Bv5 by CCC*/
+                                    4 => Core64 LED MATRIX V1.3 WS2813Bv5 by CCC (bright!) */
                   0,
     /*  044,      NEON PIXELS:      1 = SPI w/o CS, connected to SPI TFT LCD port */
                   0,
