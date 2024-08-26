@@ -84,7 +84,7 @@ void EEPROMExtWriteFactoryDefaults() {
                                       1XXXXX = Core64c Logic Boards (Pico)
                                       2XXXXX = Core64 Logic Boards (Pico)
                                       3XXXXX = Core16 Logic Boards (Pico) */
-                  24,7,18,                                             
+                  24,8,25,                                             
     /*  006  ( 3) Born on Date:       Year, Month, Day */
                   0, 7, 0,                                              
     /*  009  ( 3) Born Version PCBA:  Major.Minor.Revision */
@@ -117,7 +117,7 @@ void EEPROMExtWriteFactoryDefaults() {
                                   134 = Core64c prototype, HWV0.4.0, without modification, prototype (5th batch of 30)
                                   135 = Core64c prototype, HWV0.4.0, without modification, prototype (6th batch of 30)
                                   136 = Core64c prototype, HWV0.5.0, without modification, prototype (7th batch of 10)
-                                  137 = ?? Core64c prototype, HWV0.6.0, without modification, prototype
+                                  137 = oops: files labeled V0.6 but Core64c but labeled boards (and EEPROM) 0.7.0
                                   138 => Core64c prototype, HWV0.7.0, without modification, prototype (batch of 25) */
                   2,
     /*  033,      LB EEPROM:        1 = M24C01, 128 Bytes
