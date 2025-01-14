@@ -219,9 +219,9 @@ void EEPROMExtWriteFactoryDefaults() {
                                       1XXXXX = Core64c Logic Boards (Pico)
                                       2XXXXX = Core64 Logic Boards (Pico)
                                       3XXXXX = Core16 Logic Boards (Pico) */
-                  24,8,24,                                             
+                  24,10,4,                                             
     /*  006  ( 3) Born on Date:       Year, Month, Day */
-                  0, 8, 2,                                              
+                  0, 8, 4,                                              
     /*  009  ( 3) Born Version PCBA:  Major.Minor.Revision */
                   3,                                                    
     /*  012  ( 1) Manufacturer ID:    Manufacturer of the Logic Board
