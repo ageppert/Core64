@@ -47,6 +47,29 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
   //                                  {1,1,0,0,1,1,0,0},
   //                                  {1,0,1,0,1,1,1,0},
   //                                  {0,0,0,0,0,0,0,0}  };
+  // Core Memory State in the previous scan, can use used for comparison and debounce needs.
+  // This table is updated during the Core_Mem_Scan_For_Magnet() function, just before the current states are stored.
+  bool CoreArrayMemoryPrevious [8][8] = {
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0}  };
+  // Core Memory Changed since last scan
+  // This table is updated during the Core_Mem_Scan_For_Magnet() function, after current and previous states are recorded.
+  bool CoreArrayMemoryChanged [8][8] = {
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0}  };
+
 
   void CoreSetup() {
     Core_Driver_Setup();
@@ -139,15 +162,22 @@ bool ScrollTextToCoreMemoryCompleteFlag = false;
   void Core_Mem_Scan_For_Magnet() {     
     uint8_t rowcolmax = 8;
     if (LogicBoardTypeGet()==eLBT_CORE16_PICO) { rowcolmax = 4; }
-    uint8_t bit;
+    uint8_t pixel;
     for (uint8_t y=0; y<rowcolmax; y++)
     {
       for (uint8_t x=0; x<rowcolmax; x++)
       {
-        bit = (y*rowcolmax)+x;
-        Core_Mem_Bit_Write(bit , 1);
-        CoreArrayMemory [y][x] = Core_Mem_Bit_Read(bit);
-        delayMicroseconds(40); // This 40us (may be able to use less here) delay is required or LED array, first 3-4 pixels in the electronic string, get weird!
+        CoreArrayMemoryPrevious [y][x] = CoreArrayMemory [y][x];
+        pixel = (y*rowcolmax)+x;
+        Core_Mem_Bit_Write(pixel , 1);
+        CoreArrayMemory [y][x] = Core_Mem_Bit_Read(pixel);
+        if (CoreArrayMemoryPrevious [y][x] == CoreArrayMemory [y][x]) {
+          CoreArrayMemoryChanged [y][x] = 0;
+        }
+        else {
+          CoreArrayMemoryChanged [y][x] = 1;
+        }
+        // delayMicroseconds(40); // This 40us (may be able to use less here) delay is required or LED array, first 3-4 pixels in the electronic string, get weird!
       }
     }
     // In the case of Core16, fill in the core memory bits greater than 3,3 with zeros to avoid false triggers in screen detection.

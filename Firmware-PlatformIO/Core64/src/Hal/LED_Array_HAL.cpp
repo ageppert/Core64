@@ -487,6 +487,30 @@ void LED_Array_Auto_Brightness() {
   //
   // Copy Color Symbol into Color HSV LED Array memory
   //
+  void WriteAppMidiSymbol(uint8_t SymbolNumber){
+    if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
+      for( uint8_t y = 0; y < 4; y++) {
+        for( uint8_t x = 0; x < 4; x++) {
+          LedScreenMemoryMatrixHue[y][x] = AppMidiSymbols16bitHue[SymbolNumber][y][x];
+          LedScreenMemoryMatrixSat[y][x] = AppMidiSymbols16bitSat[SymbolNumber][y][x];
+        }
+      }
+    }
+    else {
+      for( uint8_t y = 0; y < kMatrixHeight; y++) 
+      {
+        for( uint8_t x = 0; x < kMatrixWidth; x++) 
+        {
+          LedScreenMemoryMatrixHue[y][x] = AppMidiSymbolsHue[SymbolNumber][y][x];
+          LedScreenMemoryMatrixSat[y][x] = AppMidiSymbolsSat[SymbolNumber][y][x];
+        }
+      }
+    }
+  }
+
+//
+  // Copy Color Symbol into Color HSV LED Array memory
+  //
     void WriteUtilFluxSymbol(uint8_t SymbolNumber){
       if (LogicBoardTypeGet()==eLBT_CORE16_PICO) {
         for( uint8_t y = 0; y < 4; y++) {

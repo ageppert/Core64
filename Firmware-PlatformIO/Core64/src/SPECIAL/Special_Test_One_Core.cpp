@@ -146,7 +146,7 @@ void SpecialTestOneCore() {
             #endif
             }
           else { 
-            LED_Array_String_Write(coreToTest, 0); 
+            LED_Array_String_Write(coreToTest, 0);
             #ifdef NEON_PIXEL_ARRAY
               Neon_Pixel_Array_String_Write(coreToTest, 0);
             #endif

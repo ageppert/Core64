@@ -69,6 +69,7 @@ void LED_Array_Set_Brightness(uint8_t brightness); // Set brightness directly.
 // TO DO: Clean up the naming convention of these sub-functions
 void WriteColorFontSymbolToLedScreenMemoryMatrixHue(uint8_t SymbolNumber);
 void WriteAppPaintSymbol(uint8_t SymbolNumber);
+void WriteAppMidiSymbol(uint8_t SymbolNumber);
 void WriteUtilFluxSymbol(uint8_t SymbolNumber);
 void WriteAppPaintPalette(bool TopNBottom);         // Top = 1, Bottom = 0
 void WriteGameSnakeSymbol(uint8_t SymbolNumber);

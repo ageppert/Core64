@@ -124,6 +124,7 @@
 		#define DIAGNOSTIC_VOLTAGE_MONITOR_ENABLE
 		// #define NEON_PIXEL_ARRAY							// Serpentine, like Pimoroni Unicorn Hat
 		// #define SDCARD_ENABLE								// Partially works Core64 Teensy, unfinished for standard implementation.
+		#define SAO_MIDI
 
 		// #define FACTORY_RESET_CORE64C_PICO_ENABLE
 		// #define FACTORY_RESET_CORE64_PICO_ENABLE
@@ -134,7 +135,8 @@
 			// #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status.		
 	    #elif defined MCU_TYPE_RP2040
-		  	#define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
+			#define USE_FASTLED_LIBRARY							// If this is set, use FastLED library (compatible with Teensy)
+			// #define USE_ADAFRUIT_NEOPIXEL_LIBRARY				// If this is set, use Adafruit library (because FastLED is not yet compatible with RasPi Pico)
 		  	// #define SCROLLING_TEXT_BYPASS_CORE_MEMORY			// This will scroll text directly to LEDs and bypass (ignore) core memory status. Good for power saving.
 		#endif
 
@@ -261,8 +263,12 @@
 							#define Pin_Built_In_ADC3_Assigned_To_Analog_Input A3  // BUILT-IN to Pico Board. VSYS/3 which is connect to 5V0 voltage (AKA Digital pin 29)
 						#endif
 			// SPARE IO
-			#define Pin_SAO_G1_or_SPARE1_or_CP1 			 1	// * Shared
-			#define Pin_SAO_G2_or_SPARE2_or_CP2 			 2	// * Shared
+			#if defined SAO_MIDI
+				// Can't use SPARE1 and SPARE2 GPIO on SAO Port.
+			#else 
+				#define Pin_SAO_G1_or_SPARE1_or_CP1 			 1	// * Shared
+				#define Pin_SAO_G2_or_SPARE2_or_CP2 			 2	// * Shared
+			#endif
 			#define           Pin_SPARE3_or_CP3 			 3	// * Shared
 			#define           Pin_SPARE4_or_CP4 			 4	// * Shared
 			#define    Pin_HS1_or_SPARE5_or_CP5 			 5	// * Shared

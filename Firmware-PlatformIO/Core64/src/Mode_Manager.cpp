@@ -27,7 +27,7 @@
 #include "Drivers/Core_Driver.h"
 #include "SubSystems/Test_Functions.h"
 #include "Hal/Debug_Pins_HAL.h"
-
+#include "SubSystems/Midi.h"
 #include "SubSystems/Command_Line_Handler.h"
 
 #include "DEMOS/Demos_Sub_Menu.h"
@@ -37,6 +37,7 @@
 #include "GAMES/Game_Pong.h"
 #include "APPS/Apps_Sub_Menu.h"
 #include "APPS/App_Paint.h"
+#include "APPS/App_Midi.h"
 #include "UTILITIES/Utilities_Sub_Menu.h"
 #include "UTILITIES/Util_Flux_Detector.h"
 #include "SPECIAL/Special_Sub_Menu.h"
@@ -68,6 +69,7 @@
         "GAME / END OF LIST",
        "APP SUB-MENU",
         "APP / PAINT",
+        "APP / MIDI",
         "APP / END OF LIST",
        "UTIL SUB-MENU",
         "UTIL / FLUX DETECTOR",
@@ -440,6 +442,7 @@ void TopLevelModeManagerRun() {
     // *************************************************************************************************************************************************** //
     case MODE_START_CONFIG_SPECIFIC:                     // Enable and adjust based on EEPROM configuration parameters
     // *************************************************************************************************************************************************** //
+      MidiSetup();
       LED_Array_Start_Up_Symbol_Loop_Continue();                // Continue the start-up symbol sequence.
       OLEDTopLevelModeSet(TopLevelModeGet());
       Serial.println("  Configuration specific setup has begun...");
@@ -714,6 +717,7 @@ void TopLevelModeManagerRun() {
 // *************************************************************************************************************************************************** //
     case MODE_APP_SUB_MENU:                     AppsSubMenu();                            break;
     case MODE_APP_PAINT:                        AppPaint();                               break;
+    case MODE_APP_MIDI:                         AppMidi();                                break;
     case MODE_APP_END_OF_LIST:                  TopLevelModeSet(MODE_APP_SUB_MENU);       break;
 
 // *************************************************************************************************************************************************** //

@@ -85,11 +85,12 @@
 	|  0.8.12 | 2024-08-24 | Core64 and Core64c default brightness reduced with the Led Matrix V1.3 being too bright (200->125). Update to latest versions of platform, SSD1306, BusIO and manually include pgmspace.h in SSD1306 for MBP M1 fresh install compatibility. Update factory reset config details for fresh batches of Core64 and Core64c.
 	|  0.8.13 | 2024-08-25 | Update Core64c factory config values.
 	|  0.8.14 | 2025-01-13 | Update factory config values Core64 HWV0.8.4.
+	|  0.8.15 | 2025-04-22 | Change to FastLED library to remove LED glitches. Enable optional MIDI SAO support.
 	|         |            | 
 	----------------------------------------------------------------------------------------------------------*/
-	#define FIRMWARE_DESCRIPTION "Update factory config values Core64 HWV0.8.4."
+	#define FIRMWARE_DESCRIPTION "Change to FastLED library to remove LED glitches. Enable optional MIDI SAO support."
 	const uint8_t FirmwareVersionMajor = 0 ;				// Update manually.
 	const uint8_t FirmwareVersionMinor = 8 ;				// Update manually.
-	const uint8_t FirmwareVersionPatch = 14;				// Update manually.
+	const uint8_t FirmwareVersionPatch = 15;				// Update manually.
 
 #endif // FIRMWARE_VERSION_H

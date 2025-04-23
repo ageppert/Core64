@@ -21,6 +21,8 @@ SETUP:
 #include <stdbool.h>
 
 extern bool CoreArrayMemory [8][8];
+extern bool CoreArrayMemoryPrevious [8][8];
+extern bool CoreArrayMemoryChanged [8][8];
 
 // NEW API Command List
 // TODO: Add core plane select

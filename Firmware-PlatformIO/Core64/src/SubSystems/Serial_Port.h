@@ -16,7 +16,7 @@ SETUP: Use the built-in serial port, set up in Serial_Port.cpp
 
     extern uint8_t DebugLevel;
 
-    #define SERIAL_PORT_SPEED   15200
+    #define SERIAL_PORT_SPEED   115200
 
     void SerialPortSetup();
     void SerialPortProcess();
