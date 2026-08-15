@@ -1,4 +1,0 @@
-# clang tidy config
-Checks: 'clang-diagnostic-*,clang-analyzer-*,bugprone-*'
-WarningsAsErrors: 'true'
-HeaderFilterRegex: 'include/\*\.h'
