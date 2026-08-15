@@ -47,6 +47,6 @@ void HeartBeat() {
     }
     else { 
       digitalWrite(Pin_Built_In_LED, LED_HEARTBEAT_STATE); 
-      }
+    }
   #endif
 }
